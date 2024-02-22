@@ -4,12 +4,13 @@ import Input from "../../components/Form/Input";
 import Form from "../../components/Form/Layout";
 import Button from "../../components/Form/Button";
 import Topic from "../../components/Form/Topic";
+import { auth } from "../../i18n/auth.json";
 const login = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   return (
     <Form>
-      <Topic message="ลงชื่อเข้าใช้" />
+      <Topic message={auth.login.name} />
       <Input
         type="text"
         text="ชื่อผู้ใช้งาน"
@@ -26,7 +27,7 @@ const login = () => {
           setPassword(e.target.value)
         }
       />
-      <Button text="เข้าสู่ระบบ" />
+      <Button text={auth.login.button} />
     </Form>
   );
 };

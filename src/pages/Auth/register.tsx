@@ -4,14 +4,7 @@ import Input from "../../components/Form/Input";
 import Form from "../../components/Form/Layout";
 import Button from "../../components/Form/Button";
 import Topic from "../../components/Form/Topic";
-// interface Form {
-//   username: object;
-//   password: object;
-//   confirmPassword: object;
-//   firstName: object;
-//   lastName: object;
-//   idCard: object;
-// }
+import { auth } from "../../i18n/auth.json";
 
 const login = () => {
   const [username, setUsername] = useState<string>("");
@@ -22,7 +15,7 @@ const login = () => {
   const [idCard, setIdCard] = useState<string>("");
   return (
     <Form>
-      <Topic message="สมัครสมาชิก" />
+      <Topic message={auth.login.name} />
       <Input
         type="text"
         text="ชื่อผู้ใช้งาน"
@@ -71,7 +64,7 @@ const login = () => {
           setConfirmPassword(e.target.value)
         }
       />
-      <Button text="ลงทะเบียน" />
+      <Button text={auth.login.button} />
     </Form>
   );
 };
