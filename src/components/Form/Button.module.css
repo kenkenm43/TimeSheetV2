@@ -1,0 +1,9 @@
+.btnEffect {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background-color: #f44500;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 0.75rem;
+}

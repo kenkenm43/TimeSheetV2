@@ -11,9 +11,13 @@ import Register from "../pages/Auth/register.tsx";
 const AppLayout = () => {
   return (
     <>
-      <div className="h-dvh ">
-        <Navbar />
-        <Outlet />
+      <div className=" mx-auto">
+        <div className="h-dvh">
+          <Navbar />
+          <div className="flex justify-center mt-20">
+            <Outlet />
+          </div>
+        </div>
       </div>
     </>
   );
