@@ -20,7 +20,7 @@ const login = () => {
           }
         />
         <Input
-          type="text"
+          type="password"
           text="รหัสผ่าน"
           value={password}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
