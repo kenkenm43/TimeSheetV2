@@ -14,7 +14,7 @@ const AppLayout = () => {
       <div className=" mx-auto">
         <div className="h-dvh">
           <Navbar />
-          <div className="flex justify-center mt-20">
+          <div className="flex justify-center mt-14">
             <Outlet />
           </div>
         </div>
@@ -25,13 +25,7 @@ const AppLayout = () => {
 
 const router = createBrowserRouter([
   {
-    element: <AppLayout />,
     children: [
-      {
-        path: "/",
-        element: <App />,
-        errorElement: <ErrorPage />,
-      },
       {
         path: "/login",
         element: <Login />,
@@ -40,6 +34,17 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+        errorElement: <ErrorPage />,
+      },
+    ],
+  },
+  {
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/",
+        element: <App />,
+        errorElement: <ErrorPage />,
       },
       {
         path: "/profile",

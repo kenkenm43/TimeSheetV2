@@ -1,14 +1,19 @@
-import React, { ReactNode } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ReactNode } from "react";
 
 type Props = {
   children?: ReactNode;
+  onSubmit?: any;
+  defaultValues?: any;
 };
-const Layout = ({ children }: Props) => {
+const Layout = ({ children, onSubmit }: Props) => {
   return (
-    <div className="max-w-5xl min-w-96 mx-auto flex justify-center">
-      <form className="flex flex-col space-y-5 bg-gray-100 p-6 rounded-md shadow-s w-full">
-        {children}
-      </form>
+    <div className="max-w-lg mx-auto flex items-center mt-8 rounded-sm shadow-sm">
+      <div className="transition-all duration-1000 flex justify-center w-full bg-gray-100 rounded-lg shadow-sm h-full">
+        <form className="flex flex-col space-y-5 p-6 w-4/6" onSubmit={onSubmit}>
+          {children}
+        </form>
+      </div>
     </div>
   );
 };
