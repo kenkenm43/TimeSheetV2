@@ -19,23 +19,23 @@ const register: RequestHandler = async (req: any, res: Response, next: any) => {
       data: { ...payload, password: passwordHash },
     });
     if (!newUser) {
-      return res.status(500).json({ message: "การกรอกข้อมูลไม่ถูกต้อง" });
+      return res.status(400).json({ message: "การกรอกข้อมูลไม่ถูกต้อง" });
     }
     req["user"] = newUser;
     getAuthToken(req, res, next);
-  } catch (e) {
-    return res.status(500).json({ error: e, message: "Internal server error" });
+  } catch (error) {
+    return res.status(400).json({ message: "Register fail", error });
   }
 };
 
-const login = async (req: any, res: Response, next: any) => {
+const login: RequestHandler = async (req: any, res: Response, next: any) => {
   try {
     const user = req["user"] as UserType;
     if (typeof user === "object" && (user.username || user.idCard)) {
       getAuthToken(req, res, next);
     }
-  } catch (e) {
-    res.status(500).json({ error: e });
+  } catch (error) {
+    res.status(401).json({ message: "login fail", error });
   }
 };
 

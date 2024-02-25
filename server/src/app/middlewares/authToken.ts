@@ -32,7 +32,9 @@ export const verifyAccessToken: RequestHandler = async (
   next: any
 ) => {
   const token = req.headers["authorization"]?.replace("Bearer ", "") || "";
+
   if (!token) return res.status(401).send({ message: "No token provided" });
+
   jwt.verify(token, ACCESS_TOKEN_SECRET, async (err: any, decoded: any) => {
     if (err) {
       return res.status(401).send({ message: "Invalid token" });
@@ -44,7 +46,7 @@ export const verifyAccessToken: RequestHandler = async (
       req["user"] = user;
       next();
     } catch (error) {
-      return res.status(401).send({ message: "Invalid user" });
+      return res.status(401).send({ message: "Invalid user", error });
     }
   });
 };

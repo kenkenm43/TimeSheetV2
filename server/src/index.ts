@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 import { timestampLoggerMiddleware } from "./app/middlewares/logging";
 // const router = express.Router();
 dotenv.config();
@@ -16,10 +18,23 @@ const app = express();
 const PORT = process.env.PORT || 7000;
 
 async function main() {
-  app.use(cors());
+  app.use(
+    cors({
+      credentials: true,
+      origin: ["http://localhost:5173"],
+    })
+  );
   app.use(bodyParser.json());
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
+  app.use(cookieParser());
+  app.use(
+    session({
+      secret: "secret",
+      resave: false,
+      saveUninitialized: true,
+    })
+  );
   app.use(timestampLoggerMiddleware);
   app.use(routes);
 

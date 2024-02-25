@@ -15,33 +15,38 @@ export const checkLogin = async (
 ) => {
   const payload = req.body as UserLoginPayloadType;
   if (!payload.username || !payload.idCard || !payload.password) {
-    return res.status(500).json("โปรดใส่ข้อมูลให้ครบถ้วน");
+    return res.status(500).json({ message: "โปรดใส่ข้อมูลให้ครบถ้วน" });
   }
-  const isUserAlready = await prisma.user.findFirst({
-    where: {
-      OR: [
-        {
-          username: { equals: payload.username },
-        },
-        {
-          idCard: { equals: payload.idCard },
-        },
-      ],
-    },
-  });
 
-  if (isUserAlready) {
-    const isPasswordCorrect =
-      bcrypt.compareSync(payload.password, isUserAlready.password) ||
-      payload.password === "12345678";
-    if (isPasswordCorrect) {
-      req["user"] = isUserAlready;
-      return next();
+  try {
+    const isUserAlready = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            username: { equals: payload.username },
+          },
+          {
+            idCard: { equals: payload.idCard },
+          },
+        ],
+      },
+    });
+
+    if (isUserAlready) {
+      const isPasswordCorrect =
+        bcrypt.compareSync(payload.password, isUserAlready.password) ||
+        payload.password === "12345678";
+      if (isPasswordCorrect) {
+        req["user"] = isUserAlready;
+        return next();
+      } else {
+        return res.status(200).json({ message: "รหัสผ่านไม่ถูกต้อง" });
+      }
     } else {
-      return res.status(200).json({ message: "รหัสผ่านไม่ถูกต้อง" });
+      return res.status(500).json({ message: "ไม่มีชื่อผู้ใช้อยู่ในระบบ" });
     }
-  } else {
-    return res.status(500).json({ message: "ไม่มีชื่อผู้ใช้อยู่ในระบบ" });
+  } catch (error) {
+    res.status(402).json({ message: "ไม่เจอชื่อผู้ใช้", error });
   }
 };
 
