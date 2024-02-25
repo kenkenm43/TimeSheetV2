@@ -8,6 +8,7 @@ import Profile from "./User/Profile.tsx";
 import "../index.css";
 import Login from "../pages/Auth/login.tsx";
 import Register from "../pages/Auth/register.tsx";
+
 const AppLayout = () => {
   return (
     <>

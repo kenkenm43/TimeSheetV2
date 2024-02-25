@@ -1,6 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "../../api/axios";
+import useRefreshToken from "../../hooks/useRefreshToken";
 
 const Profile = () => {
+  const [user, setUser] = useState();
+  const refresh = useRefreshToken();
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const getUsers = async () => {
+      try {
+        const response = await axios.get("/user", {
+          signal: controller.signal,
+        });
+        console.log(response.data);
+        isMounted && setUser(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getUsers();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  });
+
   const [username, setUsername] = useState<string>("Na");
   const [fistName, setFirstName] = useState<string>("Wa");
   const [lastName, setLastName] = useState<string>("La");
