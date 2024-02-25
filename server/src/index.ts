@@ -22,9 +22,7 @@ async function main() {
   app.use(express.urlencoded({ extended: false }));
   app.use(timestampLoggerMiddleware);
   app.use(routes);
-  app.get("/", (req, res) => {
-    res.send("Working");
-  });
+
   //Catch unregistered routes
   app.all("*", (req: Request, res: Response) => {
     res.status(404).json({ error: `Route ${req.originalUrl} not found` });
