@@ -1,14 +1,15 @@
-import axios from "../api/axios";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from "../services/httpClient";
 import useAuth from "./useAuth";
 
 const useRefreshToken = () => {
-  const { setAuth } = useAuth();
-
   const refresh = async () => {
-    const response = await axios.get("/refresh", {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { setAuth }: any = useAuth();
+    const response = await axios.get("/refresh-token", {
       withCredentials: true,
     });
-    setAuth((prev) => {
+    setAuth((prev: any): any => {
       console.log(JSON.stringify(prev));
       console.log(response.data.accessToken);
       return { ...prev, accessToken: response.data.accessToken };

@@ -78,29 +78,6 @@ const Input = ({ type, text, register, errors }: Input) => {
       </div>
       {isErrors && <ErrorMessage message={errors?.message} />}
     </div>
-
-    // <div className="relative flex items-center text-xs">
-    //   <div className="absolute bottom-5">text</div>
-    //   <input
-    //     className={`w-full p-1 px-3 transition-all duration-700 rounded-md border border-gray-300
-    //       focus:hover:border-transparent hover:border-purple-900 focus:outline outline-blue-500 focus:placeholder:text-gray-600 focus:placeholder:text-opacity-20}
-    //     ${isPassword && "pr-24"}`}
-    //     type={type === "password" ? (isShowPassword ? "text" : type) : type}
-    //     placeholder={text}
-    //     value={value}
-    //     onChange={onChange}
-    //   />
-    // {isPassword && (
-    //   <span
-    //     onClick={() => setIsShowPassword(!isShowPassword)}
-    //     className="absolute  right-2  flex items-center cursor-pointer transition-all  duration-500 text-sm"
-    //   >
-    //     <span className="hover:right-4 text-xs">
-    //       {isShowPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
-    //     </span>
-    //   </span>
-    // )}
-    // </div>
   );
 };
 

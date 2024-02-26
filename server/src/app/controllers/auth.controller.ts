@@ -11,7 +11,11 @@ import {
 } from "../../types/userTypes";
 import { getAuthToken } from "../middlewares/authToken";
 
-const register: RequestHandler = async (req: any, res: Response, next: any) => {
+const handleRegister: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
   try {
     const payload = req.body as UserRegisterPayloadType;
     const passwordHash = bcrypt.hashSync(payload.password, 10);
@@ -28,18 +32,48 @@ const register: RequestHandler = async (req: any, res: Response, next: any) => {
   }
 };
 
-const login: RequestHandler = async (req: any, res: Response, next: any) => {
+const handleLogin: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
   try {
     const user = req["user"] as UserType;
-    if (typeof user === "object" && (user.username || user.idCard)) {
+
+    if (typeof user === "object" && user.username) {
       getAuthToken(req, res, next);
     }
   } catch (error) {
-    res.status(401).json({ message: "login fail", error });
+    return res.status(401).json({ message: "login fail", error });
   }
 };
 
+const handleLogout: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.status(204).json({ message: "No content" });
+  const refreshToken = cookies.jwt;
+  const foundUser = await prisma.user.findFirst({
+    where: { refreshToken: refreshToken },
+  });
+  if (!foundUser) {
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
+    return res.status(204).json({ message: "Clear cookie" });
+  }
+  const user = await prisma.user.update({
+    where: { username: foundUser.username },
+    data: { refreshToken: "" },
+  });
+
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
+  return res.status(200).json({ message: "Logout success" });
+};
+
 export default {
-  login,
-  register,
+  handleLogin,
+  handleRegister,
+  handleLogout,
 };

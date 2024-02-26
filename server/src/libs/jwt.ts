@@ -12,7 +12,7 @@ export const jwtGenerate = (user: UserType): string => {
   return jwt.sign(
     { name: user.username, isLoggedIn: true, id: user.id },
     ACCESS_TOKEN_SECRET,
-    { expiresIn: "3m", algorithm: "HS256" }
+    { expiresIn: "30s", algorithm: "HS256" }
   );
 };
 

@@ -8,7 +8,8 @@ import createError from "http-errors";
 const router = express.Router();
 
 router.use("/api/v1/auth", AuthRoute);
-router.use("/api/v1/user", UserRoute);
+// router.use("/api/v1/refresh");
+router.use("/api/v1", UserRoute);
 
 router.use(async (req, res, next) => {
   next(createError.NotFound("Route not Found"));

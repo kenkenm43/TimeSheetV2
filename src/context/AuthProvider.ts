@@ -1,21 +1,15 @@
-import { createContext, useState } from "react";
-import create from "zustand";
-import { UserType } from "../types/userType";
-const AuthContext = createContext({});
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { create } from "zustand";
 
-type State = UserType;
-
-type Action = {
-  updateRefreshToken: (refreshToken: State["refreshToken"]) => void;
-};
-
-const useAuthStore = create<State & Action>((set) => ({}));
-
-const useStore = create((set) => ({
-  auth: "da",
-  accessToken: "",
-  refreshToken: "",
-  setAccessToken: () => {},
+const useAuthStore = create((set) => ({
+  count: 1,
+  arr: ["awdawd"],
+  authy: { username: "1", accessToken: "" },
+  inc: () => set((state: any) => ({ count: state.count + 1 })),
+  setAuth: () =>
+    set((state: any) => ({
+      auth: { ...state.auth, accessToken: "dadkmakwdm" },
+    })),
 }));
 
-export default useStore;
+export default useAuthStore;

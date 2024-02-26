@@ -7,6 +7,7 @@ import {
   UserLoginPayloadType,
   UserRegisterPayloadType,
 } from "../../types/userTypes";
+import { handleError, ErrorHandler } from "../../utils/error";
 
 export const checkLogin = async (
   req: any,
@@ -14,8 +15,9 @@ export const checkLogin = async (
   next: NextFunction
 ) => {
   const payload = req.body as UserLoginPayloadType;
-  if (!payload.username || !payload.idCard || !payload.password) {
-    return res.status(500).json({ message: "โปรดใส่ข้อมูลให้ครบถ้วน" });
+
+  if (!payload.username || !payload.password) {
+    throw new ErrorHandler(400, "โปรดใส่ข้อมูลให้ครบถ้วน");
   }
 
   try {
@@ -26,7 +28,7 @@ export const checkLogin = async (
             username: { equals: payload.username },
           },
           {
-            idCard: { equals: payload.idCard },
+            idCard: { equals: payload.username },
           },
         ],
       },
@@ -40,13 +42,14 @@ export const checkLogin = async (
         req["user"] = isUserAlready;
         return next();
       } else {
-        return res.status(200).json({ message: "รหัสผ่านไม่ถูกต้อง" });
+        throw new ErrorHandler(400, "รหัสผ่านไม่ถูกต้อง");
       }
     } else {
-      return res.status(500).json({ message: "ไม่มีชื่อผู้ใช้อยู่ในระบบ" });
+      throw new ErrorHandler(400, "ไม่มีชื่อผู้ใช้อยู่ในระบบ");
     }
-  } catch (error) {
-    res.status(402).json({ message: "ไม่เจอชื่อผู้ใช้", error });
+  } catch (error: any) {
+    // return res.status(500).json({ message: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
+    return handleError(error, res);
   }
 };
 
@@ -82,7 +85,7 @@ export const checkRegister = async (
   });
 
   if (existingUser) {
-    return res.status(500).json({ message: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
+    throw new ErrorHandler(500, "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว");
   }
 
   return next();

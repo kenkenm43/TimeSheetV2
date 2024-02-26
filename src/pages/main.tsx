@@ -8,6 +8,8 @@ import Profile from "./User/Profile.tsx";
 import "../index.css";
 import Login from "../pages/Auth/login.tsx";
 import Register from "../pages/Auth/register.tsx";
+import Users from "./User/Users.tsx";
+import Toastify from "../components/Toastify/index.tsx";
 
 const AppLayout = () => {
   return (
@@ -52,12 +54,18 @@ const router = createBrowserRouter([
         element: <Profile />,
         errorElement: <ErrorPage />,
       },
+      {
+        path: "/users",
+        element: <Users />,
+        errorElement: <ErrorPage />,
+      },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+    <Toastify />
     <RouterProvider router={router} />
     {/* <App /> */}
   </React.StrictMode>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const POST = process.env.API_PORT;
+const POST = import.meta.env.VITE_API_PORT;
 const BASE_URL = `http://localhost:${POST}/api/v1`;
 
 export default axios.create({
