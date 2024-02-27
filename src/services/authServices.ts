@@ -38,9 +38,9 @@ export const login = async (
 };
 
 export const logout = async (redirectTo: NavigateFunction) => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  await httpClient.post("/auth/logout");
+  await httpClient.get("/auth/logout");
+  sessionStorage.removeItem("auth store");
+
   redirectTo("/login");
 };
 
