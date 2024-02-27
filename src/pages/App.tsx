@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes, redirect, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Login from "./Auth/login";
 import Register from "./Auth/register";
@@ -8,6 +8,10 @@ import Profile from "./User/Profile";
 import Users from "./User/Users";
 import "../index.css";
 import Unauthorized from "../components/Unauthrorized";
+import { useEffect } from "react";
+import useAuth from "../hooks/useAuth";
+import Home from "./User/Home";
+import { useCookies } from "react-cookie";
 // import useStore from "../store";
 const ROLES = {
   Admin: "admin",
@@ -30,15 +34,26 @@ const Layout = () => {
 };
 
 function App() {
+  const [cookies, setCookie] = useCookies(["jwt"]);
+  const navigate = useNavigate();
   // const count = useStore((state) => state?.count);
   // const setCount = useStore((state) => state?.setCount);
+  const { auth } = useAuth();
+  useEffect(() => {
+    if (cookies.jwt) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  }, []);
+
   return (
     <Routes>
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="/" element={<Layout />}>
-        {/* <Route path="linkpage" element={<LinkPage />} /> */}
-        <Route path="/" element={<Profile />} />
+        <Route path="" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="unauthorized" element={<Unauthorized />} />
         <Route
           element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]} />}

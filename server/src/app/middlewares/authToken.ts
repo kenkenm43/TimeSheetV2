@@ -19,17 +19,19 @@ export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
 
   const accessToken = jwtGenerate(user);
   const refreshToken = await jwtRefreshTokenGenerate(user);
+  console.log(refreshToken);
+
   res.cookie("jwt", refreshToken, {
-    httpOnly: true,
-    sameSite: "none",
+    httpOnly: false,
     secure: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
-  return res.status(200).json({
+  res.status(200).json({
     success: true,
     username: user?.username,
     role: user?.role,
     accessToken,
+    refreshToken,
     isLoggedIn: true,
     message: "เข้าสู่ระบบเรียบร้อย",
   });

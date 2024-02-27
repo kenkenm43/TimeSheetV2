@@ -31,18 +31,21 @@ const Navbar = () => {
     <nav className="w-full  bg-orange-400  font-bold">
       <div className="flex items-center justify-between px-14 h-14 max-w-7xl mx-auto">
         <div className="space-x-5 font-bold">
-          {navLists.map((nav) => (
-            <Link key={nav.name} to={nav.to}>
-              {nav.name}
-            </Link>
-          ))}
+          {navLists.map((nav) =>
+            nav.authorization?.includes(auth?.role.name) ? (
+              <Link key={nav.name} to={nav.to}>
+                {nav.name}
+              </Link>
+            ) : (
+              <></>
+            )
+          )}
         </div>
         <div className="flex items-center space-x-4">
           {auth.username ? (
             <>
-              <div className="w-4 h-4 rounded-full bg-slate-600 flex items-center justify-center">
-                2
-              </div>
+              <div>{auth.username}</div>
+
               <Link to="/login">ออกจากระบบ</Link>
             </>
           ) : (

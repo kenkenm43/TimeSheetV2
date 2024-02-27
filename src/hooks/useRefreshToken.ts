@@ -11,6 +11,7 @@ const useRefreshToken = () => {
     const response = await httpClient.get("/auth/refresh-tokenV2", {
       withCredentials: true,
     });
+    console.log(response);
 
     setAuth({ accessToken: response.data.accessToken });
 

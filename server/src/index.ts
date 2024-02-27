@@ -20,8 +20,18 @@ const PORT = process.env.PORT || 7000;
 async function main() {
   app.use(
     cors({
+      allowedHeaders: [
+        "Origin",
+        "X-Requested-With",
+        "Content-Type",
+        "Accept",
+        "X-Access-Token",
+        "Authorization",
+      ],
       credentials: true,
+      methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
       origin: ["http://localhost:5173"],
+      preflightContinue: false,
     })
   );
   app.use(bodyParser.json());
