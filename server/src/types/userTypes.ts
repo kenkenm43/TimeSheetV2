@@ -10,6 +10,12 @@ export type UserType = {
   resetToken: string;
   refreshToken: string;
   roleId: number;
+  role?: Role;
+};
+
+export type Role = {
+  id: string;
+  name: string;
 };
 
 export type UserRegisterPayloadType = {

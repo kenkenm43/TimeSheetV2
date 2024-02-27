@@ -32,6 +32,9 @@ export const checkLogin = async (
           },
         ],
       },
+      include: {
+        role: true,
+      },
     });
 
     if (isUserAlready) {
@@ -59,8 +62,6 @@ export const checkRegister = async (
   next: NextFunction
 ) => {
   const payload = req.body as UserRegisterPayloadType;
-  console.log(payload.username);
-  console.log(payload.idCard);
   if (
     !payload.username ||
     !payload.firstName ||

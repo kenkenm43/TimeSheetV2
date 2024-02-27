@@ -12,6 +12,7 @@ import { ParsedQs } from "qs";
 export const verifyToken: RequestHandler = async (req: any, res, next) => {
   const access_token: any = req.headers["authorization"];
   const refresh_token = req.cookies["refreshToken"];
+
   if (!access_token && !refresh_token) {
     return res.status(401).send("Access Denied. No token provided.");
   }

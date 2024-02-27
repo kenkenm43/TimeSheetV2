@@ -11,22 +11,30 @@ const useAxiosPrivate = () => {
   useEffect(() => {
     const requestIntercept = axiosPrivate.interceptors.request.use(
       (config) => {
-        if (!config.headers["Authorization"]) {
-          config.headers["Authorization"] = `Bearer ${auth?.accessToken}`;
+        if (!config.headers["authorization"]) {
+          config.headers["authorization"] = `Bearer ${auth?.accessToken}`;
         }
+
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => {
+        return Promise.reject(error);
+      }
     );
 
     const responseIntercept = axiosPrivate.interceptors.response.use(
       (response) => response,
       async (error) => {
         const prevRequest = error?.config;
+
+        console.log(prevRequest);
         if (error?.response?.status === 403 && !prevRequest?.sent) {
+          console.log("เข้า");
+
           prevRequest.send = true;
           const newAccessToken = await refresh();
-          prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          prevRequest.headers["authorization"] = `Bearer ${newAccessToken}`;
+
           return axiosPrivate(prevRequest);
         }
         return Promise.reject(error);

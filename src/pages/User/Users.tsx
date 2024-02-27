@@ -1,14 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
-import axios from "../../services/httpClient";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useRefreshToken from "../../hooks/useRefreshToken";
 import { useLocation, useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 const Users = () => {
   const [users, setUsers] = useState([{ username: "" }]);
   const axiosPrivate = useAxiosPrivate();
   const refresh = useRefreshToken();
   const navigate = useNavigate();
   const location = useLocation();
+  // const { authy, setAuth }: any = useAuthStore();
+  const { auth, setAuth }: any = useAuth();
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -18,10 +22,8 @@ const Users = () => {
         const response = await axiosPrivate.get("/users", {
           signal: controller.signal,
         });
-        console.log(response.data);
         isMounted && setUsers(response.data);
       } catch (error) {
-        console.error(error);
         navigate("/login", { state: { from: location }, replace: true });
       }
     };
@@ -46,6 +48,12 @@ const Users = () => {
       <div>
         <p>No users to display</p>
       </div>
+      {auth && <div>{auth.username}</div>}
+      <button
+        onClick={() => setAuth({ username: "sdawda", accessToken: "dawdad" })}
+      >
+        ChangeState
+      </button>
       <button onClick={() => refresh()}>Refresh</button>
     </div>
   );

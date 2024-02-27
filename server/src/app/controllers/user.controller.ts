@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import prisma from "../../config/prisma";
 const createUser = async (req: Request, res: Response) => {
   try {
     const user = req.body;
-    console.log(user);
 
     const newUser = await prisma.user.create({
       data: {
@@ -25,13 +25,29 @@ const getUsers = async (req: Request, res: Response) => {
     const users = await prisma.user.findMany({
       include: { role: true },
     });
-    res.status(200).json(users);
+
+    return res.status(200).json(users);
   } catch (e) {
-    res.status(500).json({ error: e });
+    return res.status(500).json({ error: e });
+  }
+};
+
+const getUser = async (req: any, res: Response) => {
+  try {
+    const username = req.user;
+
+    // const users = await prisma.user.findMany({
+    //   include: { role: true },
+    // });
+    return res.status(200).json({ message: "dd" });
+    // res.status(200).json(users);
+  } catch (e) {
+    return res.status(500).json({ error: e });
   }
 };
 
 export default {
   getUsers,
   createUser,
+  getUser,
 };

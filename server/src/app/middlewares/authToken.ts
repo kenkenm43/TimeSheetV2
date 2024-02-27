@@ -16,6 +16,7 @@ import prisma from "../../config/prisma";
 
 export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
   const user = req["user"] as UserType;
+
   const accessToken = jwtGenerate(user);
   const refreshToken = await jwtRefreshTokenGenerate(user);
   res.cookie("jwt", refreshToken, {
@@ -24,11 +25,11 @@ export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
     secure: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     username: user?.username,
+    role: user?.role,
     accessToken,
-    refreshToken,
     isLoggedIn: true,
     message: "เข้าสู่ระบบเรียบร้อย",
   });
@@ -44,18 +45,9 @@ export const verifyAccessToken: RequestHandler = async (
   if (!token) return res.status(401).send({ message: "No token provided" });
 
   jwt.verify(token, ACCESS_TOKEN_SECRET, async (err: any, decoded: any) => {
-    if (err) {
-      return res.status(401).send({ message: "Invalid token" });
-    }
-    try {
-      const user = await prisma.user.findFirst({
-        where: { OR: [{ username: decoded.username }] },
-      });
-      req["user"] = user;
-      next();
-    } catch (error) {
-      return res.status(401).send({ message: "Invalid user", error });
-    }
+    if (err) return res.status(403).json({ message: "Invalid token" });
+    req["user"] = decoded.username;
+    next();
   });
 };
 

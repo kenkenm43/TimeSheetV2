@@ -8,7 +8,7 @@ const Button = ({ text, type = "submit" }: Props) => {
   return (
     <button
       type={type}
-      className={`${styles.btnEffect} hover:bg-orange-500 transition-all duration-500 hover:opacity-95 py-1`}
+      className={`${styles.btnEffect} bg-orange-600 hover:bg-orange-500 transition-all duration-500 hover:opacity-95 py-1`}
     >
       {text}
     </button>

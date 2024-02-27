@@ -8,7 +8,7 @@ type Props = {
 };
 const Layout = ({ children, onSubmit }: Props) => {
   return (
-    <div className="max-w-lg mx-auto flex items-center mt-8 rounded-sm shadow-sm">
+    <div className="max-w-lg mx-auto flex items-center rounded-sm shadow-sm my-8">
       <div className="transition-all duration-1000 flex justify-center w-full bg-gray-100 rounded-lg shadow-sm h-full">
         <form className="flex flex-col space-y-5 p-6 w-4/6" onSubmit={onSubmit}>
           {children}

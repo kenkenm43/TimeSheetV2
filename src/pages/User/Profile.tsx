@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const Profile = () => {
   const [username, setUsername] = useState<string>("Na");
   const [fistName, setFirstName] = useState<string>("Wa");

@@ -3,20 +3,17 @@
 import Input from "../../components/Form/Input";
 import Form from "../../components/Form/Layout";
 import Topic from "../../components/Form/Topic";
-import { auth } from "../../i18n/auth.json";
+import i18n from "../../i18n/auth.json";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "../../components/Form/Button";
 import { validateLogin } from "../../helpers/validate";
 import { login } from "../../services/authServices";
-import useAuthStore from "../../context/AuthProvider";
-import { shallow } from "zustand/shallow";
 import useAuth from "../../hooks/useAuth";
 const Login = () => {
   // console.log(auth.username);
-  const { count }: any = useAuth();
-  console.log(count);
+  const { auth, setAuth }: any = useAuth();
 
   const navigate = useNavigate();
   const {
@@ -30,10 +27,10 @@ const Login = () => {
   const onsubmit = async (datas: any) => {
     const response: any = await login(datas, navigate);
     // console.log("d", data.response);
-    console.log(response.data);
-    const { success, message } = response.data;
+    const { success, message, username, accessToken, role } = response.data;
 
     if (success) {
+      setAuth({ username: username, accessToken: accessToken, role: role });
       console.log("success", message);
     } else {
       console.log("error", message);
@@ -42,12 +39,9 @@ const Login = () => {
 
   return (
     <Form onSubmit={handleSubmit(onsubmit)}>
-      {/* {auth} */}
-      {/* {count}
-      <button onClick={inc}>plus</button> */}
-      <Topic message={auth.login.name} />
+      <Topic message={i18n.auth.login.name} />
       <div>
-        <Link to="/register">{auth.register.name}</Link>
+        <Link to="/register">{i18n.auth.register.name}</Link>
       </div>
       <Input
         register={register("username")}
@@ -61,7 +55,7 @@ const Login = () => {
         errors={errors.password}
         text="รหัสผ่าน"
       />
-      <Button text={auth.login.button} type="submit" />
+      <Button text={i18n.auth.login.button} type="submit" />
     </Form>
   );
 };

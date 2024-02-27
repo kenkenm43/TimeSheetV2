@@ -3,9 +3,9 @@ import { useDebugValue } from "react";
 import useAuthStore from "../context/AuthProvider";
 
 const useAuth = () => {
-  const { auth, setAuth, count, inc }: any = useAuthStore();
+  const { auth, setAuth }: any = useAuthStore();
   useDebugValue(auth, (auth) => (auth?.username ? "Logged In" : "Logged Out"));
-  return { auth, setAuth, count, inc };
+  return { auth, setAuth };
 };
 
 export default useAuth;

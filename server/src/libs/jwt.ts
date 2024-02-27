@@ -10,17 +10,10 @@ import prisma from "../config/prisma";
 
 export const jwtGenerate = (user: UserType): string => {
   return jwt.sign(
-    { name: user.username, isLoggedIn: true, id: user.id },
+    { username: user.username, isLoggedIn: true, id: user.id },
     ACCESS_TOKEN_SECRET,
-    { expiresIn: "30s", algorithm: "HS256" }
+    { expiresIn: "10s", algorithm: "HS256" }
   );
-};
-
-export const jwtResetTokenGenerate = (user: UserType): string => {
-  return jwt.sign({ name: user.username, id: user.id }, RESET_TOKEN_SECRET, {
-    expiresIn: "10m",
-    algorithm: "HS256",
-  });
 };
 
 export const jwtRefreshTokenGenerate = async (user: UserType) => {
@@ -39,4 +32,15 @@ export const jwtRefreshTokenGenerate = async (user: UserType) => {
   });
 
   return token;
+};
+
+export const jwtResetTokenGenerate = (user: UserType): string => {
+  return jwt.sign(
+    { username: user.username, id: user.id },
+    RESET_TOKEN_SECRET,
+    {
+      expiresIn: "10m",
+      algorithm: "HS256",
+    }
+  );
 };

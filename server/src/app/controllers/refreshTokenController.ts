@@ -8,25 +8,21 @@ export const handleRefreshTokenV2: RequestHandler = async (
   req: any,
   res: Response
 ) => {
-  try {
-    const cookies = req.cookies;
-    if (!cookies?.jwt)
-      return res.status(401).send({ message: "Invalid refresh token" });
-    const refreshToken = cookies.jwt;
+  const cookies = req.cookies;
+  if (!cookies?.jwt)
+    return res.status(401).send({ message: "Invalid refresh token" });
+  const refreshToken = cookies.jwt;
 
-    const foundUser: any = await prisma.user.findFirst({
-      where: { refreshToken: refreshToken },
-    });
+  const foundUser: any = await prisma.user.findFirst({
+    where: { refreshToken: refreshToken },
+  });
 
-    if (!foundUser) return res.status(403).send({ message: "Not found user" });
-    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err: any, decoded: any) => {
-      if (err || foundUser?.username !== decoded.username) {
-        return res.status(403).send("Token not same");
-      }
-      const accessToken = jwtGenerate(decoded);
-      res.status(200).send({ accessToken });
-    });
-  } catch (error) {
-    return res.status(401).send({ message: error });
-  }
+  if (!foundUser) return res.status(403).send({ message: "Not found user" });
+  jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err: any, decoded: any) => {
+    if (err || foundUser?.username !== decoded.username)
+      return res.status(403).send("Token not same");
+
+    const accessToken = jwtGenerate(decoded);
+    res.status(200).send({ accessToken });
+  });
 };

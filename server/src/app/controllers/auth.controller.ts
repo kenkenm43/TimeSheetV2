@@ -63,7 +63,7 @@ const handleLogout: RequestHandler = async (
     res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
     return res.status(204).json({ message: "Clear cookie" });
   }
-  const user = await prisma.user.update({
+  await prisma.user.update({
     where: { username: foundUser.username },
     data: { refreshToken: "" },
   });
