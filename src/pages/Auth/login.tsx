@@ -27,10 +27,15 @@ const Login = () => {
   const onsubmit = async (datas: any) => {
     const response: any = await login(datas, navigate);
     // console.log("d", data.response);
-    const { success, message, username, accessToken, role } = response.data;
+    const { success, message, username, accessToken, role, id } = response.data;
 
     if (success) {
-      setAuth({ username: username, accessToken: accessToken, role: role });
+      setAuth({
+        id: id,
+        username: username,
+        accessToken: accessToken,
+        role: role,
+      });
       console.log("success", message);
     } else {
       console.log("error", message);

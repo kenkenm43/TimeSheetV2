@@ -1,4 +1,5 @@
 import prisma from "../src/config/prisma";
+import { EmployeeType } from "../src/types/employeeTypes";
 
 type User = {
   username: string;
@@ -11,6 +12,17 @@ type Role = {
   id: number;
   name: string;
 };
+
+function getEmployees(): EmployeeType[] {
+  return [
+    {
+      idCard: "1520101164070",
+      firstName: "nattawat",
+      lastName: "wangsupadilok",
+      gender: "male",
+    },
+  ];
+}
 
 function getUsers(): User[] {
   return [
@@ -47,6 +59,19 @@ async function seed() {
       });
     })
   );
+  await Promise.all(
+    getEmployees().map((employee) => {
+      return prisma.employee.create({
+        data: {
+          ...employee,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          gender: employee.gender,
+        },
+      });
+    })
+  );
+
   await Promise.all(
     getUsers().map((user) => {
       return prisma.user.create({

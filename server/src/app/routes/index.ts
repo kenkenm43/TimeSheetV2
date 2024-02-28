@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 
 import express from "express";
 import UserRoute from "./../routes/users.route";
+import EmployeeRoute from "./../routes/employee.route";
 import AuthRoute from "./../routes/auth.route";
 import createError from "http-errors";
 const router = express.Router();
@@ -10,6 +11,7 @@ const router = express.Router();
 router.use("/api/v1/auth", AuthRoute);
 // router.use("/api/v1/refresh");
 router.use("/api/v1", UserRoute);
+router.use("/api/v1/employee", EmployeeRoute);
 
 router.use(async (req, res, next) => {
   next(createError.NotFound("Route not Found"));

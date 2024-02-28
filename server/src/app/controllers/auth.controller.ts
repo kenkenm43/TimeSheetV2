@@ -10,6 +10,7 @@ import {
   UserType,
 } from "../../types/userTypes";
 import { getAuthToken } from "../middlewares/authToken";
+import { ErrorHandler, handleError } from "../../utils/error";
 
 const handleRegister: RequestHandler = async (
   req: any,
@@ -19,16 +20,31 @@ const handleRegister: RequestHandler = async (
   try {
     const payload = req.body as UserRegisterPayloadType;
     const passwordHash = bcrypt.hashSync(payload.password, 10);
-    const newUser = await prisma.user.create({
-      data: { ...payload, password: passwordHash },
+    const newUser = await prisma.employee.create({
+      include: {
+        System_Access: true,
+      },
+      data: {
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        idCard: payload.idCard,
+        gender: "male",
+        System_Access: {
+          create: {
+            username: payload.username,
+            password: passwordHash,
+            access_rights: "edit",
+          },
+        },
+      },
     });
     if (!newUser) {
-      return res.status(400).json({ message: "การกรอกข้อมูลไม่ถูกต้อง" });
+      throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
     }
     req["user"] = newUser;
     getAuthToken(req, res, next);
   } catch (error) {
-    return res.status(400).json({ message: "Register fail", error });
+    return handleError(error, res);
   }
 };
 

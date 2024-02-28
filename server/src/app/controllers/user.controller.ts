@@ -34,12 +34,23 @@ const getUsers = async (req: Request, res: Response) => {
 
 const getUser = async (req: any, res: Response) => {
   try {
-    const username = req.user;
+    const idUser = req.params["id"];
+    console.log(idUser);
+
+    const user = await prisma.user.findFirst({
+      where: { username: "kenkenm43" },
+      select: {
+        username: true,
+        firstName: true,
+        lastName: true,
+        idCard: true,
+      },
+    });
 
     // const users = await prisma.user.findMany({
     //   include: { role: true },
     // });
-    return res.status(200).json({ message: "dd" });
+    return res.status(200).json(user);
     // res.status(200).json(users);
   } catch (e) {
     return res.status(500).json({ error: e });

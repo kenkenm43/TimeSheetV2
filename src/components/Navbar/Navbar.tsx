@@ -32,9 +32,9 @@ const Navbar = () => {
     <nav className="w-full  bg-orange-400  font-bold">
       <div className="flex items-center justify-between px-14 h-14 max-w-7xl mx-auto">
         <div className="space-x-5 font-bold">
-          {navLists.map((nav) =>
+          {navLists.map((nav, index) =>
             nav.authorization?.includes(auth?.role.name) ? (
-              <Link key={nav.name} to={nav.to}>
+              <Link key={index} to={nav.to}>
                 {nav.name}
               </Link>
             ) : (

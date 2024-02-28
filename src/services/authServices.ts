@@ -40,7 +40,7 @@ export const login = async (
 export const logout = async (redirectTo: NavigateFunction) => {
   await httpClient.get("/auth/logout");
   sessionStorage.removeItem("auth store");
-
+  sessionStorage.clear();
   redirectTo("/login");
 };
 

@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import Home from "./User/Home";
 import { useCookies } from "react-cookie";
+import { getUser } from "../services/userServices";
 // import useStore from "../store";
 const ROLES = {
   Admin: "admin",
@@ -40,11 +41,23 @@ function App() {
   // const setCount = useStore((state) => state?.setCount);
   const { auth } = useAuth();
   useEffect(() => {
-    if (cookies.jwt) {
-      navigate("/");
-    } else {
-      navigate("/login");
-    }
+    let isMounted = true;
+    const controller = new AbortController();
+    console.log(auth.id);
+
+    const fetchUser = async () => {
+      try {
+        const user = await getUser(controller.signal, auth.id);
+        isMounted && console.log(user);
+      } catch (error) {
+        navigate("/login", { state: { from: location }, replace: true });
+      }
+    };
+    fetchUser();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, []);
 
   return (

@@ -20,10 +20,78 @@ model User {
   refreshToken String   @default("")
   role         Role     @relation(fields: [roleId], references: [id])
   roleId       Int      @default(1)
+  profile      Profile?
+}
+
+model Profile {
+  id         String   @id @default(uuid())
+  startedAt  DateTime @default(now())
+  salary     Int      @default(0)
+  saving     Int      @default(0)
+  transcript String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @unique
 }
 
 model Role {
-  id    Int    @id @default(autoincrement())
-  name  String
-  users User[]
+  id            Int             @id @default(autoincrement())
+  name          String
+  users         User[]
+  System_Access System_Access[]
+}
+
+model Employee {
+  id                 String              @id @default(uuid())
+  firstName          String
+  lastName           String
+  idCard             String?
+  gender             String?
+  date_of_birth      DateTime?
+  address            String?
+  phone_number       String?
+  email              String?
+  photo              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  Employment_Details Employment_Details?
+  Financial_Details  Financial_Details?
+  System_Access      System_Access?
+}
+
+model Employment_Details {
+  id         String   @id @default(uuid())
+  position   String
+  department String
+  start_date DateTime
+  salary     Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String   @unique
+}
+
+model Financial_Details {
+  id                     String   @id @default(uuid())
+  bank_account_number    String
+  bank_name              String
+  social_security_number String
+  health_insurance       String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  employee               Employee @relation(fields: [employeeId], references: [id])
+  employeeId             String   @unique
+}
+
+model System_Access {
+  access_id     String   @id @default(uuid())
+  username      String
+  password      String
+  refreshToken  String?
+  access_rights String?
+  role          Role     @relation(fields: [roleId], references: [id])
+  roleId        Int      @default(1)
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  employeeId    String   @unique
 }

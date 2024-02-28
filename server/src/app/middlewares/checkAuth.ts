@@ -8,6 +8,7 @@ import {
   UserRegisterPayloadType,
 } from "../../types/userTypes";
 import { handleError, ErrorHandler } from "../../utils/error";
+import { EmployeeType, SystemAccess } from "../../types/employeeTypes";
 
 export const checkLogin = async (
   req: any,
@@ -51,7 +52,6 @@ export const checkLogin = async (
       throw new ErrorHandler(400, "ไม่มีชื่อผู้ใช้อยู่ในระบบ");
     }
   } catch (error: any) {
-    // return res.status(500).json({ message: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
     return handleError(error, res);
   }
 };
@@ -61,33 +61,35 @@ export const checkRegister = async (
   res: Response,
   next: NextFunction
 ) => {
-  const payload = req.body as UserRegisterPayloadType;
-  if (
-    !payload.username ||
-    !payload.firstName ||
-    !payload.lastName ||
-    !payload.idCard ||
-    !payload.password
-  ) {
-    return res.status(500).json({ message: "โปรดใส่ข้อมูลให้ครบถ้วน" });
+  try {
+    const payload = req.body as UserRegisterPayloadType;
+    if (
+      !payload.username ||
+      !payload.firstName ||
+      !payload.lastName ||
+      !payload.idCard ||
+      !payload.password
+    ) {
+      throw new ErrorHandler(500, "โปรดใส่ข้อมูลให้ครบถ้วน");
+    }
+
+    const existingEmployee = await prisma.employee.findFirst({
+      where: {
+        OR: [
+          { System_Access: { username: payload.username } },
+          { idCard: payload.username },
+        ],
+      },
+    });
+    console.log(existingEmployee);
+
+    if (existingEmployee) {
+      console.log("check");
+
+      throw new ErrorHandler(400, "บัญชีผู้ใช้นี้มีอยู่ในระบบแล้ว");
+    }
+    return next();
+  } catch (error) {
+    return handleError(error, res);
   }
-
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [
-        {
-          username: { equals: payload.username },
-        },
-        {
-          idCard: { equals: payload.idCard },
-        },
-      ],
-    },
-  });
-
-  if (existingUser) {
-    throw new ErrorHandler(500, "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว");
-  }
-
-  return next();
 };

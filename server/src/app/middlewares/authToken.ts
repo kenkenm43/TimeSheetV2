@@ -8,6 +8,8 @@ import {
   REFRESH_TOKEN_SECRET,
 } from "../../utils/environment";
 import prisma from "../../config/prisma";
+import { handleError } from "../../utils/error";
+import { EmployeeType, SystemAccess } from "../../types/employeeTypes";
 // export const verifyResetToken = async (token: string) => {
 //   jwt.verify(token);
 //   try {
@@ -15,26 +17,31 @@ import prisma from "../../config/prisma";
 // };
 
 export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
-  const user = req["user"] as UserType;
+  try {
+    const user = req["user"] as EmployeeType;
+    console.log(user.System_Access as SystemAccess);
 
-  const accessToken = jwtGenerate(user);
-  const refreshToken = await jwtRefreshTokenGenerate(user);
-  console.log(refreshToken);
+    const accessToken = jwtGenerate(user.System_Access);
+    const refreshToken = await jwtRefreshTokenGenerate(user);
+    // console.log(refreshToken);
 
-  res.cookie("jwt", refreshToken, {
-    httpOnly: false,
-    secure: true,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
-  res.status(200).json({
-    success: true,
-    username: user?.username,
-    role: user?.role,
-    accessToken,
-    refreshToken,
-    isLoggedIn: true,
-    message: "เข้าสู่ระบบเรียบร้อย",
-  });
+    res.cookie("jwt", refreshToken, {
+      httpOnly: false,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res.status(200).json({
+      success: true,
+      id: user?.id,
+      username: user?.System_Access?.username,
+      role: user?.System_Access.,
+      accessToken,
+      isLoggedIn: true,
+      message: "เข้าสู่ระบบเรียบร้อย",
+    });
+  } catch (error) {
+    return handleError(error, res);
+  }
 };
 
 export const verifyAccessToken: RequestHandler = async (
@@ -43,6 +50,7 @@ export const verifyAccessToken: RequestHandler = async (
   next: any
 ) => {
   const token = req.headers["authorization"]?.replace("Bearer ", "") || "";
+  console.log("token", token);
 
   if (!token) return res.status(401).send({ message: "No token provided" });
 

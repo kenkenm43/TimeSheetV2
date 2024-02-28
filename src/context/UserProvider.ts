@@ -8,39 +8,39 @@ type TRole = {
   name: string;
 };
 
-type TAuth = {
-  id: string;
+type TUser = {
   username: string;
-  accessToken: string;
-  role: TRole;
+  firstName: string;
+  lastName: string;
+  idCard: string;
 };
 
-type TAuthStoreState = {
-  auth: TAuth;
-  setAuth: (value: object) => void;
+type TUserStoreState = {
+  user: TUser;
+  setUser: (value: object) => void;
 };
 
-export const useAuthStore = create<TAuthStoreState>()(
+export const useUserStore = create<TUserStoreState>()(
   persist(
     (set) => ({
-      auth: {
-        id: "",
+      user: {
         username: "",
-        accessToken: "",
-        role: { id: "", name: "" },
+        firstName: "",
+        lastName: "",
+        idCard: "",
       },
-      setAuth: (value: object) =>
+      setUser: (value: object) =>
         set((state: any) => ({
-          auth: { ...state.auth, ...value },
+          user: { ...state.user, ...value },
         })),
     }),
     {
-      name: "auth store",
+      name: "userstore",
       storage: createJSONStorage(() => sessionStorage),
     }
   )
 );
-export default useAuthStore;
+export default useUserStore;
 
 // auth: { username: "", accessToken: "" },
 // setAuth: (value: any) =>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useRefreshToken from "../../hooks/useRefreshToken";
 import { useLocation, useNavigate } from "react-router-dom";
+import adminService, { getUsers } from "./../../services/adminServices";
 import useAuth from "../../hooks/useAuth";
 const Users = () => {
   const [users, setUsers] = useState([{ username: "" }]);
@@ -17,18 +18,21 @@ const Users = () => {
     let isMounted = true;
     const controller = new AbortController();
 
-    const getUsers = async () => {
+    const fetchUsers = async () => {
       try {
         const response = await axiosPrivate.get("/users", {
           signal: controller.signal,
         });
+
         isMounted && setUsers(response.data);
       } catch (error) {
+        console.log(error);
+
         navigate("/login", { state: { from: location }, replace: true });
       }
     };
 
-    getUsers();
+    fetchUsers();
     return () => {
       isMounted = false;
       controller.abort();
