@@ -41,7 +41,7 @@ const handleRegister: RequestHandler = async (
     if (!newUser) {
       throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
     }
-    req["user"] = newUser;
+    req["user"] = newUser.System_Access;
     getAuthToken(req, res, next);
   } catch (error) {
     return handleError(error, res);
@@ -70,17 +70,20 @@ const handleLogout: RequestHandler = async (
   next: any
 ) => {
   const cookies = req.cookies;
+
   if (!cookies?.jwt) return res.status(204).json({ message: "No content" });
   const refreshToken = cookies.jwt;
-  const foundUser = await prisma.user.findFirst({
+  const foundUser = await prisma.system_Access.findFirst({
     where: { refreshToken: refreshToken },
   });
   if (!foundUser) {
     res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
     return res.status(204).json({ message: "Clear cookie" });
   }
-  await prisma.user.update({
-    where: { username: foundUser.username },
+  console.log(foundUser);
+
+  await prisma.system_Access.update({
+    where: { access_id: foundUser.access_id },
     data: { refreshToken: "" },
   });
 

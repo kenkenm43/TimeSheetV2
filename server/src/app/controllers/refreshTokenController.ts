@@ -9,14 +9,13 @@ export const handleRefreshTokenV2: RequestHandler = async (
   res: Response
 ) => {
   const cookies = req.cookies;
-  console.log("cookie", cookies.jwt);
+  console.log(cookies.jwt);
 
   if (!cookies?.jwt)
     return res.status(401).send({ message: "Invalid refresh token" });
   const refreshToken = cookies.jwt;
-  console.log(refreshToken);
 
-  const foundUser: any = await prisma.user.findFirst({
+  const foundUser: any = await prisma.system_Access.findFirst({
     where: { refreshToken: refreshToken },
   });
 

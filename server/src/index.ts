@@ -2,9 +2,10 @@ import express, { Request, Response } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import session from "express-session";
 import { timestampLoggerMiddleware } from "./app/middlewares/logging";
+import cookieSession from "cookie-session";
 // const router = express.Router();
+
 dotenv.config();
 
 import { PrismaClient } from "@prisma/client";
@@ -18,33 +19,27 @@ const app = express();
 const PORT = process.env.PORT || 7000;
 
 async function main() {
+  app.use(bodyParser.json());
+  app.use(
+    express.urlencoded({
+      extended: true,
+    })
+  );
+  app.use(cookieParser());
   app.use(
     cors({
-      // allowedHeaders: [
-      //   "Origin",
-      //   "X-Requested-With",
-      //   "Content-Type",
-      //   "Accept",
-      //   "X-Access-Token",
-      //   "Authorization",
-      // ],
+      allowedHeaders: [
+        "Origin",
+        "X-Requested-With",
+        "Content-Type",
+        "Accept",
+        "X-Access-Token",
+        "Authorization",
+      ],
       credentials: true,
       methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
       origin: ["http://localhost:5173"],
       // preflightContinue: false,
-    })
-  );
-  app.use(express.json());
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: false }));
-
-  // parse application/json
-  app.use(cookieParser());
-  app.use(
-    session({
-      secret: "secret",
-      resave: false,
-      saveUninitialized: true,
     })
   );
   app.use(timestampLoggerMiddleware);

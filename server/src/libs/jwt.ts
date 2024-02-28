@@ -18,19 +18,22 @@ export const jwtGenerate = (user: any): string => {
 };
 
 export const jwtRefreshTokenGenerate = async (user: any) => {
-  const token = jwt.sign({ username: user.username }, REFRESH_TOKEN_SECRET, {
-    expiresIn: "1d",
-    algorithm: "HS256",
-  });
-  user.refreshToken = token;
-  // await prisma.system_Access.update({
-  //   where: {
-  //     username: { equals: user.username },
-  //   },
-  //   data: {},
-  // });
+  try {
+    const token = jwt.sign({ username: user.username }, REFRESH_TOKEN_SECRET, {
+      expiresIn: "1d",
+      algorithm: "HS256",
+    });
+    await prisma.system_Access.update({
+      where: { access_id: user.access_id, employeeId: user.employeeId },
+      data: {
+        refreshToken: token,
+      },
+    });
 
-  return token;
+    return token;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const jwtResetTokenGenerate = (user: UserType): string => {

@@ -19,4 +19,9 @@ export type SystemAccess = {
   access_rights: string;
   employeeId: string;
   refreshToken: string;
+  role: Role;
+};
+export type Role = {
+  id: string;
+  name: string;
 };

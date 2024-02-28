@@ -15,21 +15,22 @@ export const checkLogin = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(req.body);
   const payload = req.body as UserLoginPayloadType;
 
-  if (!payload.username || !payload.password) {
-    throw new ErrorHandler(400, "โปรดใส่ข้อมูลให้ครบถ้วน");
-  }
+  // if (!payload.username || !payload.password) {
+  //   throw new ErrorHandler(400, "โปรดใส่ข้อมูลให้ครบถ้วน");
+  // }
 
   try {
-    const isUserAlready = await prisma.user.findFirst({
+    const isUserAlready = await prisma.system_Access.findFirst({
       where: {
         OR: [
           {
             username: { equals: payload.username },
           },
           {
-            idCard: { equals: payload.username },
+            employee: { idCard: { equals: payload.username } },
           },
         ],
       },

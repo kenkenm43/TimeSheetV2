@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `user` ADD COLUMN `refreshToken` VARCHAR(191) NOT NULL DEFAULT '',
-    ADD COLUMN `resetToken` VARCHAR(191) NOT NULL DEFAULT '';

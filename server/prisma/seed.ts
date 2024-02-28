@@ -63,7 +63,7 @@ async function seed() {
     getEmployees().map((employee) => {
       return prisma.employee.create({
         data: {
-          ...employee,
+          idCard: employee.idCard,
           firstName: employee.firstName,
           lastName: employee.lastName,
           gender: employee.gender,

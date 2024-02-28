@@ -25,6 +25,8 @@ const Login = () => {
   });
 
   const onsubmit = async (datas: any) => {
+    console.log(datas);
+
     const response: any = await login(datas, navigate);
     // console.log("d", data.response);
     const { success, message, username, accessToken, role, id } = response.data;

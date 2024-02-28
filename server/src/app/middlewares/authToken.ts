@@ -18,27 +18,31 @@ import { EmployeeType, SystemAccess } from "../../types/employeeTypes";
 
 export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
   try {
-    const user = req["user"] as EmployeeType;
-    console.log(user.System_Access as SystemAccess);
+    const user = req["user"] as SystemAccess;
+    console.log(user);
 
-    const accessToken = jwtGenerate(user.System_Access);
+    console.log(user as SystemAccess);
+
+    const accessToken = await jwtGenerate(user);
     const refreshToken = await jwtRefreshTokenGenerate(user);
     // console.log(refreshToken);
-
-    res.cookie("jwt", refreshToken, {
-      httpOnly: false,
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-    res.status(200).json({
-      success: true,
-      id: user?.id,
-      username: user?.System_Access?.username,
-      role: user?.System_Access.,
-      accessToken,
-      isLoggedIn: true,
-      message: "เข้าสู่ระบบเรียบร้อย",
-    });
+    res
+      .cookie("jwt", refreshToken, {
+        httpOnly: true,
+        // secure: true,
+        // maxAge: 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        success: true,
+        id: user?.access_id,
+        username: user?.username,
+        role: user.role,
+        accessToken,
+        isLoggedIn: true,
+        message: "เข้าสู่ระบบเรียบร้อย",
+      });
+    return res.end();
   } catch (error) {
     return handleError(error, res);
   }

@@ -5,12 +5,11 @@ import httpClient from "../services/httpClient";
 import useAuth from "./useAuth";
 
 const useRefreshToken = () => {
-  const { setAuth }: any = useAuth();
+  const { auth, setAuth }: any = useAuth();
 
+  console.log(auth);
   const refresh = async () => {
-    const response = await httpClient.get("/auth/refresh-tokenV2", {
-      withCredentials: true,
-    });
+    const response = await httpClient.get("/auth/refresh-tokenV2", {});
     console.log(response);
 
     setAuth({ accessToken: response.data.accessToken });

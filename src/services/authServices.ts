@@ -6,6 +6,8 @@ import {
 } from "../types/userType";
 import httpClient from "./httpClient";
 import { toast } from "react-toastify";
+import { Cookies } from "react-cookie";
+const cookie = new Cookies();
 export const register = async (
   payload: UserRegisterPayloadType
   // redirectTo: NavigateFunction
@@ -23,10 +25,7 @@ export const login = async (
   redirectTo: NavigateFunction
 ) => {
   try {
-    const response = await httpClient.post("/auth/login", payload, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
+    const response = await httpClient.post("/auth/login", payload);
 
     toast.success(response.data.message);
     redirectTo("/");
@@ -40,6 +39,7 @@ export const login = async (
 export const logout = async (redirectTo: NavigateFunction) => {
   await httpClient.get("/auth/logout");
   sessionStorage.removeItem("auth store");
+  cookie.remove("jwt");
   sessionStorage.clear();
   redirectTo("/login");
 };
