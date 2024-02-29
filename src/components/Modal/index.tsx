@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { forwardRef, useRef, useState } from "react";
 import {
   Modal,
   Button,
@@ -7,30 +8,47 @@ import {
   ModalProps,
   Stack,
   Checkbox,
+  Input,
 } from "rsuite";
 interface EventModalProps extends ModalProps {
-  onAddEvent: (event: React.MouseEvent) => void;
+  onAddEvent: (event: React.MouseEvent, formValue: any) => void;
+  selectedDate: any;
 }
 
 const EventModal = (props: EventModalProps) => {
-  const { onClose, open, onAddEvent, ...rest } = props;
+  const { onClose, open, onAddEvent, selectedDate, ...rest } = props;
+  const [formValue, setFormValue] = useState({ name: "" });
+
+  const handleOk = (e, formValue: any) => {
+    console.log(formValue);
+    onAddEvent(e, formValue);
+  };
+
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
       <Modal.Header>
-        <Modal.Title>Add a New Event</Modal.Title>
+        <Modal.Title>{selectedDate.start}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form fluid>
+        <Form
+          fluid
+          formValue={formValue}
+          onChange={(formValue: any) => setFormValue(formValue)}
+        >
           <Form.Group controlId="name">
             <Form.ControlLabel>Event Name</Form.ControlLabel>
             <Form.Control name="name" />
           </Form.Group>
           <Form.Group controlId="description">
-            <Form.ControlLabel>Event Description</Form.ControlLabel>
+            <Form.ControlLabel>เวลาเข้างาน</Form.ControlLabel>
             <Form.Control name="description" />
           </Form.Group>
           <Form.Group controlId="location">
-            <Form.ControlLabel>Event Location</Form.ControlLabel>
+            <Form.ControlLabel>เวลาออกงาน</Form.ControlLabel>
+            <Form.Control name="location" />
+          </Form.Group>
+          <Form.Group controlId="location">
+            <Form.ControlLabel>เบิกค่าใช้จ่าย</Form.ControlLabel>
             <Form.Control name="location" />
           </Form.Group>
           <Form.Group controlId="start">
@@ -54,7 +72,7 @@ const EventModal = (props: EventModalProps) => {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={onAddEvent} appearance="primary">
+        <Button onClick={(e) => handleOk(e, formValue)} appearance="primary">
           Submit
         </Button>
         <Button onClick={onClose} appearance="subtle">
