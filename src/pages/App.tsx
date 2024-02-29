@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes, redirect, useNavigate } from "react-router-dom";
+import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Login from "./Auth/login";
 import Register from "./Auth/register";
@@ -11,9 +11,12 @@ import Unauthorized from "../components/Unauthrorized";
 import { useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import Home from "./User/Home";
-import { useCookies } from "react-cookie";
 import { getUser } from "../services/userServices";
-// import useStore from "../store";
+import "rsuite/dist/rsuite-no-reset.min.css";
+
+import useEmployeeStore, {
+  TEmployeeStoreState,
+} from "../context/EmployeeProvider";
 const ROLES = {
   Admin: "admin",
   User: "user",
@@ -25,7 +28,7 @@ const Layout = () => {
       <div className=" mx-auto">
         <div className="h-dvh">
           <Navbar />
-          <div className="flex justify-center mt-14 mb-14">
+          <div className="flex justify-center ">
             <Outlet />
           </div>
         </div>
@@ -35,19 +38,20 @@ const Layout = () => {
 };
 
 function App() {
-  const [cookies, setCookie] = useCookies(["jwt"]);
   const navigate = useNavigate();
   // const count = useStore((state) => state?.count);
   // const setCount = useStore((state) => state?.setCount);
   const { auth } = useAuth();
+  const { employee }: TEmployeeStoreState = useEmployeeStore();
   useEffect(() => {
+    console.log(employee);
     let isMounted = true;
     const controller = new AbortController();
-    console.log(auth.id);
 
     const fetchUser = async () => {
       try {
         const user = await getUser(controller.signal, auth.id);
+
         isMounted && console.log(user);
       } catch (error) {
         navigate("/login", { state: { from: location }, replace: true });

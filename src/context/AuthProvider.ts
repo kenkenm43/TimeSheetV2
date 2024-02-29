@@ -8,14 +8,15 @@ type TRole = {
   name: string;
 };
 
-type TAuth = {
+export type TAuth = {
   id: string;
+  employeeId: string;
   username: string;
   accessToken: string;
   role: TRole;
 };
 
-type TAuthStoreState = {
+export type TAuthStoreState = {
   auth: TAuth;
   setAuth: (value: object) => void;
 };
@@ -25,6 +26,7 @@ export const useAuthStore = create<TAuthStoreState>()(
     (set) => ({
       auth: {
         id: "",
+        employeeId: "",
         username: "",
         accessToken: "",
         role: { id: "", name: "" },

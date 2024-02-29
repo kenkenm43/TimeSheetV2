@@ -4,4 +4,6 @@ const router = express.Router();
 
 router.get("/", employeeController.getEmployees);
 
+router.get("/:id", employeeController.getEmployee);
+
 export default router;

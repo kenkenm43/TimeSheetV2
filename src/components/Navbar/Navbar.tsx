@@ -45,9 +45,11 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {auth.username ? (
             <>
-              <div>{auth.username}</div>
+              <button onClick={() => navigate("/profile")}>
+                {auth.username}
+              </button>
 
-              <div onClick={() => logout(navigate)}>ออกจากระบบ</div>
+              <button onClick={() => logout(navigate)}>ออกจากระบบ</button>
             </>
           ) : (
             <>

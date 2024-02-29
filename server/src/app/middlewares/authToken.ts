@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt from "jsonwebtoken";
 import { RequestHandler, Response } from "express";
-import { UserType, DecodeRefreshToken } from "../../types/userTypes";
+import { DecodeRefreshToken } from "../../types/userTypes";
 import { jwtGenerate, jwtRefreshTokenGenerate } from "../../libs/jwt";
 import {
   ACCESS_TOKEN_SECRET,
@@ -9,7 +9,7 @@ import {
 } from "../../utils/environment";
 import prisma from "../../config/prisma";
 import { handleError } from "../../utils/error";
-import { EmployeeType, SystemAccess } from "../../types/employeeTypes";
+import { SystemAccess } from "../../types/employeeTypes";
 // export const verifyResetToken = async (token: string) => {
 //   jwt.verify(token);
 //   try {
@@ -19,30 +19,28 @@ import { EmployeeType, SystemAccess } from "../../types/employeeTypes";
 export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
   try {
     const user = req["user"] as SystemAccess;
-    console.log(user);
 
     console.log(user as SystemAccess);
-
     const accessToken = await jwtGenerate(user);
     const refreshToken = await jwtRefreshTokenGenerate(user);
-    // console.log(refreshToken);
-    res
-      .cookie("jwt", refreshToken, {
-        httpOnly: true,
-        // secure: true,
-        // maxAge: 24 * 60 * 60 * 1000,
-      })
-      .status(200)
-      .json({
-        success: true,
-        id: user?.access_id,
-        username: user?.username,
-        role: user.role,
-        accessToken,
-        isLoggedIn: true,
-        message: "เข้าสู่ระบบเรียบร้อย",
-      });
-    return res.end();
+    console.log(refreshToken);
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res.status(200).json({
+      success: true,
+      id: user?.access_id,
+      employeeId: user.employeeId,
+      username: user?.username,
+      role: user.role,
+      accessToken,
+      isLoggedIn: true,
+      message: "เข้าสู่ระบบเรียบร้อย",
+    });
   } catch (error) {
     return handleError(error, res);
   }

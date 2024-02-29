@@ -1,4 +1,14 @@
-export type EmployeeType = {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { create } from "zustand";
+import { persist, createJSONStorage, devtools } from "zustand/middleware";
+
+type TRole = {
+  id: string;
+  name: string;
+};
+
+export type TEmployee = {
   id?: string;
   firstName: string;
   lastName: string;
@@ -20,7 +30,6 @@ export type EmployeeType = {
   Financial_Details?: Financial_Details;
   Performace?: Performance;
 };
-
 export type Employment_Details = {
   id?: string;
   position?: string;
@@ -32,6 +41,7 @@ export type Employment_Details = {
   salary_increase?: string;
   salary_decrease?: string;
   tax_information?: string;
+  allocated_leave_days?: number;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -66,10 +76,45 @@ export type SystemAccess = {
   password: string;
   refreshToken: string;
   access_rights: string;
-  role: Role;
+  role: TRole;
   employeeId: string;
 };
-export type Role = {
-  id: string;
-  name: string;
+
+export type TEmployeeStoreState = {
+  employee: TEmployee;
+  setEmployee: (value: object) => void;
 };
+
+export const useEmployeeStore = create<TEmployeeStoreState>()(
+  persist(
+    (set) => ({
+      employee: {
+        id: "",
+        firstName: "",
+        lastName: "",
+        idCard: "",
+        gender: "",
+        date_of_birth: "",
+        address: "",
+        phone_number: "",
+        email: "",
+        photo: "",
+      },
+      setEmployee: (value: object) =>
+        set((state: any) => ({
+          employee: { ...state.employee, ...value },
+        })),
+    }),
+    {
+      name: "EmployeeStore",
+      storage: createJSONStorage(() => sessionStorage),
+    }
+  )
+);
+export default useEmployeeStore;
+
+// auth: { username: "", accessToken: "" },
+// setAuth: (value: any) =>
+//   set((state: any) => ({
+//     auth: { ...state.auth, ...value },
+//   })),

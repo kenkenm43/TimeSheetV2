@@ -15,7 +15,6 @@ export const checkLogin = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
   const payload = req.body as UserLoginPayloadType;
 
   // if (!payload.username || !payload.password) {

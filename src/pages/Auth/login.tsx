@@ -29,11 +29,13 @@ const Login = () => {
 
     const response: any = await login(datas, navigate);
     // console.log("d", data.response);
-    const { success, message, username, accessToken, role, id } = response.data;
+    const { success, message, username, accessToken, role, id, employeeId } =
+      response.data;
 
     if (success) {
       setAuth({
         id: id,
+        employeeId: employeeId,
         username: username,
         accessToken: accessToken,
         role: role,

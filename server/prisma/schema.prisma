@@ -46,38 +46,79 @@ model Employee {
   id                 String              @id @default(uuid())
   firstName          String
   lastName           String
-  idCard             String?
+  idCard             String?             @unique
   gender             String?
   date_of_birth      DateTime?
   address            String?
-  phone_number       String?
-  email              String?
+  phone_number       String?             @unique
+  email              String?             @unique
   photo              String?
+  job_title          String?
+  education_level    String?
+  experience         String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   Employment_Details Employment_Details?
   Financial_Details  Financial_Details?
   System_Access      System_Access?
+  Leave              Leave?
+  Performance        Performance?
+  WorkSchedule       WorkSchedule?
 }
 
 model Employment_Details {
-  id         String   @id @default(uuid())
-  position   String
-  department String
-  start_date DateTime
-  salary     Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId String   @unique
+  id                   String    @id @default(uuid())
+  position             String?
+  department           String?
+  contract_type        String?
+  start_date           DateTime?
+  end_date             DateTime?
+  pro_pass             DateTime?
+  salary               Int?
+  salary_increase      String?
+  salary_decrease      String?
+  tax_information      String?
+  allocated_leave_days Bytes?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  employee             Employee  @relation(fields: [employeeId], references: [id])
+  employeeId           String    @unique
+}
+
+model WorkSchedule {
+  id          String    @id @default(uuid())
+  work_date   DateTime?
+  work_status String?
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  employeeId  String    @unique
+}
+
+model Leave {
+  id             String    @id @default(uuid())
+  remaining      String?
+  leave_type     String?
+  leave_cause    String?
+  start_date     DateTime?
+  end_date       DateTime?
+  number_of_days Bytes?
+  employee       Employee  @relation(fields: [employeeId], references: [id])
+  employeeId     String    @unique
+}
+
+model Performance {
+  id                 String   @id @default(uuid())
+  performance_rating String?
+  feedback           String?
+  employee           Employee @relation(fields: [employeeId], references: [id])
+  employeeId         String   @unique
 }
 
 model Financial_Details {
   id                     String   @id @default(uuid())
-  bank_account_number    String
-  bank_name              String
-  social_security_number String
-  health_insurance       String
+  bank_account_number    String?
+  bank_name              String?
+  social_security_number String?
+  health_insurance       String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   employee               Employee @relation(fields: [employeeId], references: [id])

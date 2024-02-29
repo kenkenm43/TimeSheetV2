@@ -7,10 +7,10 @@ import useAuth from "./useAuth";
 const useRefreshToken = () => {
   const { auth, setAuth }: any = useAuth();
 
-  console.log(auth);
   const refresh = async () => {
-    const response = await httpClient.get("/auth/refresh-tokenV2", {});
-    console.log(response);
+    const response = await httpClient.get("/auth/refresh-tokenV2", {
+      withCredentials: true,
+    });
 
     setAuth({ accessToken: response.data.accessToken });
 

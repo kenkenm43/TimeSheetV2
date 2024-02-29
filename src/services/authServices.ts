@@ -28,7 +28,7 @@ export const login = async (
     const response = await httpClient.post("/auth/login", payload);
 
     toast.success(response.data.message);
-    redirectTo("/");
+    redirectTo("/", { replace: true });
     return response;
   } catch (error: any) {
     toast.error(error.response.data.message);
@@ -38,10 +38,9 @@ export const login = async (
 
 export const logout = async (redirectTo: NavigateFunction) => {
   await httpClient.get("/auth/logout");
-  sessionStorage.removeItem("auth store");
-  cookie.remove("jwt");
-  sessionStorage.clear();
-  redirectTo("/login");
+  await sessionStorage.clear();
+  await cookie.remove("jwt");
+  redirectTo("/login", { replace: true });
 };
 
 export const handleRefreshToken = async () => {

@@ -3,10 +3,11 @@ import { axiosPrivate } from "../services/httpClient";
 import useRefreshToken from "./useRefreshToken";
 import useAuth from "./useAuth";
 import { useEffect } from "react";
+import { TAuthStoreState } from "../context/AuthProvider";
 
 const useAxiosPrivate = () => {
   const refresh = useRefreshToken();
-  const { auth }: any = useAuth();
+  const { auth }: TAuthStoreState = useAuth();
 
   useEffect(() => {
     const requestIntercept = axiosPrivate.interceptors.request.use(
@@ -27,10 +28,7 @@ const useAxiosPrivate = () => {
       async (error) => {
         const prevRequest = error?.config;
 
-        console.log(prevRequest);
         if (error?.response?.status === 403 && !prevRequest?.sent) {
-          console.log("เข้า");
-
           prevRequest.send = true;
           const newAccessToken = await refresh();
           prevRequest.headers["authorization"] = `Bearer ${newAccessToken}`;
