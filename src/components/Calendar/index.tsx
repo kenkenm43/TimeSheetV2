@@ -12,29 +12,28 @@ import EventModal from "../Modal";
 const index = () => {
   const [editable, setEditable] = useState(false);
   const [selectedDate, setSelectedDate] = useState({});
+  const [values, setValues] = useState({ title: "", start: "", end: "" });
   const [events, setEvents]: any = useState([]);
-  const handleDateSelect = (selectInfo: any) => {
-    console.log(selectInfo);
-
-    setSelectedDate({
-      ...selectedDate,
-      ...selectInfo,
+  const handleSelect = (selectInfo: any) => {
+    setEditable(true);
+    setValues({
+      ...values,
       start: selectInfo.startStr,
       end: selectInfo.endStr,
       // end: endStr,
     });
-
-    setEditable(true);
+    console.log(selectedDate);
   };
 
   const handleOk = (e: any, formValue: any) => {
-    console.log({ ...selectedDate });
-    console.log(formValue);
+    // console.log({ ...selectedDate });
+    // console.log(formValue);
 
     setEvents([
       ...events,
       {
         ...selectedDate,
+        ...formValue,
         title: formValue.name,
       },
     ]);
@@ -46,7 +45,7 @@ const index = () => {
     // setEditable(true);
   };
   return (
-    <div className="w-full">
+    <div className="w-ful">
       {" "}
       <FullCalendar
         plugins={[
@@ -70,13 +69,13 @@ const index = () => {
         dayMaxEvents
         eventBackgroundColor="red"
         eventClick={handleEventClick}
-        select={handleDateSelect}
+        select={handleSelect}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
         events={events}
       />
       <EventModal
-        selectedDate={selectedDate}
+        values={values}
         open={editable}
         onClose={() => setEditable(false)}
         onAddEvent={handleOk}
@@ -89,9 +88,11 @@ console.log(d);
 
 function renderEventContent(eventContent: any) {
   const { timeText, event } = eventContent;
+  console.log(event);
+  console.log(timeText);
 
   return (
-    <>
+    <div className="bg-red-100">
       {timeText && (
         <>
           <div className="fc-daygrid-event-dot"></div>
@@ -99,7 +100,7 @@ function renderEventContent(eventContent: any) {
         </>
       )}
       <div className="fc-event-title">{event.title}</div>
-    </>
+    </div>
   );
 }
 

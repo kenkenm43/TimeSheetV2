@@ -78,6 +78,7 @@ model Employment_Details {
   salary_increase      String?
   salary_decrease      String?
   tax_information      String?
+  work_per_day         Decimal?
   allocated_leave_days Bytes?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -94,15 +95,19 @@ model WorkSchedule {
 }
 
 model Leave {
-  id             String    @id @default(uuid())
-  remaining      String?
-  leave_type     String?
-  leave_cause    String?
-  start_date     DateTime?
-  end_date       DateTime?
-  number_of_days Bytes?
-  employee       Employee  @relation(fields: [employeeId], references: [id])
-  employeeId     String    @unique
+  id           String    @id @default(uuid())
+  leave_type   String?
+  leave_date   DateTime?
+  leave_reason String?
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employeeId   String    @unique
+}
+
+model Expense {
+  id                  String    @id @default(uuid())
+  expense_date        DateTime?
+  expense_description String?
+  expnse_amount       Decimal?
 }
 
 model Performance {
