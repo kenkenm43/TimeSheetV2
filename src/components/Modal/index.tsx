@@ -11,7 +11,9 @@ import {
   Checkbox,
   RadioGroup,
   Radio,
+  InputGroup,
 } from "rsuite";
+import Expense from "../Expense";
 interface EventModalProps extends ModalProps {
   onAddEvent: (event: React.MouseEvent, formValue: any) => void;
   values: any;
@@ -48,15 +50,16 @@ const EventModal = (props: EventModalProps) => {
   const formRef: any = useRef();
   const [formError, setFormError] = useState({});
   const [formValue, setFormValue] = useState({});
-  // const [work_status, setWork_status] = useState<WorkStatus>(WorkStatus.COME);
-  console.log(formValue);
+  const [expenses, setExpenses] = useState([]);
+  const [work_status, setWork_status] = useState<WorkStatus>(WorkStatus.COME);
+  const [work_time, setWork_time] = useState({ start: "9:00", end: "18:00" });
 
   const handleOk = (e: any, formValue: any) => {
     if (!formRef.current.check()) {
       return;
     }
 
-    onAddEvent(e, { formValue, work_status });
+    onAddEvent(e, { formValue });
   };
 
   return (
@@ -78,63 +81,68 @@ const EventModal = (props: EventModalProps) => {
             name="work_status"
             accepter={RadioGroup}
             inline
+            onChange={(work_status: any) => {
+              setWork_status(work_status);
+            }}
             defaultValue={WorkStatus.COME}
           >
             <Radio value={WorkStatus.COME}>มาทำงาน</Radio>
             <Radio value={WorkStatus.NOTCOME}>หยุด</Radio>
             <Radio value={WorkStatus.LEAVE}>ลางาน</Radio>
           </Field>
-          <Form.Group controlId="workStatus">
-            <RadioGroup
-              name="workStatus"
-              inline
-              defaultValue={WorkStatus.COME}
-              onChange={(work_status: any) => {
-                setWork_status(work_status);
-              }}
-            ></RadioGroup>
-          </Form.Group>
-          {formRef.work_status === WorkStatus.COME && (
+          {work_status === WorkStatus.COME && (
             <>
-              <Form.Group controlId="time">
-                เวลาเข้างาน
+              <Stack spacing={6}>
+                <InputGroup.Addon>เวลามาทำงาน</InputGroup.Addon>
                 <DatePicker
-                  name="time"
+                  placeholder="เวลามาทำงาน"
                   format="HH:mm"
-                  ranges={[]}
-                  defaultValue={new Date(`${values.start} 09:00`)}
-                  hideHours={(hour) => hour < 7 || hour > 23}
+                  defaultValue={new Date(`${values.start} ${work_time.start}`)}
+                  onChange={(date: any) => {
+                    setWork_time({
+                      ...work_time,
+                      start: moment(date).format("HH:mm"),
+                    });
+                  }}
+                  hideHours={(hour) =>
+                    hour < 7 ||
+                    hour > Number(moment(work_time.end, "HH:mm").format("H"))
+                  }
+                  hideMinutes={(min) =>
+                    min < 0 ||
+                    min >= Number(moment(work_time.end, "HH:mm").format("m"))
+                  }
+                  name="start_work"
                 />
-                เวลาออกงาน
+                <InputGroup.Addon>เวลาเลิกงาน</InputGroup.Addon>
                 <DatePicker
-                  name="time"
+                  placeholder="เวลาเลิกงาน"
                   format="HH:mm"
-                  ranges={[]}
-                  defaultValue={new Date(`${values.start} 09:00`)}
-                  hideHours={(hour) => hour < 7 || hour > 23}
+                  defaultValue={new Date(`${values.start} ${work_time.end}`)}
+                  onChange={(date: any) => {
+                    setWork_time({
+                      ...work_time,
+                      end: moment(date).format("HH:mm"),
+                    });
+                  }}
+                  hideHours={(hour) =>
+                    hour <
+                      Number(moment(work_time.start, "HH:mm").format("H")) ||
+                    hour > 23
+                  }
+                  hideMinutes={(min) => {
+                    min <
+                      Number(moment(work_time.start, "HH:mm").format("m")) ||
+                      min >= 59;
+                  }}
+                  name="end_work"
                 />
-              </Form.Group>
-              <Field
-                accepter={DatePicker}
-                format="HH:mm"
-                ranges={[]}
-                defaultValue={new Date(`${values.start} 09:00`)}
-                hideHours={(hour) => hour < 7 || hour > 23}
-                name="createDate"
-                label="Create Date"
-              />
-              <Form.Group controlId="endWork">
-                <Form.ControlLabel>เวลาออกงาน</Form.ControlLabel>
-                <Form.Control name="endWork" />
-              </Form.Group>
-              <Form.Group controlId="location">
-                <Form.ControlLabel>เบิกค่าใช้จ่าย</Form.ControlLabel>
-                <Form.Control name="location" />
-              </Form.Group>
+              </Stack>
+              <Expense />
             </>
           )}
-          {formRef.work_status === WorkStatus.NOTCOME && <></>}
-          {formRef.work_status === WorkStatus.LEAVE && (
+          {work_status === WorkStatus.NOTCOME && <></>}
+          {work_status === WorkStatus.LEAVE && (
             <>
               <Form.Group controlId="leave_type">
                 <Form.ControlLabel>ประเภทการลา</Form.ControlLabel>
