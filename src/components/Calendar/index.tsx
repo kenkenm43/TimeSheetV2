@@ -40,6 +40,12 @@ const index = () => {
 
     setEditable(false);
   };
+
+  const handleClose = (callback: any) => {
+    callback();
+
+    setEditable(false);
+  };
   const handleEventClick = (clickInfo: any) => {
     // console.log("click", clickInfo);
     // setEditable(true);
@@ -77,7 +83,7 @@ const index = () => {
       <EventModal
         values={values}
         open={editable}
-        onClose={() => setEditable(false)}
+        onClose={handleClose}
         onAddEvent={handleOk}
       />
     </div>

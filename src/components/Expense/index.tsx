@@ -96,7 +96,7 @@ const ProductInputControl = ({ value = [], onChange, fieldError }: any) => {
       <thead>
         <tr>
           <Cell>เบิกค่าใช้จ่าย</Cell>
-          <Cell>จำนวน</Cell>
+          <Cell>กี่บาท</Cell>
         </tr>
       </thead>
       <tbody>
@@ -147,15 +147,15 @@ const index = () => {
             fieldError={formError.products}
           />
 
-          <hr />
-          <Button
+          {/* <hr /> */}
+          {/* <Button
             appearance="primary"
             onClick={() => {
               formRef.current.check();
             }}
           >
             Submit
-          </Button>
+          </Button> */}
         </Form>
       </FlexboxGrid.Item>
     </FlexboxGrid>

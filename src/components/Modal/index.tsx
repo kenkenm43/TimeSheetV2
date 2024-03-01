@@ -62,6 +62,10 @@ const EventModal = (props: EventModalProps) => {
     onAddEvent(e, { formValue });
   };
 
+  const callback = () => {
+    console.log("child function");
+  };
+
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
       <Modal.Header>
@@ -152,24 +156,6 @@ const EventModal = (props: EventModalProps) => {
                 <Form.ControlLabel>สาเหตุ</Form.ControlLabel>
                 <Form.Control name="leave_cause" />
               </Form.Group>
-              <Form.Group controlId="start">
-                <Form.ControlLabel>Event Date</Form.ControlLabel>
-                <Stack spacing={6}>
-                  <DatePicker
-                    format="yyyy-MM-dd HH:mm:ss"
-                    block
-                    style={{ width: 200 }}
-                    placeholder="Start Date"
-                  />
-                  <DatePicker
-                    format="yyyy-MM-dd HH:mm:ss"
-                    block
-                    style={{ width: 200 }}
-                    placeholder="End Date"
-                  />
-                  <Checkbox>All Day</Checkbox>
-                </Stack>
-              </Form.Group>
             </>
           )}
         </Form>
@@ -178,7 +164,7 @@ const EventModal = (props: EventModalProps) => {
         <Button onClick={(e) => handleOk(e, formValue)} appearance="primary">
           Submit
         </Button>
-        <Button onClick={onClose} appearance="subtle">
+        <Button onClick={() => onClose(callback)} appearance="subtle">
           Cancel
         </Button>
       </Modal.Footer>
