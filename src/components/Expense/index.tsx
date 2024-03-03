@@ -15,12 +15,12 @@ import MinusIcon from "@rsuite/icons/Minus";
 
 const { ArrayType, StringType, NumberType, ObjectType } = Schema.Types;
 const model = Schema.Model({
-  products: ArrayType().of(
+  expense: ArrayType().of(
     ObjectType().shape({
       name: StringType()
         .minLength(6, "Minimum 6 characters required")
         .isRequired("Required."),
-      quantity: NumberType().isRequired("Required."),
+      price: NumberType().isRequired("Required."),
     })
   ),
 });
@@ -134,7 +134,7 @@ const index = () => {
     <FlexboxGrid>
       <FlexboxGrid.Item colspan={12}>
         <Form
-          ref={formRef}
+          // ref={formRef}
           checkTrigger="blur"
           onChange={setFormValue}
           onCheck={setFormError}

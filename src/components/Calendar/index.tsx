@@ -22,12 +22,13 @@ const index = () => {
       end: selectInfo.endStr,
       // end: endStr,
     });
-    console.log(selectedDate);
+    console.log(values);
   };
 
   const handleOk = (e: any, formValue: any) => {
     // console.log({ ...selectedDate });
     // console.log(formValue);
+    console.log(e.target.value);
 
     setEvents([
       ...events,
@@ -41,14 +42,8 @@ const index = () => {
     setEditable(false);
   };
 
-  const handleClose = (callback: any) => {
-    callback();
-
+  const handleClose = () => {
     setEditable(false);
-  };
-  const handleEventClick = (clickInfo: any) => {
-    // console.log("click", clickInfo);
-    // setEditable(true);
   };
   return (
     <div className="w-ful">
@@ -63,7 +58,7 @@ const index = () => {
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,multiMonthYear",
+          right: "dayGridMonth,multiMonthYear",
         }}
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
@@ -74,7 +69,6 @@ const index = () => {
         height={650}
         dayMaxEvents
         eventBackgroundColor="red"
-        eventClick={handleEventClick}
         select={handleSelect}
         eventContent={renderEventContent}
         initialView="dayGridMonth"

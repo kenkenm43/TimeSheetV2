@@ -55,15 +55,14 @@ const EventModal = (props: EventModalProps) => {
   const [work_time, setWork_time] = useState({ start: "9:00", end: "18:00" });
 
   const handleOk = (e: any, formValue: any) => {
+    console.log(formValue);
+    console.log(formRef.current);
+
     if (!formRef.current.check()) {
       return;
     }
 
     onAddEvent(e, { formValue });
-  };
-
-  const callback = () => {
-    console.log("child function");
   };
 
   return (
@@ -164,7 +163,7 @@ const EventModal = (props: EventModalProps) => {
         <Button onClick={(e) => handleOk(e, formValue)} appearance="primary">
           Submit
         </Button>
-        <Button onClick={() => onClose(callback)} appearance="subtle">
+        <Button onClick={onClose} appearance="subtle">
           Cancel
         </Button>
       </Modal.Footer>
