@@ -84,6 +84,7 @@ model Employment_Details {
   updatedAt            DateTime  @updatedAt
   employee             Employee  @relation(fields: [employeeId], references: [id])
   employeeId           String    @unique
+  Expense              Expense[]
 }
 
 model WorkSchedule {
@@ -104,10 +105,12 @@ model Leave {
 }
 
 model Expense {
-  id                  String    @id @default(uuid())
-  expense_date        DateTime?
-  expense_description String?
-  expnse_amount       Decimal?
+  id                   String              @id @default(uuid())
+  expense_date         DateTime?
+  expense_description  String?
+  expense_amount       Decimal?
+  Employment_Details   Employment_Details? @relation(fields: [employment_DetailsId], references: [id])
+  employment_DetailsId String?
 }
 
 model Performance {

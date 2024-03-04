@@ -134,7 +134,7 @@ const index = () => {
     <FlexboxGrid>
       <FlexboxGrid.Item colspan={12}>
         <Form
-          // ref={formRef}
+          ref={formRef}
           checkTrigger="blur"
           onChange={setFormValue}
           onCheck={setFormError}
@@ -148,14 +148,15 @@ const index = () => {
           />
 
           {/* <hr /> */}
-          {/* <Button
+          <Button
             appearance="primary"
             onClick={() => {
               formRef.current.check();
+              console.log(formValue);
             }}
           >
             Submit
-          </Button> */}
+          </Button>
         </Form>
       </FlexboxGrid.Item>
     </FlexboxGrid>

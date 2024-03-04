@@ -14,6 +14,7 @@ import {
   InputGroup,
 } from "rsuite";
 import Expense from "../Expense";
+import { start } from "repl";
 interface EventModalProps extends ModalProps {
   onAddEvent: (event: React.MouseEvent, formValue: any) => void;
   values: any;
@@ -49,20 +50,29 @@ const EventModal = (props: EventModalProps) => {
   const { onClose, open, onAddEvent, values, ...rest } = props;
   const formRef: any = useRef();
   const [formError, setFormError] = useState({});
-  const [formValue, setFormValue] = useState({});
-  const [expenses, setExpenses] = useState([]);
   const [work_status, setWork_status] = useState<WorkStatus>(WorkStatus.COME);
+  const [expenses, setExpenses] = useState([]);
   const [work_time, setWork_time] = useState({ start: "9:00", end: "18:00" });
+  const [formValue, setFormValue] = useState({
+    work_status: WorkStatus.COME,
+    work_time: { start: "9:00", end: "18:00" },
+    expenses: [],
+  });
 
   const handleOk = (e: any, formValue: any) => {
-    console.log(formValue);
-    console.log(formRef.current);
-
     if (!formRef.current.check()) {
       return;
     }
 
-    onAddEvent(e, { formValue });
+    onAddEvent(e, formValue);
+    setFormValue({
+      work_status: WorkStatus.COME,
+      work_time: { start: "9:00", end: "18:00" },
+      expenses: [],
+    });
+    setWork_status(WorkStatus.COME);
+    setWork_time({ start: "9:00", end: "18:00" });
+    setExpenses([]);
   };
 
   return (

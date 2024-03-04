@@ -11,10 +11,11 @@ import moment from "moment";
 import EventModal from "../Modal";
 const index = () => {
   const [editable, setEditable] = useState(false);
-  const [selectedDate, setSelectedDate] = useState({});
   const [values, setValues] = useState({ title: "", start: "", end: "" });
   const [events, setEvents]: any = useState([]);
   const handleSelect = (selectInfo: any) => {
+    console.log(selectInfo);
+
     setEditable(true);
     setValues({
       ...values,
@@ -27,17 +28,37 @@ const index = () => {
 
   const handleOk = (e: any, formValue: any) => {
     // console.log({ ...selectedDate });
-    // console.log(formValue);
-    console.log(e.target.value);
-
+    let title = "";
+    let backgroundColor = "";
+    console.log("formValue", formValue);
+    console.log("value", values);
+    if (formValue.work_status === "Come") {
+      console.log("come");
+      title = "มาทำงาน";
+      backgroundColor = "green";
+      console.log(formValue.work_status);
+    } else if (formValue.work_status === "Notcome") {
+      console.log("notcome");
+      title = "หยุด";
+      backgroundColor = "gray";
+      console.log(formValue.work_status);
+    } else {
+      title = "ลา";
+      backgroundColor = "red";
+      console.log("leave");
+      console.log(formValue.work_status);
+    }
     setEvents([
       ...events,
       {
-        ...selectedDate,
-        ...formValue,
-        title: formValue.name,
+        ...values,
+        display: "background",
+        backgroundColor: backgroundColor,
+        // backgroundColor: "red",
+        title: title,
       },
     ]);
+    console.log(events);
 
     setEditable(false);
   };
@@ -46,7 +67,7 @@ const index = () => {
     setEditable(false);
   };
   return (
-    <div className="w-ful">
+    <div className="w-full">
       {" "}
       <FullCalendar
         plugins={[
