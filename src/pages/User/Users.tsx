@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useRefreshToken from "../../hooks/useRefreshToken";
 import { useLocation, useNavigate } from "react-router-dom";
-import adminService, { getUsers } from "./../../services/adminServices";
 import useAuth from "../../hooks/useAuth";
 const Users = () => {
   const [users, setUsers] = useState([{ username: "" }]);

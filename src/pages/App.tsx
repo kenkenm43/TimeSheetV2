@@ -17,6 +17,7 @@ import "rsuite/dist/rsuite-no-reset.min.css";
 import useEmployeeStore, {
   TEmployeeStoreState,
 } from "../context/EmployeeProvider";
+import { axiosPrivate } from "../services/httpClient";
 const ROLES = {
   Admin: "admin",
   User: "user",
@@ -39,30 +40,15 @@ const Layout = () => {
 
 function App() {
   const navigate = useNavigate();
-  // const count = useStore((state) => state?.count);
-  // const setCount = useStore((state) => state?.setCount);
   const { auth } = useAuth();
   const { employee }: TEmployeeStoreState = useEmployeeStore();
   useEffect(() => {
-    console.log(employee);
-    let isMounted = true;
-    const controller = new AbortController();
+    console.log(auth);
 
-    const fetchUser = async () => {
-      try {
-        const user = await getUser(controller.signal, auth.id);
-
-        isMounted && console.log(user);
-      } catch (error) {
-        navigate("/login", { state: { from: location }, replace: true });
-      }
-    };
-    fetchUser();
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, []);
+    if (!auth.id) {
+      navigate("/login", { state: { from: "/" }, replace: true });
+    }
+  }, [auth.id, navigate]);
 
   return (
     <Routes>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NavigateFunction } from "react-router-dom";
 import {
@@ -7,6 +8,7 @@ import {
 import httpClient from "./httpClient";
 import { toast } from "react-toastify";
 import { Cookies } from "react-cookie";
+import useAuth from "../hooks/useAuth";
 const cookie = new Cookies();
 export const register = async (
   payload: UserRegisterPayloadType
@@ -39,8 +41,10 @@ export const login = async (
 export const logout = async (redirectTo: NavigateFunction) => {
   await httpClient.get("/auth/logout");
   await sessionStorage.clear();
+  await localStorage.clear();
   await cookie.remove("jwt");
   redirectTo("/login", { replace: true });
+  window.location.reload();
 };
 
 export const handleRefreshToken = async () => {
