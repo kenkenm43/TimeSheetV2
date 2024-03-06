@@ -48,7 +48,7 @@ function App() {
     if (!auth.id) {
       navigate("/login", { state: { from: "/" }, replace: true });
     }
-  }, [auth.id, navigate]);
+  }, [auth, auth.id, navigate]);
 
   return (
     <Routes>

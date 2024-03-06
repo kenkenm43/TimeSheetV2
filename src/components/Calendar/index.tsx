@@ -1,75 +1,125 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import "./calendar.module.css";
-import moment from "moment";
 import EventModal from "../Modal";
 const index = () => {
   const [editable, setEditable] = useState(false);
+  const calendarRef = useRef(null);
+  const [lastClickedEventId, setLastClickedEventId] = useState(null);
   const [values, setValues] = useState({ title: "", start: "", end: "" });
-  const [events, setEvents]: any = useState([]);
-  const handleSelect = (selectInfo: any) => {
-    console.log(selectInfo);
+  const [events, setEvents]: any = useState([
+    {
+      id: "dawd",
+      start: new Date("2024-03-05"),
+      title: "วันหยุด",
+    },
+  ]);
 
-    setEditable(true);
+  const handleDateClick = (arg) => {
+    if (lastClickedEventId) {
+      console.log("Last clicked event ID:", lastClickedEventId);
+      // Use the lastClickedEventId as needed
+    }
+    console.log(arg);
     setValues({
-      ...values,
-      start: selectInfo.startStr,
-      end: selectInfo.endStr,
-      // end: endStr,
+      title: "",
+      start: arg.start,
+      end: "",
     });
-    console.log(values);
+
+    // setEditable(true);
   };
+
+  const handleEventClick = (clickInfo) => {
+    setLastClickedEventId(clickInfo.event.id);
+    // Use the eventId as needed, such as for updating or deleting the event
+  };
+
+  const handleEventCreation = (date, title, backgroundColor) => {
+    const eventDateStrs = date.toISOString().split("T")[0];
+
+    const existingEvent = events.find((event) => {
+      const eventDateStr = event.start.toISOString().split("T")[0];
+      return eventDateStr === eventDateStrs;
+    });
+
+    if (!existingEvent) {
+      const newEvent = {
+        id: Math.random(),
+        title: title,
+        start: date,
+        allDay: true,
+        display: "background",
+        backgroundColor: backgroundColor,
+      };
+      setEvents([...events, newEvent]);
+    } else {
+      const updatedEvents = events.map((event) => {
+        const eventDateStr = event.start.toISOString().split("T")[0];
+        if (eventDateStr === eventDateStr) {
+          return { ...event, title: title, backgroundColor: backgroundColor };
+        }
+        return event;
+      });
+      setEvents(updatedEvents);
+    }
+  };
+
+  // const handleDateSelect = (arg) => {
+  //   const newTitle = prompt("Enter event name:");
+  //   const { start, end } = arg;
+
+  //   // Iterate through each date in the selected range
+  //   for (
+  //     let date = new Date(start);
+  //     date <= end;
+  //     date.setDate(date.getDate() + 1)
+  //   ) {
+  //     handleEventCreation(new Date(date), newTitle);
+  //   }
+  // };
 
   const handleOk = (e: any, formValue: any) => {
     // console.log({ ...selectedDate });
     let title = "";
     let backgroundColor = "";
-    console.log("formValue", formValue);
-    console.log("value", values);
     if (formValue.work_status === "Come") {
-      console.log("come");
       title = "มาทำงาน";
       backgroundColor = "green";
-      console.log(formValue.work_status);
     } else if (formValue.work_status === "Notcome") {
-      console.log("notcome");
       title = "หยุด";
       backgroundColor = "gray";
-      console.log(formValue.work_status);
     } else {
       title = "ลา";
       backgroundColor = "red";
-      console.log("leave");
-      console.log(formValue.work_status);
     }
-    setEvents([
-      ...events,
-      {
-        ...values,
-        display: "background",
-        backgroundColor: backgroundColor,
-        // backgroundColor: "red",
-        title: title,
-      },
-    ]);
-    console.log(events);
+    console.log(values.start);
+
+    handleEventCreation(values.start, title, backgroundColor);
 
     setEditable(false);
+    setValues({ title: "", start: "", end: "" });
+    title = "";
+    backgroundColor = "";
   };
 
   const handleClose = () => {
+    setValues({ title: "", start: "", end: "" });
     setEditable(false);
   };
+  console.log(events);
+
   return (
     <div className="w-full">
       {" "}
       <FullCalendar
+        ref={calendarRef}
         plugins={[
           dayGridPlugin,
           timeGridPlugin,
@@ -89,11 +139,11 @@ const index = () => {
         selectMirror
         height={650}
         dayMaxEvents
-        eventBackgroundColor="red"
-        select={handleSelect}
+        events={events}
+        // eventClick={handleEventClick}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
-        events={events}
+        select={handleDateClick}
       />
       <EventModal
         values={values}
@@ -104,13 +154,9 @@ const index = () => {
     </div>
   );
 };
-const d = moment(new Date()).format("DD/MM/YYYY");
-console.log(d);
 
 function renderEventContent(eventContent: any) {
   const { timeText, event } = eventContent;
-  console.log(event);
-  console.log(timeText);
 
   return (
     <div className="bg-red-100">
