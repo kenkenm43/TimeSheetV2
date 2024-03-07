@@ -10,43 +10,38 @@ import "./calendar.module.css";
 import EventModal from "../Modal";
 const index = () => {
   const [editable, setEditable] = useState(false);
-  const calendarRef = useRef(null);
-  const [lastClickedEventId, setLastClickedEventId] = useState(null);
+  const calendarRef = useRef<any>(null);
   const [values, setValues] = useState({ title: "", start: "", end: "" });
-  const [events, setEvents]: any = useState([
-    {
-      id: "dawd",
-      start: new Date("2024-03-05"),
-      title: "วันหยุด",
-    },
-  ]);
+  const [events, setEvents]: any = useState([]);
 
-  const handleDateClick = (arg) => {
-    if (lastClickedEventId) {
-      console.log("Last clicked event ID:", lastClickedEventId);
-      // Use the lastClickedEventId as needed
-    }
-    console.log(arg);
-    setValues({
-      title: "",
-      start: arg.start,
-      end: "",
+  const handleDateClick = (arg: any) => {
+    const currentValueDate = events.find((event: any) => {
+      const eventDate = event.start.toISOString().split("T")[0];
+
+      return eventDate === arg.date.toISOString().split("T")[0];
     });
+    console.log(currentValueDate);
 
-    // setEditable(true);
+    if (!currentValueDate) {
+      setValues({ title: "COME", start: arg.date, end: "" });
+    } else {
+      setValues(currentValueDate);
+    }
+
+    setEditable(true);
   };
 
-  const handleEventClick = (clickInfo) => {
-    setLastClickedEventId(clickInfo.event.id);
-    // Use the eventId as needed, such as for updating or deleting the event
-  };
+  const handleEventCreation = (
+    date: any,
+    endDate: any,
+    title: any,
+    backgroundColor: any
+  ) => {
+    const eventDateCurrent = date.toISOString().split("T")[0];
 
-  const handleEventCreation = (date, title, backgroundColor) => {
-    const eventDateStrs = date.toISOString().split("T")[0];
-
-    const existingEvent = events.find((event) => {
+    const existingEvent = events.find((event: any) => {
       const eventDateStr = event.start.toISOString().split("T")[0];
-      return eventDateStr === eventDateStrs;
+      return eventDateStr === eventDateCurrent;
     });
 
     if (!existingEvent) {
@@ -60,9 +55,9 @@ const index = () => {
       };
       setEvents([...events, newEvent]);
     } else {
-      const updatedEvents = events.map((event) => {
+      const updatedEvents = events.map((event: any) => {
         const eventDateStr = event.start.toISOString().split("T")[0];
-        if (eventDateStr === eventDateStr) {
+        if (eventDateStr === eventDateCurrent) {
           return { ...event, title: title, backgroundColor: backgroundColor };
         }
         return event;
@@ -90,18 +85,17 @@ const index = () => {
     let title = "";
     let backgroundColor = "";
     if (formValue.work_status === "Come") {
-      title = "มาทำงาน";
+      title = "Come";
       backgroundColor = "green";
     } else if (formValue.work_status === "Notcome") {
-      title = "หยุด";
+      title = "Notcome";
       backgroundColor = "gray";
     } else {
-      title = "ลา";
+      title = "Leave";
       backgroundColor = "red";
     }
-    console.log(values.start);
 
-    handleEventCreation(values.start, title, backgroundColor);
+    handleEventCreation(values.start, values.end, title, backgroundColor);
 
     setEditable(false);
     setValues({ title: "", start: "", end: "" });
@@ -113,6 +107,7 @@ const index = () => {
     setValues({ title: "", start: "", end: "" });
     setEditable(false);
   };
+
   console.log(events);
 
   return (
@@ -129,7 +124,7 @@ const index = () => {
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,multiMonthYear",
+          right: "dayGridMonth,multiMonthYear,list",
         }}
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
@@ -140,10 +135,10 @@ const index = () => {
         height={650}
         dayMaxEvents
         events={events}
-        // eventClick={handleEventClick}
+        dateClick={handleDateClick}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
-        select={handleDateClick}
+        // select={handleDateClick}
       />
       <EventModal
         values={values}
@@ -166,7 +161,7 @@ function renderEventContent(eventContent: any) {
           <div className="fc-event-time">{eventContent.timeText}</div>
         </>
       )}
-      <div className="fc-event-title">{event.title}</div>
+      {/* <div className="fc-event-title">{event.title}</div> */}
     </div>
   );
 }
