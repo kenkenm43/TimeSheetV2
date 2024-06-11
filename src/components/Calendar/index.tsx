@@ -30,7 +30,6 @@ const index = () => {
   const handleDateClick = (arg: any) => {
     const currentValueDate = events.find((event: any) => {
       const eventDate = event.start.toISOString().split("T")[0];
-
       return eventDate === arg.date.toISOString().split("T")[0];
     });
 
@@ -40,9 +39,12 @@ const index = () => {
       setValues({ title: WorkStatus.COME, start: arg.date, end: "" });
       setWorkStatus(WorkStatus.COME);
     } else {
-      console.log("current", currentValueDate);
-
-      setValues({ title: currentValueDate.title, start: "", end: "" });
+      console.log("current", currentValueDate.start);
+      setValues({
+        title: currentValueDate.title,
+        start: currentValueDate.start,
+        end: "",
+      });
       setWorkStatus(currentValueDate.title);
     }
 

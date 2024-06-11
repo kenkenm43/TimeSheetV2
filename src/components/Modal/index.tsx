@@ -60,6 +60,8 @@ const EventModal = (props: any) => {
     work_status: workStatus,
     work_time: { start: "9:00", end: "18:00" },
   });
+  console.log("value", values.start);
+  console.log("workstatus", workStatus);
 
   const handleChange = (e: any) => {
     setWorkStatus(e);
@@ -86,7 +88,6 @@ const EventModal = (props: any) => {
         <Form
           fluid
           ref={formRef}
-          formValue={formValue}
           onChange={setFormValue}
           onCheck={setFormError}
         >
