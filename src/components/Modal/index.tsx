@@ -52,13 +52,13 @@ const EventModal = (props: any) => {
   } = props;
   const formRef: any = useRef();
   const [formError, setFormError] = useState({});
+  console.log();
 
   // const [expenses, setExpenses] = useState([{ name: "", quantity: null }]);
   const [work_time, setWork_time] = useState({ start: "9:00", end: "18:00" });
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
     work_time: { start: "9:00", end: "18:00" },
-    expenses: [{ name: "", quantity: null }],
   });
 
   const handleChange = (e: any) => {
@@ -67,11 +67,10 @@ const EventModal = (props: any) => {
   // console.log(WorkStatus.COME == values.current.title);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleOk = (e: any, formValue: any) => {
-    console.log("formvalue", formValue);
-
     if (!formRef.current.check()) {
       return;
     }
+    console.log("formvalue", formValue);
 
     onAddEvent(e, formValue);
   };
@@ -164,7 +163,10 @@ const EventModal = (props: any) => {
               </Form.Group>
             </>
           )}
-          <Button appearance="primary" onClick={(e: any) => handleOk(e)}>
+          <Button
+            appearance="primary"
+            onClick={(e: any) => handleOk(e, formValue)}
+          >
             Submit
           </Button>
         </Form>

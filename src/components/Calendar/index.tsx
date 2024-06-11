@@ -35,13 +35,15 @@ const index = () => {
     });
 
     if (!currentValueDate) {
-      console.log("setting");
+      console.log("no current");
 
       setValues({ title: WorkStatus.COME, start: arg.date, end: "" });
-
-      console.log("value", values);
+      setWorkStatus(WorkStatus.COME);
     } else {
-      setValues({ title: WorkStatus.COME, start: "", end: "" });
+      console.log("current", currentValueDate);
+
+      setValues({ title: currentValueDate.title, start: "", end: "" });
+      setWorkStatus(currentValueDate.title);
     }
 
     setEditable(true);
@@ -100,25 +102,25 @@ const index = () => {
     // console.log({ ...selectedDate });
     console.log("formvalue", formValue);
 
-    // let title = "";
-    // let backgroundColor = "";
-    // if (formValue.work_status === WorkStatus.COME) {
-    //   title = "Come";
-    //   backgroundColor = "green";
-    // } else if (formValue.work_status === WorkStatus.NOTCOME) {
-    //   title = "Notcome";
-    //   backgroundColor = "gray";
-    // } else {
-    //   title = "Leave";
-    //   backgroundColor = "red";
-    // }
+    let title = "";
+    let backgroundColor = "";
+    if (formValue.work_status === WorkStatus.COME) {
+      title = "Come";
+      backgroundColor = "green";
+    } else if (formValue.work_status === WorkStatus.NOTCOME) {
+      title = "Notcome";
+      backgroundColor = "gray";
+    } else {
+      title = "Leave";
+      backgroundColor = "red";
+    }
 
-    // handleEventCreation(values.start, values.end, title, backgroundColor);
+    handleEventCreation(values.start, values.end, title, backgroundColor);
 
-    // setEditable(false);
-    // setValues({ title: "", start: "", end: "" });
-    // title = "";
-    // backgroundColor = "";
+    setEditable(false);
+    setValues({ title: "", start: "", end: "" });
+    title = "";
+    backgroundColor = "";
   };
 
   const handleClose = () => {
