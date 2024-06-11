@@ -8,10 +8,23 @@ import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import "./calendar.module.css";
 import EventModal from "../Modal";
+enum WorkStatus {
+  COME = "come",
+  NOTCOME = "notcome",
+  LEAVE = "leave",
+}
+
+interface Value {
+  title: string;
+  start: string;
+  end: string;
+}
+
 const index = () => {
   const [editable, setEditable] = useState(false);
   const calendarRef = useRef<any>(null);
   const [values, setValues] = useState({ title: "", start: "", end: "" });
+  const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
   const [events, setEvents]: any = useState([]);
 
   const handleDateClick = (arg: any) => {
@@ -20,12 +33,15 @@ const index = () => {
 
       return eventDate === arg.date.toISOString().split("T")[0];
     });
-    console.log(currentValueDate);
 
     if (!currentValueDate) {
-      setValues({ title: "COME", start: arg.date, end: "" });
+      console.log("setting");
+
+      setValues({ title: WorkStatus.COME, start: arg.date, end: "" });
+
+      console.log("value", values);
     } else {
-      setValues(currentValueDate);
+      setValues({ title: WorkStatus.COME, start: "", end: "" });
     }
 
     setEditable(true);
@@ -82,33 +98,33 @@ const index = () => {
 
   const handleOk = (e: any, formValue: any) => {
     // console.log({ ...selectedDate });
-    let title = "";
-    let backgroundColor = "";
-    if (formValue.work_status === "Come") {
-      title = "Come";
-      backgroundColor = "green";
-    } else if (formValue.work_status === "Notcome") {
-      title = "Notcome";
-      backgroundColor = "gray";
-    } else {
-      title = "Leave";
-      backgroundColor = "red";
-    }
+    console.log("formvalue", formValue);
 
-    handleEventCreation(values.start, values.end, title, backgroundColor);
+    // let title = "";
+    // let backgroundColor = "";
+    // if (formValue.work_status === WorkStatus.COME) {
+    //   title = "Come";
+    //   backgroundColor = "green";
+    // } else if (formValue.work_status === WorkStatus.NOTCOME) {
+    //   title = "Notcome";
+    //   backgroundColor = "gray";
+    // } else {
+    //   title = "Leave";
+    //   backgroundColor = "red";
+    // }
 
-    setEditable(false);
-    setValues({ title: "", start: "", end: "" });
-    title = "";
-    backgroundColor = "";
+    // handleEventCreation(values.start, values.end, title, backgroundColor);
+
+    // setEditable(false);
+    // setValues({ title: "", start: "", end: "" });
+    // title = "";
+    // backgroundColor = "";
   };
 
   const handleClose = () => {
-    setValues({ title: "", start: "", end: "" });
+    setWorkStatus(WorkStatus.COME);
     setEditable(false);
   };
-
-  console.log(events);
 
   return (
     <div className="w-full">
@@ -124,14 +140,14 @@ const index = () => {
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,multiMonthYear,list",
+          right: "dayGridMonth",
         }}
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
         }}
         editable
-        selectable
-        selectMirror
+        // selectable
+        // selectMirror
         height={650}
         dayMaxEvents
         events={events}
@@ -142,6 +158,8 @@ const index = () => {
       />
       <EventModal
         values={values}
+        workStatus={workStatus}
+        setWorkStatus={setWorkStatus}
         open={editable}
         onClose={handleClose}
         onAddEvent={handleOk}
