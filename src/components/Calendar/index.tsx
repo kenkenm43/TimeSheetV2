@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -12,12 +12,6 @@ enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
   LEAVE = "leave",
-}
-
-interface Value {
-  title: string;
-  start: string;
-  end: string;
 }
 
 const index = () => {
@@ -34,12 +28,9 @@ const index = () => {
     });
 
     if (!currentValueDate) {
-      console.log("no current");
-
       setValues({ title: WorkStatus.COME, start: arg.date, end: "" });
       setWorkStatus(WorkStatus.COME);
     } else {
-      console.log("current", currentValueDate.start);
       setValues({
         title: currentValueDate.title,
         start: currentValueDate.start,
@@ -102,18 +93,17 @@ const index = () => {
 
   const handleOk = (e: any, formValue: any) => {
     // console.log({ ...selectedDate });
-    console.log("formvalue", formValue);
 
     let title = "";
     let backgroundColor = "";
     if (formValue.work_status === WorkStatus.COME) {
-      title = "Come";
+      title = WorkStatus.COME;
       backgroundColor = "green";
     } else if (formValue.work_status === WorkStatus.NOTCOME) {
-      title = "Notcome";
+      title = WorkStatus.NOTCOME;
       backgroundColor = "gray";
     } else {
-      title = "Leave";
+      title = WorkStatus.LEAVE;
       backgroundColor = "red";
     }
 
@@ -121,6 +111,7 @@ const index = () => {
 
     setEditable(false);
     setValues({ title: "", start: "", end: "" });
+    setWorkStatus(WorkStatus.COME);
     title = "";
     backgroundColor = "";
   };
@@ -150,15 +141,12 @@ const index = () => {
           daysOfWeek: [1, 2, 3, 4, 5],
         }}
         editable
-        // selectable
-        // selectMirror
         height={650}
         dayMaxEvents
         events={events}
         dateClick={handleDateClick}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
-        // select={handleDateClick}
       />
       <EventModal
         values={values}
@@ -173,7 +161,7 @@ const index = () => {
 };
 
 function renderEventContent(eventContent: any) {
-  const { timeText, event } = eventContent;
+  const { timeText } = eventContent;
 
   return (
     <div className="bg-red-100">

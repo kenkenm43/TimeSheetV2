@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import moment from "moment";
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
   Button,
   Form,
   DatePicker,
-  ModalProps,
   Stack,
   RadioGroup,
   Radio,
   InputGroup,
 } from "rsuite";
-import Expense from "../Expense";
 
 enum WorkStatus {
   COME = "come",
@@ -60,6 +58,13 @@ const EventModal = (props: any) => {
     work_status: workStatus,
     work_time: { start: "9:00", end: "18:00" },
   });
+
+  useEffect(() => {
+    setFormValue({
+      work_status: workStatus,
+      work_time: { start: "9:00", end: "18:00" },
+    });
+  }, [workStatus]);
   console.log("value", values.start);
   console.log("workstatus", workStatus);
 
@@ -73,7 +78,6 @@ const EventModal = (props: any) => {
       return;
     }
     console.log("formvalue", formValue);
-
     onAddEvent(e, formValue);
   };
 
@@ -168,7 +172,7 @@ const EventModal = (props: any) => {
             appearance="primary"
             onClick={(e: any) => handleOk(e, formValue)}
           >
-            Submit
+            บันทึก
           </Button>
         </Form>
       </Modal.Body>
