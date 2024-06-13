@@ -49,30 +49,20 @@ const addWorkSchedule: RequestHandler = async (
   next: any
 ) => {
   try {
+    const employeeId = req.params["id"];
     const payload = req.body;
-    const passwordHash = bcrypt.hashSync(payload.password, 10);
-    const newUser = await prisma.employee.create({
-      include: {
-        System_Access: true,
-      },
+    const newDate = await prisma.workSchedule.create({
       data: {
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        idCard: payload.idCard,
-        gender: "male",
-        System_Access: {
-          create: {
-            username: payload.username,
-            password: passwordHash,
-            access_rights: "edit",
-          },
-        },
+        employeeId: employeeId,
+        work_date: payload.date,
+        work_status: payload.work_status,
       },
     });
-    if (!newUser) {
-      throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
-    }
-    req["user"] = newUser.System_Access;
+
+    // if (!newUser) {
+    //   throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
+    // }
+    // req["user"] = newUser.System_Access;
     getAuthToken(req, res, next);
   } catch (error) {
     return handleError(error, res);

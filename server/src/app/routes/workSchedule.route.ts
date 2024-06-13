@@ -1,6 +1,5 @@
 import express from "express";
 import workScheduleController from "../controllers/workSchedule.controller";
-import { verifyAccessToken } from "../middlewares/authToken";
 const router = express.Router();
 
 router.get("/work-schedule", workScheduleController.workSchedule);

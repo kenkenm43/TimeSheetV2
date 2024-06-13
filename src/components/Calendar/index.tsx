@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import "./calendar.module.css";
+import { v4 as uuidv4 } from "uuid";
 import EventModal from "../Modal";
 enum WorkStatus {
   COME = "come",
@@ -57,7 +58,7 @@ const index = () => {
 
     if (!existingEvent) {
       const newEvent = {
-        id: Math.random(),
+        id: uuidv4(),
         title: title,
         start: date,
         allDay: true,
@@ -114,6 +115,7 @@ const index = () => {
     setWorkStatus(WorkStatus.COME);
     title = "";
     backgroundColor = "";
+    console.log(events);
   };
 
   const handleClose = () => {
@@ -140,9 +142,13 @@ const index = () => {
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
         }}
+        views={{
+          dayGridMonth: {
+            titleFormat: { year: "numeric", month: "long" },
+          },
+        }}
         editable
         height={650}
-        dayMaxEvents
         events={events}
         dateClick={handleDateClick}
         eventContent={renderEventContent}
@@ -164,11 +170,11 @@ function renderEventContent(eventContent: any) {
   const { timeText } = eventContent;
 
   return (
-    <div className="bg-red-100">
+    <div className="bg-red-500">
       {timeText && (
         <>
           <div className="fc-daygrid-event-dot"></div>
-          <div className="fc-event-time">{eventContent.timeText}</div>
+          <div className="fc-event-time">{timeText}</div>
         </>
       )}
       {/* <div className="fc-event-title">{event.title}</div> */}
