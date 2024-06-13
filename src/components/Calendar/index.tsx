@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -21,6 +21,8 @@ const index = () => {
   const [values, setValues] = useState({ title: "", start: "", end: "" });
   const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
   const [events, setEvents]: any = useState([]);
+
+  useEffect(() => {});
 
   const handleDateClick = (arg: any) => {
     const currentValueDate = events.find((event: any) => {

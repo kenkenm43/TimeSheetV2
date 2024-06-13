@@ -4,7 +4,8 @@ const router = express.Router();
 
 router.get("/work-schedule", workScheduleController.workSchedule);
 // router.get("/user", verifyAccessToken, UserController.getUser);
-router.post("/work-schedule", workScheduleController.addWorkSchedule);
+router.post("/work-schedule/:id", workScheduleController.addWorkSchedule);
+
 // router.post("/leave-schedule", workScheduleController.createUser);
 
 // router

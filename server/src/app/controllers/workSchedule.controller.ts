@@ -50,22 +50,28 @@ const addWorkSchedule: RequestHandler = async (
 ) => {
   try {
     const employeeId = req.params["id"];
+    console.log(employeeId);
+
     const payload = req.body;
+    console.log(payload.work_date, payload.work_status);
+
     const newDate = await prisma.workSchedule.create({
       data: {
         employeeId: employeeId,
-        work_date: payload.date,
+        work_date: payload.work_date,
         work_status: payload.work_status,
       },
     });
-
+    console.log(newDate);
+    // return res.status(200).json({ newDate });
     // if (!newUser) {
     //   throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
     // }
     // req["user"] = newUser.System_Access;
-    getAuthToken(req, res, next);
+    // getAuthToken(req, res, next);
   } catch (error) {
-    return handleError(error, res);
+    return console.log(error);
+    // return handleError(error, res);
   }
 };
 const addLeaveSchedule: RequestHandler = async (

@@ -42,13 +42,11 @@ function App() {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const { employee }: TEmployeeStoreState = useEmployeeStore();
-  useEffect(() => {
-    console.log(auth);
 
-    if (!auth.id) {
-      navigate("/login", { state: { from: "/" }, replace: true });
-    }
-  }, [auth, auth.id, navigate]);
+  const checkValidToken = () => {
+    const token = auth.id;
+  };
+  console.log("check", checkValidToken());
 
   return (
     <Routes>
