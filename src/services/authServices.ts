@@ -43,7 +43,7 @@ export const logout = async (redirectTo: NavigateFunction) => {
   await sessionStorage.clear();
   await localStorage.clear();
   await cookie.remove("jwt");
-  redirectTo("/login", { replace: true });
+  // redirectTo("/login", { replace: true });
   window.location.reload();
 };
 
@@ -66,5 +66,6 @@ export const forgotPassword = async (email: string): Promise<boolean> => {
   }
 };
 
-const storeAcessTokenToLocal = (accessToken: string): void =>
+const storeAcessTokenToLocal = (accessToken: string): void => {
   localStorage.setItem("accessToken", accessToken);
+};

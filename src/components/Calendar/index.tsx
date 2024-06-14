@@ -9,6 +9,7 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import "./calendar.module.css";
 import { v4 as uuidv4 } from "uuid";
 import EventModal from "../Modal";
+import moment from "moment";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -29,9 +30,20 @@ const index = () => {
       const eventDate = event.start.toISOString().split("T")[0];
       return eventDate === arg.date.toISOString().split("T")[0];
     });
+    const defaultTime = moment
+      .tz(
+        arg.date.toISOString().split("T")[0] + "T00:00:00.000Z",
+        "Asia/Bangkok"
+      )
+      .format();
+    console.log(defaultTime);
 
     if (!currentValueDate) {
-      setValues({ title: WorkStatus.COME, start: arg.date, end: "" });
+      setValues({
+        title: WorkStatus.COME,
+        start: defaultTime,
+        end: "",
+      });
       setWorkStatus(WorkStatus.COME);
     } else {
       setValues({
@@ -158,6 +170,7 @@ const index = () => {
       />
       <EventModal
         values={values}
+        setValues={setValues}
         workStatus={workStatus}
         setWorkStatus={setWorkStatus}
         open={editable}

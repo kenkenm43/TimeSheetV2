@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import moment from "moment";
+import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
@@ -44,20 +44,20 @@ const EventModal = (props: any) => {
     open,
     onAddEvent,
     values,
+    setValues,
     workStatus,
     setWorkStatus,
     ...rest
   } = props;
   const formRef: any = useRef();
   const [formError, setFormError] = useState({});
-  console.log();
 
   // const [expenses, setExpenses] = useState([{ name: "", quantity: null }]);
-  const [work_time, setWork_time] = useState({ start: "9:00", end: "18:00" });
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
     work_time: { start: "9:00", end: "18:00" },
   });
+  console.log("value start", values.start);
 
   useEffect(() => {
     setFormValue({
@@ -65,8 +65,6 @@ const EventModal = (props: any) => {
       work_time: { start: "9:00", end: "18:00" },
     });
   }, [workStatus]);
-  console.log("value", values.start);
-  console.log("workstatus", workStatus);
 
   const handleChange = (e: any) => {
     setWorkStatus(e);
@@ -77,7 +75,6 @@ const EventModal = (props: any) => {
     if (!formRef.current.check()) {
       return;
     }
-    console.log("formvalue", formValue);
     onAddEvent(e, formValue);
   };
 
@@ -106,6 +103,7 @@ const EventModal = (props: any) => {
             <Radio value={WorkStatus.NOTCOME}>หยุด</Radio>
             <Radio value={WorkStatus.LEAVE}>ลางาน</Radio>
           </Field>
+
           {WorkStatus.COME == workStatus && (
             <>
               <Stack spacing={6}>
@@ -113,16 +111,16 @@ const EventModal = (props: any) => {
                 <DatePicker
                   placeholder="เวลามาทำงาน"
                   format="HH:mm"
-                  defaultValue={new Date(`${values.start} ${work_time.start}`)}
+                  // value={values.start}
+                  defaultValue={values.start}
                   onChange={(date: any) => {
-                    setWork_time({
-                      ...work_time,
-                      start: moment(date).format("HH:mm"),
+                    setValues({
+                      ...values,
+                      start: date,
                     });
                   }}
                   hideHours={(hour) =>
-                    hour < 7 ||
-                    hour > Number(moment(work_time.end, "HH:mm").format("H"))
+                    hour < 7 || hour > Number(moment(values.end, "HH:mm"))
                   }
                   hideMinutes={(min) => min < 0}
                   name="start_work"
@@ -131,21 +129,19 @@ const EventModal = (props: any) => {
                 <DatePicker
                   placeholder="เวลาเลิกงาน"
                   format="HH:mm"
-                  defaultValue={new Date(`${values.start} ${work_time.end}`)}
+                  defaultValue={new Date(`${values.start} ${values.end}`)}
                   onChange={(date: any) => {
-                    setWork_time({
-                      ...work_time,
-                      end: moment(date).format("HH:mm"),
+                    setValues({
+                      ...values,
+                      end: moment(date),
                     });
                   }}
                   hideHours={(hour) =>
-                    hour <
-                      Number(moment(work_time.start, "HH:mm").format("H")) ||
+                    hour < Number(moment(values.start, "HH:mm").format("H")) ||
                     hour > 23
                   }
                   hideMinutes={(min) => {
-                    min <
-                      Number(moment(work_time.start, "HH:mm").format("m")) ||
+                    min < Number(moment(values.start, "HH:mm").format("m")) ||
                       min > 59;
                   }}
                   name="end_work"
