@@ -23,35 +23,38 @@ const index = () => {
   const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
   const [events, setEvents]: any = useState([]);
 
-  useEffect(() => {});
+  const formatDate = (date: any, time?: any, format?: any) => {
+    const dateF = moment(date + time).format(format);
+    return dateF;
+  };
+  console.log(events);
 
   const handleDateClick = (arg: any) => {
+    const { dateStr } = arg;
+    console.log(dateStr);
+
+    const startDate = formatDate(dateStr, "T07:00:00", "YYYY-MM-DDTHH:mm:ss");
+    const endDate = formatDate(dateStr, "T18:00:00", "YYYY-MM-DDTHH:mm:ss");
     const currentValueDate = events.find((event: any) => {
-      const eventDate = event.start.toISOString().split("T")[0];
-      return eventDate === arg.date.toISOString().split("T")[0];
+      const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
+      return eventDate === formatDate(dateStr, "", "YYYY-MM-DD");
     });
-    console.log(arg.date.toString());
-    console.log("moment", moment.tz(arg.date.toString(), "Asia/Bangkok"));
-
-    const defaultTime = moment.tz(arg.date.toISOString(), "Asia/Bangkok");
-
-    const endTime = moment.tz(arg.date.toISOString(), "Asia/Bangkok");
-
-    console.log("defaultTime", defaultTime);
-    console.log("endTime", endTime);
+    console.log("current", currentValueDate);
 
     if (!currentValueDate) {
       setValues({
         title: WorkStatus.COME,
-        start: String(defaultTime),
-        end: String(endTime),
+        start: startDate,
+        end: endDate,
       });
       setWorkStatus(WorkStatus.COME);
     } else {
+      console.log("current");
+
       setValues({
         title: currentValueDate.title,
         start: currentValueDate.start,
-        end: "",
+        end: currentValueDate.end,
       });
       setWorkStatus(currentValueDate.title);
     }
@@ -60,36 +63,57 @@ const index = () => {
   };
 
   const handleEventCreation = (
-    date: any,
+    startDate: any,
     endDate: any,
     title: any,
     backgroundColor: any
   ) => {
-    const eventDateCurrent = date.toString();
+    console.log("startDate", startDate);
+    console.log("end", endDate);
+
+    const eventDateCurrent = startDate;
 
     const existingEvent = events.find((event: any) => {
-      const eventDateStr = event.start.toISOString().split("T")[0];
-      return eventDateStr === eventDateCurrent;
+      const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
+
+      return eventDateStr === formatDate(eventDateCurrent, "", "YYYY-MM-DD");
     });
 
     if (!existingEvent) {
+      console.log("no exist");
+
       const newEvent = {
         id: uuidv4(),
         title: title,
-        start: date,
+        start: new Date(startDate),
+        end: new Date(endDate),
         allDay: true,
         display: "background",
         backgroundColor: backgroundColor,
       };
       setEvents([...events, newEvent]);
     } else {
+      console.log("exist");
+
       const updatedEvents = events.map((event: any) => {
-        const eventDateStr = event.start.toISOString().split("T")[0];
-        if (eventDateStr === eventDateCurrent) {
-          return { ...event, title: title, backgroundColor: backgroundColor };
+        const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
+        if (eventDateStr === formatDate(eventDateCurrent, "", "YYYY-MM-DD")) {
+          console.log("if");
+
+          return {
+            ...event,
+            start: startDate,
+            end: endDate,
+            title: title,
+            backgroundColor: backgroundColor,
+          };
         }
+        console.log("notif");
+
         return event;
       });
+      console.log("update", updatedEvents);
+
       setEvents(updatedEvents);
     }
   };
@@ -123,6 +147,7 @@ const index = () => {
       title = WorkStatus.LEAVE;
       backgroundColor = "red";
     }
+    console.log("start", formValue.start, "end", formValue.end);
 
     handleEventCreation(values.start, values.end, title, backgroundColor);
 
@@ -131,7 +156,7 @@ const index = () => {
     setWorkStatus(WorkStatus.COME);
     title = "";
     backgroundColor = "";
-    console.log(events);
+    // console.log(events);
   };
 
   const handleClose = () => {

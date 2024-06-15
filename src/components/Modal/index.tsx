@@ -10,6 +10,7 @@ import {
   RadioGroup,
   Radio,
   InputGroup,
+  SelectPicker,
 } from "rsuite";
 
 enum WorkStatus {
@@ -57,15 +58,12 @@ const EventModal = (props: any) => {
     work_status: workStatus,
     work_time: { start: "9:00", end: "18:00" },
   });
-  console.log("value start", values.start);
-
-  useEffect(() => {
-    setFormValue({
-      work_status: workStatus,
-      work_time: { start: "9:00", end: "18:00" },
-    });
-  }, [workStatus]);
-
+  // console.log("value start", values.start);
+  // console.log("value end", values.end);
+  const data = ["ลาป่วย", "ลาโดยใช้วันหยุด"].map((item) => ({
+    label: item,
+    value: item,
+  }));
   const handleChange = (e: any) => {
     setWorkStatus(e);
   };
@@ -100,7 +98,7 @@ const EventModal = (props: any) => {
             onChange={handleChange}
           >
             <Radio value={WorkStatus.COME}>มาทำงาน</Radio>
-            <Radio value={WorkStatus.NOTCOME}>หยุด</Radio>
+            <Radio value={WorkStatus.NOTCOME}>วันหยุดบริษัท</Radio>
             <Radio value={WorkStatus.LEAVE}>ลางาน</Radio>
           </Field>
 
@@ -114,11 +112,9 @@ const EventModal = (props: any) => {
                   // value={values.start}
                   defaultValue={new Date(values.start)}
                   onChange={(date: any) => {
-                    console.log("date", date);
-
                     setValues({
                       ...values,
-                      start: new Date(date),
+                      start: date,
                     });
                   }}
                   hideHours={(hour) =>
@@ -129,23 +125,24 @@ const EventModal = (props: any) => {
                 />
                 <InputGroup.Addon>เวลาเลิกงาน</InputGroup.Addon>
                 <DatePicker
+                  name="end"
                   placeholder="เวลาเลิกงาน"
                   format="HH:mm"
                   defaultValue={new Date(values.end)}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
-                      end: new Date(date),
+                      end: date,
                     });
                   }}
-                  hideHours={(hour) =>
-                    hour < Number(moment(values.start, "HH:mm").format("H")) ||
-                    hour > 23
-                  }
-                  hideMinutes={(min) => {
-                    min < Number(moment(values.start, "HH:mm").format("m")) ||
-                      min > 59;
-                  }}
+                  // hideHours={(hour) =>
+                  //   hour < Number(moment(values.start, "HH:mm").format("H")) ||
+                  //   hour > 23
+                  // }
+                  // hideMinutes={(min) => {
+                  //   min < Number(moment(values.start, "HH:mm").format("m")) ||
+                  //     min > 59;
+                  // }}
                   name="end_work"
                 />
               </Stack>
@@ -158,7 +155,7 @@ const EventModal = (props: any) => {
             <>
               <Form.Group controlId="leave_type">
                 <Form.ControlLabel>ประเภทการลา</Form.ControlLabel>
-                <Form.Control name="leave_type" />
+                <SelectPicker data={data} />
               </Form.Group>
               <Form.Group controlId="leave_cause">
                 <Form.ControlLabel>สาเหตุ</Form.ControlLabel>
