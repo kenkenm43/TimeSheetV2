@@ -30,19 +30,21 @@ const index = () => {
       const eventDate = event.start.toISOString().split("T")[0];
       return eventDate === arg.date.toISOString().split("T")[0];
     });
-    const defaultTime = moment
-      .tz(
-        arg.date.toISOString().split("T")[0] + "T00:00:00.000Z",
-        "Asia/Bangkok"
-      )
-      .format();
-    console.log(defaultTime);
+    console.log(arg.date.toString());
+    console.log("moment", moment.tz(arg.date.toString(), "Asia/Bangkok"));
+
+    const defaultTime = moment.tz(arg.date.toISOString(), "Asia/Bangkok");
+
+    const endTime = moment.tz(arg.date.toISOString(), "Asia/Bangkok");
+
+    console.log("defaultTime", defaultTime);
+    console.log("endTime", endTime);
 
     if (!currentValueDate) {
       setValues({
         title: WorkStatus.COME,
-        start: defaultTime,
-        end: "",
+        start: String(defaultTime),
+        end: String(endTime),
       });
       setWorkStatus(WorkStatus.COME);
     } else {
@@ -63,7 +65,7 @@ const index = () => {
     title: any,
     backgroundColor: any
   ) => {
-    const eventDateCurrent = date.toISOString().split("T")[0];
+    const eventDateCurrent = date.toString();
 
     const existingEvent = events.find((event: any) => {
       const eventDateStr = event.start.toISOString().split("T")[0];

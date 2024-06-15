@@ -112,11 +112,13 @@ const EventModal = (props: any) => {
                   placeholder="เวลามาทำงาน"
                   format="HH:mm"
                   // value={values.start}
-                  defaultValue={values.start}
+                  defaultValue={new Date(values.start)}
                   onChange={(date: any) => {
+                    console.log("date", date);
+
                     setValues({
                       ...values,
-                      start: date,
+                      start: new Date(date),
                     });
                   }}
                   hideHours={(hour) =>
@@ -129,11 +131,11 @@ const EventModal = (props: any) => {
                 <DatePicker
                   placeholder="เวลาเลิกงาน"
                   format="HH:mm"
-                  defaultValue={new Date(`${values.start} ${values.end}`)}
+                  defaultValue={new Date(values.end)}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
-                      end: moment(date),
+                      end: new Date(date),
                     });
                   }}
                   hideHours={(hour) =>
