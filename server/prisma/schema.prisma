@@ -61,9 +61,9 @@ model Employee {
   Employment_Details Employment_Details?
   Financial_Details  Financial_Details?
   System_Access      System_Access?
-  Leave              Leave?
   Performance        Performance?
-  WorkSchedule       WorkSchedule?
+  Leave              Leave[]
+  WorkSchedule       WorkSchedule[]
 }
 
 model Employment_Details {
@@ -89,10 +89,11 @@ model Employment_Details {
 
 model WorkSchedule {
   id          String    @id @default(uuid())
-  work_date   DateTime?
+  work_start  DateTime?
+  work_end    DateTime?
   work_status String?
   employee    Employee  @relation(fields: [employeeId], references: [id])
-  employeeId  String    @unique
+  employeeId  String
 }
 
 model Leave {
@@ -101,7 +102,7 @@ model Leave {
   leave_date   DateTime?
   leave_reason String?
   employee     Employee  @relation(fields: [employeeId], references: [id])
-  employeeId   String    @unique
+  employeeId   String
 }
 
 model Expense {

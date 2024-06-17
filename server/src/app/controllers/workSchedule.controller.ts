@@ -18,11 +18,12 @@ const workSchedule: RequestHandler = async (
   next: any
 ) => {
   try {
-    const workSchedule = await prisma.workSchedule.findMany({});
-
-    return res.status(200).json({
-      workSchedule,
+    const employeeId = req.params["id"];
+    const workSchedule = await prisma.workSchedule.findMany({
+      where: { employeeId: employeeId },
     });
+
+    return res.status(200).json([...workSchedule]);
   } catch (error) {
     return handleError(error, res);
   }
@@ -34,7 +35,12 @@ const leaveSchedule: RequestHandler = async (
   next: any
 ) => {
   try {
-    const leaveSchedule = await prisma.leave.findMany({});
+    const employeeId = req.params["id"];
+
+    const leaveSchedule = await prisma.leave.findMany({
+      where: { employeeId: employeeId },
+    });
+
     return res.status(200).json({
       leaveSchedule,
     });
@@ -50,28 +56,18 @@ const addWorkSchedule: RequestHandler = async (
 ) => {
   try {
     const employeeId = req.params["id"];
-    console.log(employeeId);
-
     const payload = req.body;
-    console.log(payload.work_date, payload.work_status);
-
     const newDate = await prisma.workSchedule.create({
       data: {
         employeeId: employeeId,
-        work_date: payload.work_date,
+        work_start: payload.work_start,
+        work_end: payload.work_end,
         work_status: payload.work_status,
       },
     });
-    console.log(newDate);
-    // return res.status(200).json({ newDate });
-    // if (!newUser) {
-    //   throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
-    // }
-    // req["user"] = newUser.System_Access;
-    // getAuthToken(req, res, next);
+    return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
   } catch (error) {
-    return console.log(error);
-    // return handleError(error, res);
+    return handleError(error, res);
   }
 };
 const addLeaveSchedule: RequestHandler = async (
@@ -80,31 +76,19 @@ const addLeaveSchedule: RequestHandler = async (
   next: any
 ) => {
   try {
+    const employeeId = req.params["id"];
+
     const payload = req.body;
-    const passwordHash = bcrypt.hashSync(payload.password, 10);
-    const newUser = await prisma.employee.create({
-      include: {
-        System_Access: true,
-      },
+
+    const newLeave = await prisma.leave.create({
       data: {
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        idCard: payload.idCard,
-        gender: "male",
-        System_Access: {
-          create: {
-            username: payload.username,
-            password: passwordHash,
-            access_rights: "edit",
-          },
-        },
+        employeeId: employeeId,
+        leave_date: payload.leave_date,
+        leave_reason: payload.leave_reason,
+        leave_type: payload.leave_type,
       },
     });
-    if (!newUser) {
-      throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
-    }
-    req["user"] = newUser.System_Access;
-    getAuthToken(req, res, next);
+    return res.status(200).json({ ...newLeave, message: "บันทึกเรียบร้อย" });
   } catch (error) {
     return handleError(error, res);
   }

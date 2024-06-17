@@ -15,10 +15,7 @@ const getEmployees = async (req: Request, res: Response) => {
 };
 const getEmployee = async (req: Request, res: Response) => {
   try {
-    console.log(req.cookies.jwt);
-
     const employeeId = req.params["id"];
-    console.log(employeeId);
 
     const employees = await prisma.employee.findFirst({
       where: { id: employeeId },

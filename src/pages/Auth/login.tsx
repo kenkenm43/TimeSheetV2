@@ -11,9 +11,14 @@ import Button from "../../components/Form/Button";
 import { validateLogin } from "../../helpers/validate";
 import { login } from "../../services/authServices";
 import useAuth from "../../hooks/useAuth";
+import useEmployeeStore from "../../context/EmployeeProvider";
+import { getEmployee } from "../../services/employeeServices";
+import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 const Login = () => {
   // console.log(auth.username);
-  const { auth, setAuth }: any = useAuth();
+  const { setAuth }: any = useAuth();
+  const { employee, setEmployee }: any = useEmployeeStore();
 
   const navigate = useNavigate();
   const {
@@ -25,24 +30,25 @@ const Login = () => {
   });
 
   const onsubmit = async (datas: any) => {
-    console.log(datas);
-
-    const response: any = await login(datas, navigate);
+    const response: any = await login(datas);
     // console.log("d", data.response);
-    const { success, message, username, accessToken, role, id, employeeId } =
+    const { success, username, message, accessToken, role, employeeId } =
       response.data;
+    console.log(response);
 
     if (success) {
       setAuth({
-        id: id,
-        employeeId: employeeId,
+        id: uuidv4(),
         username: username,
+        employeeId: employeeId,
         accessToken: accessToken,
         role: role,
       });
-      console.log("success", message);
-    } else {
-      console.log("error", message);
+
+      const employeeData: any = await getEmployee(employeeId);
+      setEmployee({ ...employeeData.data });
+      toast.success(message);
+      navigate("/", { replace: true });
     }
   };
 

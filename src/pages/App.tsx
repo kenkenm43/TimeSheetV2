@@ -1,22 +1,15 @@
-import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "./Auth/login";
-import Register from "./Auth/register";
+import RegisterPage from "./Auth/register";
 import RequireAuth from "./../components/RequireAuth/index";
 import ErrorPage from "./error-page";
 import Profile from "./User/Profile";
 import Users from "./User/Users";
 import "../index.css";
 import Unauthorized from "../components/Unauthrorized";
-import { useEffect } from "react";
-import useAuth from "../hooks/useAuth";
 import Home from "./User/Home";
-import { getUser } from "../services/userServices";
 import "rsuite/dist/rsuite-no-reset.min.css";
 
-import useEmployeeStore, {
-  TEmployeeStoreState,
-} from "../context/EmployeeProvider";
-import { axiosPrivate } from "../services/httpClient";
 import PrivateRoute from "./Auth/privateRoute";
 const ROLES = {
   Admin: "admin",
@@ -27,7 +20,7 @@ function App() {
   return (
     <Routes>
       <Route path="login" element={<Login />} />
-      <Route path="register" element={<Register />} />
+      <Route path="register" element={<RegisterPage />} />
       <Route path="/" element={<PrivateRoute />}>
         <Route path="" element={<Home />} />
         <Route path="/profile" element={<Profile />} />

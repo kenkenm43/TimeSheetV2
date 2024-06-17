@@ -24,17 +24,17 @@ function getEmployees(): EmployeeType[] {
   ];
 }
 
-function getUsers(): User[] {
-  return [
-    {
-      username: "kenkenm43",
-      firstName: "nat",
-      lastName: "wan",
-      idCard: "15201101164070",
-      password: "12345678",
-    },
-  ];
-}
+// function getUsers(): User[] {
+//   return [
+//     {
+//       username: "kenkenm43",
+//       firstName: "nat",
+//       lastName: "wan",
+//       idCard: "15201101164070",
+//       password: "12345678",
+//     },
+//   ];
+// }
 function getRoles(): Role[] {
   return [
     {
@@ -72,19 +72,19 @@ async function seed() {
     })
   );
 
-  await Promise.all(
-    getUsers().map((user) => {
-      return prisma.user.create({
-        data: {
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          idCard: user.idCard,
-          password: user.password,
-        },
-      });
-    })
-  );
+  // await Promise.all(
+  //   getUsers().map((user) => {
+  //     return prisma.user.create({
+  //       data: {
+  //         username: user.username,
+  //         firstName: user.firstName,
+  //         lastName: user.lastName,
+  //         idCard: user.idCard,
+  //         password: user.password,
+  //       },
+  //     });
+  //   })
+  // );
 }
 
 seed()

@@ -32,15 +32,13 @@ const Navbar = () => {
     <nav className="w-full  bg-orange-400  font-bold">
       <div className="flex items-center justify-between px-14 h-14 max-w-7xl mx-auto">
         <div className="space-x-5 font-bold">
-          {navLists.map((nav, index) =>
-            nav.authorization?.includes(auth?.role.name) ? (
-              <Link key={index} to={nav.to}>
-                {nav.name}
-              </Link>
-            ) : (
-              <></>
-            )
-          )}
+          {navLists.map((nav, index) => (
+            <span key={index}>
+              {nav.authorization?.includes(auth?.role.name) && (
+                <Link to={nav.to}>{nav.name}</Link>
+              )}
+            </span>
+          ))}
         </div>
         <div className="flex items-center space-x-4">
           {auth.username ? (
@@ -49,7 +47,7 @@ const Navbar = () => {
                 {auth.username}
               </button>
 
-              <button onClick={() => logout(navigate)}>ออกจากระบบ</button>
+              <button onClick={() => logout()}>ออกจากระบบ</button>
             </>
           ) : (
             <>

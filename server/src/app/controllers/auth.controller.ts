@@ -18,6 +18,8 @@ const handleRegister: RequestHandler = async (
   next: any
 ) => {
   try {
+    console.log("register");
+
     const payload = req.body as UserRegisterPayloadType;
     const passwordHash = bcrypt.hashSync(payload.password, 10);
     const newUser = await prisma.employee.create({
@@ -28,7 +30,7 @@ const handleRegister: RequestHandler = async (
         firstName: payload.firstName,
         lastName: payload.lastName,
         idCard: payload.idCard,
-        gender: "male",
+        gender: "",
         System_Access: {
           create: {
             username: payload.username,

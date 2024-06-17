@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import prisma from "../../config/prisma";
-const createUser = async (req: Request, res: Response) => {
-  try {
-    const user = req.body;
+// const createUser = async (req: Request, res: Response) => {
+//   try {
+//     const user = req.body;
 
-    const newUser = await prisma.user.create({
-      data: {
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        idCard: user.idCard,
-        password: user.password,
-      },
-    });
-    res.status(201).json(newUser);
-  } catch (e) {
-    res.status(500).json({ error: e });
-  }
-};
+//     const newUser = await prisma.user.create({
+//       data: {
+//         username: user.username,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         idCard: user.idCard,
+//         password: user.password,
+//       },
+//     });
+//     res.status(201).json(newUser);
+//   } catch (e) {
+//     res.status(500).json({ error: e });
+//   }
+// };
 
 const getUsers = async (req: Request, res: Response) => {
   try {
@@ -59,6 +59,6 @@ const getUser = async (req: any, res: Response) => {
 
 export default {
   getUsers,
-  createUser,
+  // createUser,
   getUser,
 };

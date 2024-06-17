@@ -10,38 +10,46 @@ import { toast } from "react-toastify";
 import { Cookies } from "react-cookie";
 const cookie = new Cookies();
 
-export const handleRegister = async (
-  payload: UserRegisterPayloadType,
-  redirectTo: NavigateFunction
-) => {
+export const addWorkSchedule = async (payload: any, employeeId: any) => {
   try {
-    const response = await httpClient.post("/auth/register", payload);
-    redirectTo("/", { replace: true });
-    toast.success(response.data.message);
+    const response = await httpClient.post(
+      `/work-schedule/${employeeId}`,
+      payload
+    );
+
     return response;
   } catch (error: any) {
     return error.response;
   }
 };
 
-export const login = async (payload: UserLoginPayloadType) => {
+export const addLeave = async (payload: any, employeeId: any) => {
   try {
-    const response = await httpClient.post("/auth/login", payload);
+    const response = await httpClient.post(`/leave/${employeeId}`, payload);
 
     return response;
   } catch (error: any) {
-    toast.error(error.response.data.message);
     return error.response;
   }
 };
 
-export const logout = async () => {
-  await httpClient.get("/auth/logout");
-  await sessionStorage.clear();
-  await localStorage.clear();
-  await cookie.remove("jwt");
-  // redirectTo("/login", { replace: true });
-  window.location.reload();
+export const getEmployee = async (employeeId: any) => {
+  try {
+    const response = await httpClient.get(`/employee/${employeeId}`);
+
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const getWorkSchedule = async (employeeId: any) => {
+  try {
+    const response = await httpClient.get(`/work-schedule/${employeeId}`);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
 };
 
 export const handleRefreshToken = async () => {

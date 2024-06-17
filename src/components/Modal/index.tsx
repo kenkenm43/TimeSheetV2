@@ -56,7 +56,6 @@ const EventModal = (props: any) => {
   // const [expenses, setExpenses] = useState([{ name: "", quantity: null }]);
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
-    work_time: { start: "9:00", end: "18:00" },
   });
   // console.log("value start", values.start);
   // console.log("value end", values.end);
@@ -64,6 +63,7 @@ const EventModal = (props: any) => {
     label: item,
     value: item,
   }));
+
   const handleChange = (e: any) => {
     setWorkStatus(e);
   };
@@ -74,7 +74,9 @@ const EventModal = (props: any) => {
       return;
     }
     onAddEvent(e, formValue);
+    setFormValue({ work_status: WorkStatus.COME });
   };
+  console.log("workstatus", workStatus);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
@@ -143,7 +145,6 @@ const EventModal = (props: any) => {
                   //   min < Number(moment(values.start, "HH:mm").format("m")) ||
                   //     min > 59;
                   // }}
-                  name="end_work"
                 />
               </Stack>
 
