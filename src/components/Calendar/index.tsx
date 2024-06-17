@@ -57,9 +57,11 @@ const index = () => {
       const formatEvent = {
         id: arr.id,
         title: arr.work_status,
-        start: formatDate(arr.work_start, "", "YYYY-MM-DDTHH:mm:ss"),
-        end: formatDate(arr.work_end, "", "YYYY-MM-DDTHH:mm:ss"),
-        background: background,
+        start: arr.work_start,
+        end: "2024-06-14",
+        allDay: true,
+        display: "background",
+        backgroundColor: background,
       };
 
       return formatEvent;

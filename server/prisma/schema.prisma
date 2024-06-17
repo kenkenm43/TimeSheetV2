@@ -89,8 +89,8 @@ model Employment_Details {
 
 model WorkSchedule {
   id          String    @id @default(uuid())
-  work_start  DateTime?
-  work_end    DateTime?
+  work_start  DateTime? @db.Timestamp()
+  work_end    DateTime? @db.Timestamp()
   work_status String?
   employee    Employee  @relation(fields: [employeeId], references: [id])
   employeeId  String
