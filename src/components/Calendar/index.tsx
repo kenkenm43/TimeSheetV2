@@ -298,7 +298,7 @@ function renderEventContent(eventContent: any) {
   const { timeText } = eventContent;
 
   return (
-    <div className="bg-red-500">
+    <div className="bg-red-800">
       {timeText && (
         <>
           <div className="fc-daygrid-event-dot"></div>

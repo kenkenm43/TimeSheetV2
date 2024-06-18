@@ -105,7 +105,10 @@ const deleteLeaveSchedule: RequestHandler = async (req: any, res: Response) => {
   try {
     const employeeId = req.params["id"];
     const dateId = req.params["dateId"];
-    await prisma.workSchedule.delete({
+    console.log("emplo", employeeId);
+    console.log("dateId", dateId);
+
+    await prisma.leave.delete({
       where: { id: dateId, employeeId: employeeId },
     });
     return res.status(200).json({ message: "ลบข้อมูลเรียบร้อย" });
