@@ -1,17 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NavigateFunction } from "react-router-dom";
-import {
-  UserLoginPayloadType,
-  UserRegisterPayloadType,
-} from "../types/userType";
 import httpClient from "./httpClient";
-import { toast } from "react-toastify";
-import { Cookies } from "react-cookie";
-const cookie = new Cookies();
 
 export const addWorkSchedule = async (payload: any, employeeId: any) => {
   try {
+    console.log(payload, employeeId);
+
     const response = await httpClient.post(
       `/work-schedule/${employeeId}`,
       payload
@@ -43,7 +37,7 @@ export const getEmployee = async (employeeId: any) => {
   }
 };
 
-export const getWorkSchedule = async (employeeId: any) => {
+export const getWorkSchedules = async (employeeId: any) => {
   try {
     const response = await httpClient.get(`/work-schedule/${employeeId}`);
     return response;
@@ -52,12 +46,21 @@ export const getWorkSchedule = async (employeeId: any) => {
   }
 };
 
-export const handleRefreshToken = async () => {
+export const updateWorkSchedule = async (employeeId: any) => {
   try {
-    const { data } = await httpClient.post("/auth/refresh-tokenV2");
-    storeAcessTokenToLocal(data.accessToken);
-  } catch (error) {
-    console.log(error);
+    const response = await httpClient.patch(`/work-schedule/${employeeId}`);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const getLeaves = async (employeeId: any) => {
+  try {
+    const response = await httpClient.get(`/leave/${employeeId}`);
+    return response;
+  } catch (error: any) {
+    return error.response;
   }
 };
 

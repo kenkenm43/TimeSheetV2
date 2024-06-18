@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import moment from "moment-timezone";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Modal,
   Button,
@@ -48,6 +48,10 @@ const EventModal = (props: any) => {
     setValues,
     workStatus,
     setWorkStatus,
+    leaveType,
+    setLeaveType,
+    leaveCause,
+    setLeaveCause,
     ...rest
   } = props;
   const formRef: any = useRef();
@@ -57,6 +61,7 @@ const EventModal = (props: any) => {
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
   });
+
   // console.log("value start", values.start);
   // console.log("value end", values.end);
   const data = ["ลาป่วย", "ลาโดยใช้วันหยุด"].map((item) => ({
@@ -73,10 +78,10 @@ const EventModal = (props: any) => {
     if (!formRef.current.check()) {
       return;
     }
-    onAddEvent(e, formValue);
+    onAddEvent(e, formValue, leaveType);
     setFormValue({ work_status: WorkStatus.COME });
+    setLeaveType("");
   };
-  console.log("workstatus", workStatus);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
@@ -156,11 +161,21 @@ const EventModal = (props: any) => {
             <>
               <Form.Group controlId="leave_type">
                 <Form.ControlLabel>ประเภทการลา</Form.ControlLabel>
-                <SelectPicker data={data} />
+                <SelectPicker
+                  data={data}
+                  name="leave_type"
+                  value={leaveType}
+                  onChange={setLeaveType}
+                />
               </Form.Group>
+
               <Form.Group controlId="leave_cause">
                 <Form.ControlLabel>สาเหตุ</Form.ControlLabel>
-                <Form.Control name="leave_cause" />
+                <Form.Control
+                  name="leave_cause"
+                  value={leaveCause}
+                  onChange={setLeaveCause}
+                />
               </Form.Group>
             </>
           )}

@@ -7,8 +7,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import {
+  addLeave,
   addWorkSchedule,
-  getWorkSchedule,
+  getLeaves,
+  getWorkSchedules,
 } from "../../services/employeeServices";
 import "./calendar.module.css";
 import { v4 as uuidv4 } from "uuid";
@@ -27,17 +29,18 @@ const index = () => {
   const [values, setValues] = useState({ title: "", start: "", end: "" });
   const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
   const [events, setEvents]: any = useState([]);
+  const [leaveCause, setLeaveCause] = useState("");
+  const [leaveType, setLeaveType] = useState("");
   const { employee } = useEmployeeStore();
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getWorkSchedule(employee.id);
-      console.log(response.data);
+      const work = await getWorkSchedules(employee.id);
+      const leave = await getLeaves(employee.id);
+      console.log(leave);
 
-      const event = addEvents(response.data);
-      console.log(event);
-
-      // setEvents(event);
+      const event = addEvents(work.data, leave.data);
+      setEvents(event);
     };
     fetchData();
   }, [employee.id]);
@@ -46,8 +49,8 @@ const index = () => {
     return dateF;
   };
 
-  const addEvents = (arrs: any) => {
-    const formatEvents = arrs.map((arr: any) => {
+  const addEvents = (workArr: any, leaveArr: any) => {
+    const formatWorkEvents = workArr.map((arr: any) => {
       let background;
       if (arr.work_status === WorkStatus.COME) {
         background = "green";
@@ -58,7 +61,7 @@ const index = () => {
         id: arr.id,
         title: arr.work_status,
         start: arr.work_start,
-        end: "2024-06-14",
+        end: arr.work_end,
         allDay: true,
         display: "background",
         backgroundColor: background,
@@ -66,7 +69,24 @@ const index = () => {
 
       return formatEvent;
     });
-    return formatEvents;
+    const leaveWorkEvents = leaveArr.map((arr: any) => {
+      const formatEvent = {
+        id: arr.id,
+        title: "leave",
+        start: arr.leave_date,
+        end: arr.work_end,
+        cause: arr.leave_reason,
+        type: arr.leave_type,
+        allDay: true,
+        display: "background",
+        backgroundColor: "red",
+      };
+
+      return formatEvent;
+    });
+    console.log("leave", leaveWorkEvents);
+
+    return [...formatWorkEvents, ...leaveWorkEvents];
   };
 
   const handleDateClick = (arg: any) => {
@@ -92,69 +112,93 @@ const index = () => {
         end: currentValueDate.end,
       });
       setWorkStatus(currentValueDate.title);
+      console.log("currentitle", currentValueDate.title);
+
+      if (currentValueDate.title === WorkStatus.LEAVE) {
+        console.log("cuase", currentValueDate.cause);
+        console.log("type", currentValueDate.type);
+
+        setLeaveCause(currentValueDate.cause);
+        setLeaveType(currentValueDate.type);
+      }
     }
 
     setEditable(true);
   };
 
-  const handleEventCreation = (
+  const handleEventCreation = async (
     startDate: any,
     endDate: any,
     title: any,
-    backgroundColor: any
+    backgroundColor: any,
+    leaveCause: any,
+    leaveType: any
   ) => {
-    const eventDateCurrent = startDate;
-    const existingEvent = events.find((event: any) => {
-      const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
-      return eventDateStr === formatDate(eventDateCurrent, "", "YYYY-MM-DD");
-    });
-
-    if (!existingEvent) {
-      const newEvent = {
-        id: uuidv4(),
-        title: title,
-        start: new Date(startDate),
-        end: new Date(endDate),
-        allDay: true,
-        display: "background",
-        backgroundColor: backgroundColor,
-      };
-      setEvents([...events, newEvent]);
+    const newEvent = {
+      id: uuidv4(),
+      title: title,
+      start: startDate,
+      end: endDate,
+      allDay: true,
+      display: "background",
+      backgroundColor: backgroundColor,
+    };
+    if (title === WorkStatus.LEAVE) {
+      await addLeave(
+        {
+          leave_date: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+          leave_reason: leaveCause,
+          leave_type: leaveType,
+        },
+        employee.id
+      );
     } else {
-      const updatedEvents = events.map((event: any) => {
-        const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
-        if (eventDateStr === formatDate(eventDateCurrent, "", "YYYY-MM-DD")) {
-          return {
-            ...event,
-            start: startDate,
-            end: endDate,
-            title: title,
-            backgroundColor: backgroundColor,
-          };
-        }
-
-        return event;
-      });
-
-      setEvents(updatedEvents);
+      await addWorkSchedule(
+        {
+          work_status: title,
+          work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+          work_end: formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+        },
+        employee.id
+      );
     }
+    setEvents([...events, newEvent]);
+    // else {
+    //   const updatedEvents = events.map((event: any) => {
+    //     const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
+    //     if (eventDateStr === formatDate(eventDateCurrent, "", "YYYY-MM-DD")) {
+    //       return {
+    //         ...event,
+    //         start: startDate,
+    //         end: endDate,
+    //         title: title,
+    //         backgroundColor: backgroundColor,
+    //       };
+    //     }
+
+    //     return event;
+    //   });
+
+    //   setEvents(updatedEvents);
+    // }
   };
 
-  // const handleDateSelect = (arg) => {
-  //   const newTitle = prompt("Enter event name:");
-  //   const { start, end } = arg;
+  const handleEventUpdate = async (idDate: any, typeOld: any, typeNew: any) => {
+    if (typeOld !== typeNew) {
+      return;
+    }
+    return;
+  };
 
-  //   // Iterate through each date in the selected range
-  //   for (
-  //     let date = new Date(start);
-  //     date <= end;
-  //     date.setDate(date.getDate() + 1)
-  //   ) {
-  //     handleEventCreation(new Date(date), newTitle);
-  //   }
-  // };
+  const dateCurrent = (date: any) => {
+    const existingEvent = events.find((event: any) => {
+      const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
+      return eventDateStr === formatDate(date, "", "YYYY-MM-DD");
+    });
+    return existingEvent;
+  };
 
-  const handleOk = async (e: any, formValue: any) => {
+  const handleOk = async (e: any, formValue: any, leaveType: any) => {
     let title = "";
     let backgroundColor = "";
     if (formValue.work_status === WorkStatus.COME) {
@@ -167,22 +211,33 @@ const index = () => {
       title = WorkStatus.LEAVE;
       backgroundColor = "red";
     }
-    handleEventCreation(values.start, values.end, title, backgroundColor);
+    const currentDateValue = dateCurrent(values.start);
+    console.log("current", currentDateValue);
 
-    await addWorkSchedule(
-      {
-        work_status: title,
-        work_start: formatDate(values.start, "YYYY-MM-DDTHH:mm:ss[Z]"),
-        work_end: formatDate(values.end, "YYYY-MM-DDTHH:mm:ss[Z]"),
-      },
-      employee.id
-    );
+    if (!dateCurrent(values.start)) {
+      handleEventCreation(
+        values.start,
+        values.end,
+        title,
+        backgroundColor,
+        formValue.leave_cause,
+        leaveType
+      );
+    } else {
+      handleEventUpdate(currentDateValue.id, currentDateValue.title, title);
+    }
 
-    setEditable(false);
-    setValues({ title: "", start: "", end: "" });
-    setWorkStatus(WorkStatus.COME);
-    title = "";
-    backgroundColor = "";
+    // handleEventCreation(values.start, values.end, title, backgroundColor, formValue.leave_cause, leaveType );
+    // console.log("start", values.start);
+    // console.log("end", values.end);
+
+    // setEditable(false);
+    // setValues({ title: "", start: "", end: "" });
+    // setWorkStatus(WorkStatus.COME);
+    // setLeaveCause("");
+    // setLeaveType("");
+    // title = "";
+    // backgroundColor = "";
     // console.log(events);
   };
 
@@ -227,6 +282,10 @@ const index = () => {
         setValues={setValues}
         workStatus={workStatus}
         setWorkStatus={setWorkStatus}
+        leaveType={leaveType}
+        setLeaveType={setLeaveType}
+        leaveCause={leaveCause}
+        setLeaveCause={setLeaveCause}
         open={editable}
         onClose={handleClose}
         onAddEvent={handleOk}

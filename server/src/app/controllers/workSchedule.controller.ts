@@ -41,9 +41,7 @@ const leaveSchedule: RequestHandler = async (
       where: { employeeId: employeeId },
     });
 
-    return res.status(200).json({
-      leaveSchedule,
-    });
+    return res.status(200).json([...leaveSchedule]);
   } catch (error) {
     return handleError(error, res);
   }
@@ -66,6 +64,51 @@ const addWorkSchedule: RequestHandler = async (
       },
     });
     return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
+  } catch (error) {
+    return handleError(error, res);
+  }
+};
+const updateWorkSchedule: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
+  try {
+    const employeeId = req.params["id"];
+    const payload = req.body;
+    // const newDate = await prisma.workSchedule.update({
+    //   data: {
+    //     employeeId: employeeId,
+    //     work_start: payload.work_start,
+    //     work_end: payload.work_end,
+    //     work_status: payload.work_status,
+    //   },
+    // });
+    // return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
+  } catch (error) {
+    return handleError(error, res);
+  }
+};
+const deleteWorkSchedule: RequestHandler = async (req: any, res: Response) => {
+  try {
+    const employeeId = req.params["id"];
+    const dateId = req.params["dateId"];
+    await prisma.workSchedule.delete({
+      where: { id: dateId, employeeId: employeeId },
+    });
+    return res.status(200).json({ message: "ลบข้อมูลเรียบร้อย" });
+  } catch (error) {
+    return handleError(error, res);
+  }
+};
+const deleteLeaveSchedule: RequestHandler = async (req: any, res: Response) => {
+  try {
+    const employeeId = req.params["id"];
+    const dateId = req.params["dateId"];
+    await prisma.workSchedule.delete({
+      where: { id: dateId, employeeId: employeeId },
+    });
+    return res.status(200).json({ message: "ลบข้อมูลเรียบร้อย" });
   } catch (error) {
     return handleError(error, res);
   }
@@ -98,5 +141,8 @@ export default {
   workSchedule,
   leaveSchedule,
   addWorkSchedule,
+  deleteWorkSchedule,
+  deleteLeaveSchedule,
   addLeaveSchedule,
+  updateWorkSchedule,
 };
