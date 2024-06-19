@@ -26,7 +26,11 @@ enum WorkStatus {
 const index = () => {
   const [editable, setEditable] = useState(false);
   const calendarRef = useRef<any>(null);
-  const [values, setValues] = useState({ title: "", start: "", end: "" });
+  const [values, setValues] = useState({
+    title: "",
+    start: new Date(),
+    end: new Date(),
+  });
   const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
   const [events, setEvents]: any = useState([]);
   const [leaveCause, setLeaveCause] = useState("");
@@ -45,7 +49,7 @@ const index = () => {
     fetchData();
   }, [employee.id]);
   const formatDate = (date: any, time?: any, format?: any) => {
-    const dateF = moment(date + time).format(format);
+    const dateF = moment(new Date(date + time)).format(format);
     return dateF;
   };
 
@@ -60,8 +64,8 @@ const index = () => {
       const formatEvent = {
         id: arr.id,
         title: arr.work_status,
-        start: arr.work_start,
-        end: arr.work_end,
+        start: moment(arr.work_start)!.utcOffset("-07:00")._d,
+        end: moment(arr.work_end)!.utcOffset("-07:00")._d,
         allDay: true,
         display: "background",
         backgroundColor: background,
@@ -84,6 +88,8 @@ const index = () => {
 
       return formatEvent;
     });
+    console.log("work", formatWorkEvents);
+
     console.log("leave", leaveWorkEvents);
 
     return [...formatWorkEvents, ...leaveWorkEvents];
@@ -91,8 +97,12 @@ const index = () => {
 
   const handleDateClick = (arg: any) => {
     const { dateStr } = arg;
-    const startDate = formatDate(dateStr, "T07:00:00", "YYYY-MM-DDTHH:mm:ss");
-    const endDate = formatDate(dateStr, "T18:00:00", "YYYY-MM-DDTHH:mm:ss");
+    const startDate = new Date(
+      formatDate(dateStr, "T07:00:00", "YYYY-MM-DDTHH:mm:ss")
+    );
+    const endDate = new Date(
+      formatDate(dateStr, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
+    );
     const currentValueDate = events.find((event: any) => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
       return eventDate === formatDate(dateStr, "", "YYYY-MM-DD");
@@ -112,6 +122,8 @@ const index = () => {
         end: currentValueDate.end,
       });
       setWorkStatus(currentValueDate.title);
+      console.log(moment(currentValueDate.start)!.utcOffset("-07:00")._d);
+
       console.log("currentitle", currentValueDate.title);
 
       if (currentValueDate.title === WorkStatus.LEAVE) {
@@ -134,15 +146,7 @@ const index = () => {
     leaveCause: any,
     leaveType: any
   ) => {
-    const newEvent = {
-      id: uuidv4(),
-      title: title,
-      start: startDate,
-      end: endDate,
-      allDay: true,
-      display: "background",
-      backgroundColor: backgroundColor,
-    };
+    let newEvent;
     if (title === WorkStatus.LEAVE) {
       await addLeave(
         {
@@ -152,6 +156,17 @@ const index = () => {
         },
         employee.id
       );
+      newEvent = {
+        id: uuidv4(),
+        title: title,
+        start: startDate,
+        end: endDate,
+        cause: leaveCause,
+        type: leaveType,
+        allDay: true,
+        display: "background",
+        backgroundColor: backgroundColor,
+      };
     } else {
       await addWorkSchedule(
         {
@@ -161,6 +176,17 @@ const index = () => {
         },
         employee.id
       );
+      newEvent = {
+        id: uuidv4(),
+        title: title,
+        start: startDate,
+        end: endDate,
+        cause: leaveCause,
+        type: leaveType,
+        allDay: true,
+        display: "background",
+        backgroundColor: backgroundColor,
+      };
     }
     setEvents([...events, newEvent]);
     // else {

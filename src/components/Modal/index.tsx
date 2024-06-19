@@ -116,8 +116,8 @@ const EventModal = (props: any) => {
                 <DatePicker
                   placeholder="เวลามาทำงาน"
                   format="HH:mm"
-                  // value={values.start}
-                  defaultValue={new Date(values.start)}
+                  value={values.start}
+                  defaultValue={values.start}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
@@ -135,7 +135,8 @@ const EventModal = (props: any) => {
                   name="end"
                   placeholder="เวลาเลิกงาน"
                   format="HH:mm"
-                  defaultValue={new Date(values.end)}
+                  value={values.end}
+                  defaultValue={values.end}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
