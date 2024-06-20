@@ -11,7 +11,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { validateRegister } from "../../helpers/validate";
 import { handleRegister } from "../../services/authServices";
 import useAuth from "../../hooks/useAuth";
-
+import { v4 as uuidv4 } from "uuid";
 const RegisterPage = () => {
   const {
     register,
@@ -27,7 +27,7 @@ const RegisterPage = () => {
     console.log(data);
 
     const response: any = await handleRegister(data, navigate);
-    const { success, message, username, accessToken, role, id, employeeId } =
+    const { success, message, username, accessToken, role, employeeId } =
       response.data;
 
     if (response.status === 400) {
@@ -36,9 +36,9 @@ const RegisterPage = () => {
 
     if (success) {
       setAuth({
-        id: id,
-        employeeId: employeeId,
+        id: uuidv4(),
         username: username,
+        employeeId: employeeId,
         accessToken: accessToken,
         role: role,
       });

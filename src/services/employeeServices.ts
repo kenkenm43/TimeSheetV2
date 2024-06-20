@@ -78,6 +78,8 @@ export const updateLeave = async (
   employeeId: any,
   dateId: any
 ) => {
+  console.log("payload", payload);
+
   try {
     const response = await httpClient.patch(
       `/leave/${employeeId}/${dateId}`,

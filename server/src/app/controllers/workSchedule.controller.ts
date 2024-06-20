@@ -113,6 +113,8 @@ const addLeaveSchedule: RequestHandler = async (
 
     const payload = req.body;
 
+    console.log(payload);
+
     const newLeave = await prisma.leave.create({
       data: {
         employeeId: employeeId,

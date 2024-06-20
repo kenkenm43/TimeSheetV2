@@ -196,66 +196,67 @@ const index = () => {
     leaveType: any
   ) => {
     console.log("typeold", typeOld, "typenew", typeNew, timeStart, timeEnd);
-    let newEvent;
-    if (typeOld !== typeNew) {
-      if (typeNew === WorkStatus.LEAVE) {
-        await deleteWorkSchedule(employee.id, idDate);
-        await addLeave(
-          {
-            leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-            leave_reason: leaveCause,
-            leave_type: typeNew,
-          },
-          employee.id
-        );
-        newEvent = {
-          id: uuidv4(),
-          title: WorkStatus.LEAVE,
-          start: timeStart,
-          end: timeEnd,
-          cause: leaveCause,
-          type: leaveType,
-          allDay: true,
-          display: "background",
-          backgroundColor: "red",
-        };
-      }
-      if (
-        [typeOld, typeNew].includes(WorkStatus.COME) &&
-        [typeOld, typeNew].includes(WorkStatus.NOTCOME)
-      ) {
-        await updateWorkSchedule(
-          {
-            work_start: timeStart,
-            work_end: timeEnd,
-            work_status: typeNew,
-          },
-          employee.id,
-          idDate
-        );
-        newEvent = {
-          id: uuidv4(),
-          title: typeNew,
-          start: timeStart,
-          end: timeEnd,
-          allDay: true,
-          display: "background",
-          backgroundColor: "green",
-        };
-      }
-    }
-    if (typeNew === WorkStatus.LEAVE) {
-      updateLeave(
-        {
-          leave_date: timeStart,
-          leave_reason: leaveCause,
-          leave_type: leaveType,
-        },
-        employee.id,
-        idDate
-      );
-    }
-    setEvents([...events, newEvent]);
+    // let updateEvent;
+    // if (typeOld !== typeNew) {
+    //   if (typeNew === WorkStatus.LEAVE) {
+    //     await deleteWorkSchedule(employee.id, idDate);
+    //     await addLeave(
+    //       {
+    //         leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+    //         leave_reason: leaveCause,
+    //         leave_type: typeNew,
+    //       },
+    //       employee.id
+    //     );
+    //     updateEvent = {
+    //       id: idDate,
+    //       title: WorkStatus.LEAVE,
+    //       start: timeStart,
+    //       end: timeEnd,
+    //       cause: leaveCause,
+    //       type: leaveType,
+    //       allDay: true,
+    //       display: "background",
+    //       backgroundColor: "red",
+    //     };
+    //   }
+    //   if (
+    //     [typeOld, typeNew].includes(WorkStatus.COME) &&
+    //     [typeOld, typeNew].includes(WorkStatus.NOTCOME)
+    //   ) {
+    //     await updateWorkSchedule(
+    //       {
+    //         work_start: timeStart,
+    //         work_end: timeEnd,
+    //         work_status: typeNew,
+    //       },
+    //       employee.id,
+    //       idDate
+    //     );
+    //     updateEvent = {
+    //       id: idDate,
+    //       title: typeNew,
+    //       start: timeStart,
+    //       end: timeEnd,
+    //       allDay: true,
+    //       display: "background",
+    //       backgroundColor: "green",
+    //     };
+    //   }
+    // } else if (typeNew === WorkStatus.LEAVE) {
+    //   console.log("updatesameleave");
+
+    //   // updateLeave(
+    //   //   {
+    //   //     leave_date: timeStart,
+    //   //     leave_reason: leaveCause,
+    //   //     leave_type: leaveType,
+    //   //   },
+    //   //   employee.id,
+    //   //   idDate
+    //   // );
+    // }
+    // setEvents([...events, updateEvent]);
   };
 
   const dateCurrent = (date: any) => {
