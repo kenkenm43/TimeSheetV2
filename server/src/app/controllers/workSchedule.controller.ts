@@ -75,15 +75,17 @@ const updateWorkSchedule: RequestHandler = async (
 ) => {
   try {
     const employeeId = req.params["id"];
+    const dateId = req.params["dateId"];
     const payload = req.body;
-    // const newDate = await prisma.workSchedule.update({
-    //   data: {
-    //     employeeId: employeeId,
-    //     work_start: payload.work_start,
-    //     work_end: payload.work_end,
-    //     work_status: payload.work_status,
-    //   },
-    // });
+    const update = await prisma.workSchedule.update({
+      where: { id: dateId, employeeId: employeeId },
+      data: {
+        work_start: payload.work_start,
+        work_end: payload.work_end,
+        work_status: payload.work_status,
+      },
+    });
+    return res.status(200).json({ message: "เปลี่ยนข้อมูลเรียบร้อย" });
     // return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
   } catch (error) {
     return handleError(error, res);
@@ -94,21 +96,6 @@ const deleteWorkSchedule: RequestHandler = async (req: any, res: Response) => {
     const employeeId = req.params["id"];
     const dateId = req.params["dateId"];
     await prisma.workSchedule.delete({
-      where: { id: dateId, employeeId: employeeId },
-    });
-    return res.status(200).json({ message: "ลบข้อมูลเรียบร้อย" });
-  } catch (error) {
-    return handleError(error, res);
-  }
-};
-const deleteLeaveSchedule: RequestHandler = async (req: any, res: Response) => {
-  try {
-    const employeeId = req.params["id"];
-    const dateId = req.params["dateId"];
-    console.log("emplo", employeeId);
-    console.log("dateId", dateId);
-
-    await prisma.leave.delete({
       where: { id: dateId, employeeId: employeeId },
     });
     return res.status(200).json({ message: "ลบข้อมูลเรียบร้อย" });
@@ -139,13 +126,51 @@ const addLeaveSchedule: RequestHandler = async (
     return handleError(error, res);
   }
 };
+const deleteLeaveSchedule: RequestHandler = async (req: any, res: Response) => {
+  try {
+    const employeeId = req.params["id"];
+    const dateId = req.params["dateId"];
+    console.log("emplo", employeeId);
+    console.log("dateId", dateId);
+
+    await prisma.leave.delete({
+      where: { id: dateId, employeeId: employeeId },
+    });
+    return res.status(200).json({ message: "ลบข้อมูลเรียบร้อย" });
+  } catch (error) {
+    return handleError(error, res);
+  }
+};
+const updateLeaveSchedule: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
+  try {
+    const employeeId = req.params["id"];
+    const dateId = req.params["dateId"];
+    const payload = req.body;
+    await prisma.leave.update({
+      where: { id: dateId, employeeId: employeeId },
+      data: {
+        leave_date: payload.leave_date,
+        leave_reason: payload.leave_reason,
+        leave_type: payload.leave_type,
+      },
+    });
+    return res.status(200).json({ message: "เปลี่ยนข้อมูลเรียบร้อย" });
+  } catch (error) {
+    return handleError(error, res);
+  }
+};
 
 export default {
   workSchedule,
   leaveSchedule,
   addWorkSchedule,
+  addLeaveSchedule,
   deleteWorkSchedule,
   deleteLeaveSchedule,
-  addLeaveSchedule,
   updateWorkSchedule,
+  updateLeaveSchedule,
 };
