@@ -18,13 +18,13 @@ const handleRegister: RequestHandler = async (
   next: any
 ) => {
   try {
-    console.log("register");
-
     const payload = req.body as UserRegisterPayloadType;
     const passwordHash = bcrypt.hashSync(payload.password, 10);
+    console.log(payload);
+
     const newUser = await prisma.employee.create({
       include: {
-        System_Access: true,
+        System_Access: { include: { role: true } },
       },
       data: {
         firstName: payload.firstName,
@@ -35,11 +35,12 @@ const handleRegister: RequestHandler = async (
           create: {
             username: payload.username,
             password: passwordHash,
-            access_rights: "edit",
           },
         },
       },
     });
+    console.log("newUser", newUser);
+
     if (!newUser) {
       throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
     }

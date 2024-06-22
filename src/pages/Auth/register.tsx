@@ -12,6 +12,9 @@ import { validateRegister } from "../../helpers/validate";
 import { handleRegister } from "../../services/authServices";
 import useAuth from "../../hooks/useAuth";
 import { v4 as uuidv4 } from "uuid";
+import useEmployeeStore from "../../context/EmployeeProvider";
+import { getEmployee } from "../../services/employeeServices";
+import { toast } from "react-toastify";
 const RegisterPage = () => {
   const {
     register,
@@ -22,16 +25,14 @@ const RegisterPage = () => {
   });
   const { setAuth }: any = useAuth();
   const navigate = useNavigate();
-
+  const { employee, setEmployee }: any = useEmployeeStore();
   const onsubmit = async (data: any) => {
-    console.log(data);
-
     const response: any = await handleRegister(data, navigate);
     const { success, message, username, accessToken, role, employeeId } =
       response.data;
 
     if (response.status === 400) {
-      console.log("fail", message);
+      toast.error(message);
     }
 
     if (success) {
@@ -42,7 +43,12 @@ const RegisterPage = () => {
         accessToken: accessToken,
         role: role,
       });
-      console.log("success", message);
+      const employeeData: any = await getEmployee(employeeId);
+      console.log(employeeData);
+
+      setEmployee({ ...employeeData.data });
+      toast.success(message);
+      navigate("/", { replace: true });
     }
   };
 

@@ -101,6 +101,7 @@ model Leave {
   leave_type   String?
   leave_date   DateTime?
   leave_reason String?
+  leave_cause  String?
   employee     Employee  @relation(fields: [employeeId], references: [id])
   employeeId   String
 }

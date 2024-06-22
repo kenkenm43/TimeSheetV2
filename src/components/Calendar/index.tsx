@@ -9,6 +9,7 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import {
   addLeave,
   addWorkSchedule,
+  deleteLeaveSchedule,
   deleteWorkSchedule,
   getLeaves,
   getWorkSchedules,
@@ -36,23 +37,26 @@ const index = () => {
   });
   const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
   const [events, setEvents]: any = useState([]);
-  const [leaveCause, setLeaveCause] = useState("");
+  const [leaveCause, setLeaveCause] = useState("ลาโดยใช้วันหยุด");
+  const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const { employee } = useEmployeeStore();
+  console.log(leaveCause);
 
   useEffect(() => {
     const fetchData = async () => {
       const work = await getWorkSchedules(employee.id);
       const leave = await getLeaves(employee.id);
-      console.log(leave);
+      console.log("dataLeave", leave.data);
 
+      setLeaveType(leave);
       const event = addEvents(work.data, leave.data);
       setEvents(event);
     };
     fetchData();
   }, [employee.id]);
   const formatDate = (date: any, time?: any, format?: any) => {
-    const dateF = moment(new Date(date + time)).format(format);
+    const dateF = moment(date + time).format(format);
     return dateF;
   };
 
@@ -78,11 +82,13 @@ const index = () => {
     });
     const leaveWorkEvents = leaveArr.map((arr: any) => {
       const formatEvent = {
+        ...arr,
         id: arr.id,
         title: "leave",
         start: arr.leave_date,
         end: arr.work_end,
-        cause: arr.leave_reason,
+        reason: arr.leave_reason,
+        cause: arr.leave_cause,
         type: arr.leave_type,
         allDay: true,
         display: "background",
@@ -101,10 +107,10 @@ const index = () => {
   const handleDateClick = (arg: any) => {
     const { dateStr } = arg;
     const startDate = new Date(
-      formatDate(dateStr, "T07:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateStr, "T14:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const endDate = new Date(
-      formatDate(dateStr, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateStr, "T01:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const currentValueDate = events.find((event: any) => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
@@ -119,14 +125,18 @@ const index = () => {
       });
       setWorkStatus(WorkStatus.COME);
     } else {
+      console.log("currentValue", currentValueDate);
+
       setValues({
         title: currentValueDate.title,
-        start: currentValueDate.start,
-        end: currentValueDate.end,
+        start: startDate,
+        end: currentValueDate.end || endDate,
       });
+
       setWorkStatus(currentValueDate.title);
       if (currentValueDate.title === WorkStatus.LEAVE) {
-        setLeaveCause(currentValueDate.cause);
+        setLeaveCause(currentValueDate.leave_cause);
+        setLeaveReason(currentValueDate.leave_reason);
         setLeaveType(currentValueDate.type);
       }
     }
@@ -139,31 +149,43 @@ const index = () => {
     title: any,
     backgroundColor: any,
     leaveCause: any,
+    leaveReason: any,
     leaveType: any
   ) => {
     let newEvent;
     if (title === WorkStatus.LEAVE) {
-      await addLeave(
+      console.log("leaveReason", leaveReason);
+      console.log("leaveType", leaveType);
+      console.log("leaveCause", leaveCause);
+
+      const { data } = await addLeave(
         {
           leave_date: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-          leave_reason: leaveCause,
+          leave_reason: leaveReason,
           leave_type: leaveType,
+          leave_cause: leaveCause,
         },
         employee.id
       );
+      // console.log("dataLEave", data);
+
       newEvent = {
-        id: uuidv4(),
+        id: data.id,
         title: title,
         start: startDate,
         end: endDate,
         cause: leaveCause,
+        reason: leaveReason,
         type: leaveType,
         allDay: true,
         display: "background",
         backgroundColor: backgroundColor,
       };
     } else {
-      await addWorkSchedule(
+      console.log(formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"));
+      console.log(formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]"));
+
+      const { data } = await addWorkSchedule(
         {
           work_status: title,
           work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
@@ -171,12 +193,15 @@ const index = () => {
         },
         employee.id
       );
+      console.log("data work", data);
+
       newEvent = {
-        id: uuidv4(),
+        id: data.id,
         title: title,
         start: startDate,
         end: endDate,
         cause: leaveCause,
+        reason: leaveReason,
         type: leaveType,
         allDay: true,
         display: "background",
@@ -196,67 +221,122 @@ const index = () => {
     leaveType: any
   ) => {
     console.log("typeold", typeOld, "typenew", typeNew, timeStart, timeEnd);
-    // let updateEvent;
-    // if (typeOld !== typeNew) {
-    //   if (typeNew === WorkStatus.LEAVE) {
-    //     await deleteWorkSchedule(employee.id, idDate);
-    //     await addLeave(
-    //       {
-    //         leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-    //         leave_reason: leaveCause,
-    //         leave_type: typeNew,
-    //       },
-    //       employee.id
-    //     );
-    //     updateEvent = {
-    //       id: idDate,
-    //       title: WorkStatus.LEAVE,
-    //       start: timeStart,
-    //       end: timeEnd,
-    //       cause: leaveCause,
-    //       type: leaveType,
-    //       allDay: true,
-    //       display: "background",
-    //       backgroundColor: "red",
-    //     };
-    //   }
-    //   if (
-    //     [typeOld, typeNew].includes(WorkStatus.COME) &&
-    //     [typeOld, typeNew].includes(WorkStatus.NOTCOME)
-    //   ) {
-    //     await updateWorkSchedule(
-    //       {
-    //         work_start: timeStart,
-    //         work_end: timeEnd,
-    //         work_status: typeNew,
-    //       },
-    //       employee.id,
-    //       idDate
-    //     );
-    //     updateEvent = {
-    //       id: idDate,
-    //       title: typeNew,
-    //       start: timeStart,
-    //       end: timeEnd,
-    //       allDay: true,
-    //       display: "background",
-    //       backgroundColor: "green",
-    //     };
-    //   }
-    // } else if (typeNew === WorkStatus.LEAVE) {
-    //   console.log("updatesameleave");
+    let updateEvent;
+    if (typeOld !== typeNew) {
+      if (typeOld === WorkStatus.LEAVE) {
+        console.log("update work");
+        console.log(formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"));
 
-    //   // updateLeave(
-    //   //   {
-    //   //     leave_date: timeStart,
-    //   //     leave_reason: leaveCause,
-    //   //     leave_type: leaveType,
-    //   //   },
-    //   //   employee.id,
-    //   //   idDate
-    //   // );
-    // }
-    // setEvents([...events, updateEvent]);
+        await deleteLeaveSchedule(employee.id, idDate);
+        const { data } = await addWorkSchedule(
+          {
+            work_status: typeNew,
+            work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+            work_end:
+              formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]") || null,
+          },
+          employee.id
+        );
+        updateEvent = {
+          id: data.id,
+          title: typeNew,
+          start: timeStart,
+          end: timeEnd,
+          allDay: true,
+          display: "background",
+          backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
+        };
+      } else if (typeNew === WorkStatus.LEAVE) {
+        updateEvent = {
+          id: idDate,
+          title: WorkStatus.LEAVE,
+          start: timeStart,
+          end: timeEnd,
+          reason: leaveReason,
+          cause: leaveCause,
+          type: leaveType,
+          allDay: true,
+        };
+
+        await deleteWorkSchedule(employee.id, idDate);
+
+        const { data } = await addLeave(
+          {
+            leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+            leave_reason: leaveReason,
+            leave_type: leaveType,
+            leave_cause: leaveCause,
+          },
+          employee.id
+        );
+        updateEvent = {
+          id: data.id,
+          title: WorkStatus.LEAVE,
+          start: timeStart,
+          end: timeEnd,
+          cause: leaveCause,
+          type: leaveType,
+          allDay: true,
+          display: "background",
+          backgroundColor: "red",
+        };
+      } else {
+        console.log("updateWOrk");
+
+        const { data } = await updateWorkSchedule(
+          {
+            work_start: timeStart,
+            work_end: timeEnd,
+            work_status: typeNew,
+          },
+          employee.id,
+          idDate
+        );
+
+        updateEvent = {
+          id: idDate,
+          title: typeNew,
+          start: timeStart,
+          end: timeEnd,
+          allDay: true,
+          display: "background",
+          backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
+        };
+      }
+    } else {
+      if (typeNew === WorkStatus.LEAVE) {
+        console.log("updatesameleave");
+
+        const { data } = await updateLeave(
+          {
+            leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+            leave_reason: leaveReason,
+            leave_type: leaveType,
+            leave_cause: leaveCause,
+          },
+          employee.id,
+          idDate
+        );
+        console.log("leave update data", data);
+        console.log("leave updateReason", leaveReason);
+        console.log("leaveupdate caues", leaveCause);
+
+        updateEvent = {
+          id: idDate,
+          title: WorkStatus.LEAVE,
+          start: timeStart,
+          end: timeEnd,
+          reason: leaveReason,
+          cause: leaveCause,
+          type: leaveType,
+          allDay: true,
+          display: "background",
+          backgroundColor: "red",
+        };
+      }
+    }
+    setEvents([...events, updateEvent]);
+    console.log("event", events);
   };
 
   const dateCurrent = (date: any) => {
@@ -267,16 +347,18 @@ const index = () => {
     return existingEvent;
   };
 
-  const handleOk = async (e: any, formValue: any, leaveType: any) => {
+  const handleOk = async (e: any, formValue: any) => {
+    console.log("formValue", formValue);
+
     let title = "";
     let backgroundColor = "";
-    if (formValue.work_status === WorkStatus.COME) {
+    if (workStatus === WorkStatus.COME) {
       title = WorkStatus.COME;
       backgroundColor = "green";
-    } else if (formValue.work_status === WorkStatus.NOTCOME) {
+    } else if (workStatus === WorkStatus.NOTCOME) {
       title = WorkStatus.NOTCOME;
       backgroundColor = "gray";
-    } else {
+    } else if (workStatus === WorkStatus.LEAVE) {
       title = WorkStatus.LEAVE;
       backgroundColor = "red";
     }
@@ -288,8 +370,9 @@ const index = () => {
         values.end,
         title,
         backgroundColor,
-        formValue.leave_cause,
-        leaveType
+        leaveCause,
+        formValue.leave_reason,
+        workStatus
       );
     } else {
       handleEventUpdate(
@@ -298,8 +381,8 @@ const index = () => {
         title,
         values.start,
         values.end,
-        formValue.leave_cause,
-        leaveType
+        leaveCause,
+        workStatus
       );
     }
 
@@ -308,6 +391,7 @@ const index = () => {
     setWorkStatus(WorkStatus.COME);
     setLeaveCause("");
     setLeaveType("");
+    setLeaveReason("");
     title = "";
     backgroundColor = "";
   };
@@ -353,6 +437,8 @@ const index = () => {
         setValues={setValues}
         workStatus={workStatus}
         setWorkStatus={setWorkStatus}
+        leaveReason={leaveReason}
+        setLeaveReason={setLeaveReason}
         leaveType={leaveType}
         setLeaveType={setLeaveType}
         leaveCause={leaveCause}

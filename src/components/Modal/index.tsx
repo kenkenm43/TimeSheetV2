@@ -50,6 +50,8 @@ const EventModal = (props: any) => {
     setWorkStatus,
     leaveType,
     setLeaveType,
+    leaveReason,
+    setLeaveReason,
     leaveCause,
     setLeaveCause,
     ...rest
@@ -82,6 +84,7 @@ const EventModal = (props: any) => {
     setFormValue({ work_status: WorkStatus.COME });
     setLeaveType("");
   };
+  console.log("workstatus", workStatus);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
@@ -116,8 +119,7 @@ const EventModal = (props: any) => {
                 <DatePicker
                   placeholder="เวลามาทำงาน"
                   format="HH:mm"
-                  value={values.start}
-                  defaultValue={values.start}
+                  defaultValue={moment(values.start)!.utcOffset("-07:00")._d}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
@@ -135,8 +137,7 @@ const EventModal = (props: any) => {
                   name="end"
                   placeholder="เวลาเลิกงาน"
                   format="HH:mm"
-                  value={values.end}
-                  defaultValue={values.end}
+                  defaultValue={moment(values.end)!.utcOffset("-07:00")._d}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
@@ -160,22 +161,23 @@ const EventModal = (props: any) => {
           {WorkStatus.NOTCOME == workStatus && <></>}
           {WorkStatus.LEAVE == workStatus && (
             <>
-              <Form.Group controlId="leave_type">
+              <Form.Group controlId="leave_cause">
                 <Form.ControlLabel>ประเภทการลา</Form.ControlLabel>
                 <SelectPicker
                   data={data}
-                  name="leave_type"
-                  value={leaveType}
-                  onChange={setLeaveType}
+                  name="leave_cause"
+                  defaultValue={"ลาโดยใช้วันหยุด"}
+                  value={leaveCause}
+                  onChange={setLeaveCause}
                 />
               </Form.Group>
 
-              <Form.Group controlId="leave_cause">
+              <Form.Group controlId="leave_reason">
                 <Form.ControlLabel>สาเหตุ</Form.ControlLabel>
                 <Form.Control
-                  name="leave_cause"
-                  value={leaveCause}
-                  onChange={setLeaveCause}
+                  name="leave_reason"
+                  value={leaveReason}
+                  onChange={setLeaveReason}
                 />
               </Form.Group>
             </>

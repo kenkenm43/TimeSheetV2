@@ -46,6 +46,8 @@ const Login = () => {
       });
 
       const employeeData: any = await getEmployee(employeeId);
+      console.log(employeeData.data);
+
       setEmployee({ ...employeeData.data });
       toast.success(message);
       navigate("/", { replace: true });

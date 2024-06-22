@@ -11,7 +11,7 @@ import {
 } from "../../types/userTypes";
 import { getAuthToken } from "../middlewares/authToken";
 import { ErrorHandler, handleError } from "../../utils/error";
-
+import moment from "moment";
 const workSchedule: RequestHandler = async (
   req: any,
   res: Response,
@@ -58,8 +58,8 @@ const addWorkSchedule: RequestHandler = async (
     const newDate = await prisma.workSchedule.create({
       data: {
         employeeId: employeeId,
-        work_start: payload.work_start,
-        work_end: payload.work_end,
+        work_start: new Date(payload.work_start),
+        work_end: new Date(payload.work_end),
         work_status: payload.work_status,
       },
     });
@@ -85,7 +85,9 @@ const updateWorkSchedule: RequestHandler = async (
         work_status: payload.work_status,
       },
     });
-    return res.status(200).json({ message: "เปลี่ยนข้อมูลเรียบร้อย" });
+    return res
+      .status(200)
+      .json({ ...update, message: "เปลี่ยนข้อมูลเรียบร้อย" });
     // return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
   } catch (error) {
     return handleError(error, res);
@@ -121,6 +123,7 @@ const addLeaveSchedule: RequestHandler = async (
         leave_date: payload.leave_date,
         leave_reason: payload.leave_reason,
         leave_type: payload.leave_type,
+        leave_cause: payload.leave_cause,
       },
     });
     return res.status(200).json({ ...newLeave, message: "บันทึกเรียบร้อย" });
@@ -152,15 +155,18 @@ const updateLeaveSchedule: RequestHandler = async (
     const employeeId = req.params["id"];
     const dateId = req.params["dateId"];
     const payload = req.body;
-    await prisma.leave.update({
+    const update = await prisma.leave.update({
       where: { id: dateId, employeeId: employeeId },
       data: {
         leave_date: payload.leave_date,
         leave_reason: payload.leave_reason,
+        leave_cause: payload.leave_cause,
         leave_type: payload.leave_type,
       },
     });
-    return res.status(200).json({ message: "เปลี่ยนข้อมูลเรียบร้อย" });
+    return res
+      .status(200)
+      .json({ ...update, message: "เปลี่ยนข้อมูลเรียบร้อย" });
   } catch (error) {
     return handleError(error, res);
   }
