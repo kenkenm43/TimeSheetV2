@@ -40,8 +40,17 @@ const index = () => {
   const [leaveCause, setLeaveCause] = useState("ลาโดยใช้วันหยุด");
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
+  const [currentMonth, setCurretMonth] = useState("");
   const { employee } = useEmployeeStore();
-  console.log(leaveCause);
+  // console.log(leaveCause);
+  console.log("calendar", calendarRef);
+
+  useEffect(() => {
+    console.log(
+      "calendar",
+      calendarRef.current?.calendar?.currentData?.viewTitle
+    );
+  }, [calendarRef]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +64,8 @@ const index = () => {
     };
     fetchData();
   }, [employee.id]);
+
+  useEffect(() => {});
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
     return dateF;
@@ -97,9 +108,6 @@ const index = () => {
 
       return formatEvent;
     });
-    console.log("work", formatWorkEvents);
-
-    console.log("leave", leaveWorkEvents);
 
     return [...formatWorkEvents, ...leaveWorkEvents];
   };
@@ -116,6 +124,7 @@ const index = () => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
       return eventDate === formatDate(dateStr, "", "YYYY-MM-DD");
     });
+    console.log("currentValueDate", currentValueDate);
 
     if (!currentValueDate) {
       setValues({
@@ -125,8 +134,6 @@ const index = () => {
       });
       setWorkStatus(WorkStatus.COME);
     } else {
-      console.log("currentValue", currentValueDate);
-
       setValues({
         title: currentValueDate.title,
         start: startDate,
@@ -220,15 +227,11 @@ const index = () => {
     leaveCause: any,
     leaveType: any
   ) => {
-    console.log("typeold", typeOld, "typenew", typeNew, timeStart, timeEnd);
-    let updateEvent;
+    let updateEvent: any;
     if (typeOld !== typeNew) {
       if (typeOld === WorkStatus.LEAVE) {
-        console.log("update work");
-        console.log(formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"));
-
         await deleteLeaveSchedule(employee.id, idDate);
-        const { data } = await addWorkSchedule(
+        await addWorkSchedule(
           {
             work_status: typeNew,
             work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
@@ -238,7 +241,7 @@ const index = () => {
           employee.id
         );
         updateEvent = {
-          id: data.id,
+          id: idDate,
           title: typeNew,
           start: timeStart,
           end: timeEnd,
@@ -247,20 +250,9 @@ const index = () => {
           backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
         };
       } else if (typeNew === WorkStatus.LEAVE) {
-        updateEvent = {
-          id: idDate,
-          title: WorkStatus.LEAVE,
-          start: timeStart,
-          end: timeEnd,
-          reason: leaveReason,
-          cause: leaveCause,
-          type: leaveType,
-          allDay: true,
-        };
-
         await deleteWorkSchedule(employee.id, idDate);
 
-        const { data } = await addLeave(
+        await addLeave(
           {
             leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             leave_reason: leaveReason,
@@ -270,7 +262,7 @@ const index = () => {
           employee.id
         );
         updateEvent = {
-          id: data.id,
+          id: idDate,
           title: WorkStatus.LEAVE,
           start: timeStart,
           end: timeEnd,
@@ -283,7 +275,7 @@ const index = () => {
       } else {
         console.log("updateWOrk");
 
-        const { data } = await updateWorkSchedule(
+        updateWorkSchedule(
           {
             work_start: timeStart,
             work_end: timeEnd,
@@ -333,9 +325,31 @@ const index = () => {
           display: "background",
           backgroundColor: "red",
         };
+      } else if (typeOld === typeNew) {
+        updateWorkSchedule(
+          {
+            work_start: timeStart,
+            work_end: timeEnd,
+            work_status: typeNew,
+          },
+          employee.id,
+          idDate
+        );
+
+        updateEvent = {
+          id: idDate,
+          title: typeNew,
+          start: timeStart,
+          end: timeEnd,
+          allDay: true,
+          display: "background",
+          backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
+        };
       }
     }
-    setEvents([...events, updateEvent]);
+    setEvents((events: any) => [...events, updateEvent]);
+    console.log("update", updateEvent);
+    console.log("calendarRef", calendarRef);
     console.log("event", events);
   };
 
@@ -453,7 +467,6 @@ const index = () => {
 
 function renderEventContent(eventContent: any) {
   const { timeText } = eventContent;
-
   return (
     <div className="bg-red-800">
       {timeText && (

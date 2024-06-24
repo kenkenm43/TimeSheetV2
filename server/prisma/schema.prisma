@@ -88,12 +88,14 @@ model Employment_Details {
 }
 
 model WorkSchedule {
-  id          String    @id @default(uuid())
-  work_start  DateTime?
-  work_end    DateTime?
-  work_status String?
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  employeeId  String
+  id           String    @id @default(uuid())
+  work_start   DateTime?
+  work_end     DateTime?
+  work_status  String?
+  work_ot      Boolean?
+  work_perdium Boolean?
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employeeId   String
 }
 
 model Leave {
