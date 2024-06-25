@@ -10,18 +10,23 @@ type TNavigation = {
 const navLists: TNavigation[] = [
   {
     name: "TimeSheet",
-    authorization: ["user", "admin"],
+    authorization: ["user"],
     to: "/",
   },
   {
+    name: "TimeSheet",
+    authorization: ["admin"],
+    to: "/dashboard",
+  },
+  {
     name: "ข้อมูลส่วนตัว",
-    authorization: ["user", "admin"],
+    authorization: ["user"],
     to: "/profile",
   },
   {
-    name: "all user",
+    name: "พนักงานทั้งหมด",
     authorization: ["admin"],
-    to: "/users",
+    to: "/dashboard",
   },
 ];
 

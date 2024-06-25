@@ -17,7 +17,6 @@ import {
   updateWorkSchedule,
 } from "../../services/employeeServices";
 import "./calendar.module.css";
-import { v4 as uuidv4 } from "uuid";
 import EventModal from "../Modal";
 import moment from "moment";
 import useEmployeeStore from "../../context/EmployeeProvider";
@@ -41,16 +40,8 @@ const index = () => {
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const [currentMonth, setCurretMonth] = useState("");
+  const [costSSO, setCostSSO] = useState(750);
   const { employee } = useEmployeeStore();
-  // console.log(leaveCause);
-  console.log("calendar", calendarRef);
-
-  useEffect(() => {
-    console.log(
-      "calendar",
-      calendarRef.current?.calendar?.currentData?.viewTitle
-    );
-  }, [calendarRef]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -461,6 +452,12 @@ const index = () => {
         onClose={handleClose}
         onAddEvent={handleOk}
       />
+      <div>
+        <div>Based salary : {employee.Employment_Details?.salary}</div>
+        <div>ประกันสังคม : {costSSO}</div>
+        <div>Add : Expenses claim : -</div>
+        <div>Total Paid: {employee?.Employment_Details?.salary - costSSO}</div>
+      </div>
     </div>
   );
 };
