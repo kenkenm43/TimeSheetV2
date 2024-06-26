@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
 import { TAuthStoreState } from "./AuthProvider";
-import { TEmployeeStoreState } from "./EmployeeProvider";
+import employees from "../pages/Admin/employees";
 type TRole = {
   id: string;
   name: string;
@@ -82,33 +82,36 @@ export type SystemAccess = {
 };
 
 export type TEmployeeStoreState = {
-  employee: TEmployee;
-  setEmployee: (value: object) => void;
+  employees: [];
+  setEmployees: (value: any) => void;
 };
-export const useKeepEmployeeStore = create<TEmployeeStoreState>()(
+export const useKeepEmployeesStore = create()(
   persist(
     (set) => ({
-      employee: {
-        id: "",
-        firstName: "",
-        lastName: "",
-        idCard: "",
-        gender: "",
-        date_of_birth: "",
-        address: "",
-        phone_number: "",
-        email: "",
-        photo: "",
-      },
-      setEmployee: (value: object) =>
+      employees: [
+        {
+          id: "",
+          firstName: "",
+          lastName: "",
+          idCard: "",
+          gender: "",
+          date_of_birth: "",
+          address: "",
+          phone_number: "",
+          email: "",
+          photo: "",
+          events: [],
+        },
+      ],
+      setEmployees: (value: any) =>
         set((state: any) => ({
-          employee: { ...state.employee, ...value },
+          employees: [...state.employee, ...value],
         })),
     }),
     {
-      name: "KeepEmployeeStore",
+      name: "KeepEmployeesStore",
       storage: createJSONStorage(() => sessionStorage),
     }
   )
 );
-export default useKeepEmployeeStore;
+export default useKeepEmployeesStore;

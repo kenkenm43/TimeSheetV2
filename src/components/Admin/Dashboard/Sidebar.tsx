@@ -7,8 +7,9 @@ import { FiLogOut } from "react-icons/fi";
 import { getEmployees } from "../../../services/adminServices";
 import { logout } from "../../../services/authServices";
 import useKeepEmployeeStore from "../../../context/KeepEmployeeProvider";
+import useKeepEmployeesStore from "../../../context/KeepEmployeesProvider";
 const Sidebar = () => {
-  const [employees, setEmployees] = useState<[]>();
+  const { employees, setEmployees } = useKeepEmployeesStore();
   const { employee, setEmployee } = useKeepEmployeeStore();
   const getEmployeesData = () => {
     return getEmployees();
@@ -25,6 +26,13 @@ const Sidebar = () => {
     };
     fetchData();
   }, []);
+
+  const selectEmployee = (emp: any) => {
+    if (!(employee.id === emp.id)) {
+      setEmployee(emp);
+      console.log("not same emp");
+    }
+  };
   const [isOpenListEmployees, setIsOpenListEmployees] = useState<boolean>(true);
   const links = [
     {
@@ -124,7 +132,7 @@ const Sidebar = () => {
         {employees?.map((emp: any, idx: any) => (
           <div className="mt-3 space-y-1" key={idx}>
             <button
-              onClick={() => setEmployee(emp)}
+              onClick={() => selectEmployee(emp)}
               className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none
                 ${emp?.id === employee?.id ? "bg-gray-100" : ""} 
                 `}

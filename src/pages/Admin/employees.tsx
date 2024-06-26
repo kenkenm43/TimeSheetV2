@@ -40,7 +40,7 @@ const employees = () => {
       setEvents(eventsData);
     };
     fetchData();
-  }, [employee.id]);
+  }, [setEmployee, employee.id]);
 
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
