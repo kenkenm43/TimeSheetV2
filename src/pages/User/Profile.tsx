@@ -38,8 +38,8 @@ const Profile = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 space-x-20">
-        <p className="flex flex-col space-y-1">
+      <div className="grid grid-cols-2 space-x-20 text-2xl">
+        <p className="flex flex-col space-y-5">
           <span>ชื่อจริง: {employee.firstName}</span>
           <span>นามสกุล: {employee.lastName}</span>
           <span>เลขบัตรประชาชน: {employee.idCard}</span>
@@ -49,7 +49,7 @@ const Profile = () => {
           <span>เบอร์โทรศัพท์: {employee.phone_number}</span>
           <span>อีเมล: {employee.email}</span>
         </p>
-        <p className="flex flex-col space-y-1">
+        <p className="flex flex-col space-y-5">
           <span>เริ่มทำงาน: {employee.Employment_Details?.start_date}</span>
           <span>เงินเดือน: {employee.Employment_Details?.salary}</span>
           <span>วันที่ผ่านโปร: </span>

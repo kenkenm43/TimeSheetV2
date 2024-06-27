@@ -29,6 +29,7 @@ export type TEmployee = {
   Leave?: Leave;
   Financial_Details?: Financial_Details;
   Performace?: Performance;
+  events?: any;
 };
 export type Employment_Details = {
   id?: string;
@@ -37,7 +38,7 @@ export type Employment_Details = {
   contract_type?: string;
   start_date?: string;
   end_date?: string;
-  salary?: string;
+  salary?: any;
   salary_increase?: string;
   salary_decrease?: string;
   tax_information?: string;
@@ -99,6 +100,7 @@ export const useEmployeeStore = create<TEmployeeStoreState>()(
         phone_number: "",
         email: "",
         photo: "",
+        events: [],
       },
       setEmployee: (value: object) =>
         set((state: any) => ({

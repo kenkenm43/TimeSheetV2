@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
-import { TAuthStoreState } from "./AuthProvider";
 import employees from "../pages/Admin/employees";
 type TRole = {
   id: string;
@@ -82,30 +81,22 @@ export type SystemAccess = {
 };
 
 export type TEmployeeStoreState = {
-  employees: [];
+  employees: TEmployee[];
   setEmployees: (value: any) => void;
 };
-export const useKeepEmployeesStore = create()(
+export const useKeepEmployeesStore = create<any>()(
   persist(
     (set) => ({
-      employees: [
-        {
-          id: "",
-          firstName: "",
-          lastName: "",
-          idCard: "",
-          gender: "",
-          date_of_birth: "",
-          address: "",
-          phone_number: "",
-          email: "",
-          photo: "",
-          events: [],
-        },
-      ],
+      employees: [],
       setEmployees: (value: any) =>
         set((state: any) => ({
-          employees: [...state.employee, ...value],
+          employees: [...state.employees, ...value],
+        })),
+      setEvents: (empId: any, events: any) =>
+        set((state: any) => ({
+          employees: state.employees.map((emp: any) =>
+            emp.id === empId ? { ...emp, events: [...events] } : emp
+          ),
         })),
     }),
     {

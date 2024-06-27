@@ -39,16 +39,16 @@ const index = () => {
   const [leaveCause, setLeaveCause] = useState("ลาโดยใช้วันหยุด");
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
+  const [checkBoxed, setCheckBoxed] = useState<any>([]);
   const [currentMonth, setCurretMonth] = useState("");
   const [costSSO, setCostSSO] = useState(750);
   const { employee } = useEmployeeStore();
+  console.log("new events", events);
 
   useEffect(() => {
     const fetchData = async () => {
       const work = await getWorkSchedules(employee.id);
       const leave = await getLeaves(employee.id);
-      console.log("dataLeave", leave.data);
-
       setLeaveType(leave);
       const event = addEvents(work.data, leave.data);
       setEvents(event);
@@ -75,6 +75,8 @@ const index = () => {
         title: arr.work_status,
         start: moment(arr.work_start)!.utcOffset("-07:00")._d,
         end: moment(arr.work_end)!.utcOffset("-07:00")._d,
+        ot: arr.work_ot,
+        perdiem: arr.work_perdium,
         allDay: true,
         display: "background",
         backgroundColor: background,
@@ -115,7 +117,10 @@ const index = () => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
       return eventDate === formatDate(dateStr, "", "YYYY-MM-DD");
     });
-    console.log("currentValueDate", currentValueDate);
+    setCheckBoxed([
+      currentValueDate?.ot ? "OT" : null,
+      currentValueDate?.perdiem ? "Perdiem" : null,
+    ]);
 
     if (!currentValueDate) {
       setValues({
@@ -180,19 +185,16 @@ const index = () => {
         backgroundColor: backgroundColor,
       };
     } else {
-      console.log(formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"));
-      console.log(formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]"));
-
       const { data } = await addWorkSchedule(
         {
           work_status: title,
           work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
           work_end: formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+          work_ot: checkBoxed.includes("OT") ? true : false,
+          work_perdium: checkBoxed.includes("Perdiem") ? true : false,
         },
         employee.id
       );
-      console.log("data work", data);
-
       newEvent = {
         id: data.id,
         title: title,
@@ -228,6 +230,8 @@ const index = () => {
             work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             work_end:
               formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]") || null,
+            work_ot: checkBoxed.includes("OT") ? true : false,
+            work_perdium: checkBoxed.includes("Perdiem") ? true : false,
           },
           employee.id
         );
@@ -271,6 +275,8 @@ const index = () => {
             work_start: timeStart,
             work_end: timeEnd,
             work_status: typeNew,
+            work_ot: checkBoxed.includes("OT") ? true : false,
+            work_perdium: checkBoxed.includes("Perdiem") ? true : false,
           },
           employee.id,
           idDate
@@ -317,11 +323,18 @@ const index = () => {
           backgroundColor: "red",
         };
       } else if (typeOld === typeNew) {
+        console.log("update work");
+        console.log("chckbox", checkBoxed);
+        console.log("OT", checkBoxed.includes("OT") ? true : false);
+        console.log("Perdiem", checkBoxed.includes("Perdiem") ? true : false);
+
         updateWorkSchedule(
           {
             work_start: timeStart,
             work_end: timeEnd,
             work_status: typeNew,
+            work_ot: checkBoxed.includes("OT") ? true : false,
+            work_perdium: checkBoxed.includes("Perdiem") ? true : false,
           },
           employee.id,
           idDate
@@ -339,9 +352,6 @@ const index = () => {
       }
     }
     setEvents((events: any) => [...events, updateEvent]);
-    console.log("update", updateEvent);
-    console.log("calendarRef", calendarRef);
-    console.log("event", events);
   };
 
   const dateCurrent = (date: any) => {
@@ -420,7 +430,7 @@ const index = () => {
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth",
+          right: "",
         }}
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
@@ -448,6 +458,8 @@ const index = () => {
         setLeaveType={setLeaveType}
         leaveCause={leaveCause}
         setLeaveCause={setLeaveCause}
+        checkBoxed={checkBoxed}
+        setCheckBoxed={setCheckBoxed}
         open={editable}
         onClose={handleClose}
         onAddEvent={handleOk}
@@ -464,6 +476,7 @@ const index = () => {
 
 function renderEventContent(eventContent: any) {
   const { timeText } = eventContent;
+
   return (
     <div className="bg-red-800">
       {timeText && (

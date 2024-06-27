@@ -61,6 +61,8 @@ const addWorkSchedule: RequestHandler = async (
         work_start: new Date(payload.work_start),
         work_end: new Date(payload.work_end),
         work_status: payload.work_status,
+        work_ot: payload.work_ot,
+        work_perdium: payload.work_perdium,
       },
     });
     return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
@@ -83,6 +85,8 @@ const updateWorkSchedule: RequestHandler = async (
         work_start: payload.work_start,
         work_end: payload.work_end,
         work_status: payload.work_status,
+        work_ot: payload.work_ot,
+        work_perdium: payload.work_perdium,
       },
     });
     return res

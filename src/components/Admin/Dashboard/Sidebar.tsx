@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { FaUser } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
@@ -14,23 +14,22 @@ const Sidebar = () => {
   const getEmployeesData = () => {
     return getEmployees();
   };
-  const location = useLocation();
-  console.log(location.pathname === "/employee");
 
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await getEmployeesData();
-      console.log("employee", data);
       setEmployees(data);
-      // setIsOpenListEmployees(location.pathname == "/employee" ? true : false);
+      setIsOpenListEmployees(location.pathname == "/employee" ? true : false);
     };
-    fetchData();
+
+    if (employees.length === 0) {
+      fetchData();
+    }
   }, []);
 
   const selectEmployee = (emp: any) => {
     if (!(employee.id === emp.id)) {
       setEmployee(emp);
-      console.log("not same emp");
     }
   };
   const [isOpenListEmployees, setIsOpenListEmployees] = useState<boolean>(true);
@@ -128,28 +127,31 @@ const Sidebar = () => {
         <h2 className="px-5 text-lg font-medium text-gray-800 dark:text-white">
           รายชื่อพนักงาน
         </h2>
-
-        {employees?.map((emp: any, idx: any) => (
-          <div className="mt-3 space-y-1" key={idx}>
-            <button
-              onClick={() => selectEmployee(emp)}
-              className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none
+        {employees.length !== 0 ? (
+          employees?.map((emp: any, idx: any) => (
+            <div className="mt-3 space-y-1" key={idx}>
+              <button
+                onClick={() => selectEmployee(emp)}
+                className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none
                 ${emp?.id === employee?.id ? "bg-gray-100" : ""} 
                 `}
-            >
-              <img
-                className="object-cover w-8 h-8 rounded-full"
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&h=880&q=80"
-                alt="img"
-              />
-              <div className="text-left rtl:text-right">
-                <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">
-                  {`${emp?.firstName} ${emp?.lastName}`}
-                </h1>
-              </div>
-            </button>
-          </div>
-        ))}
+              >
+                <img
+                  className="object-cover w-8 h-8 rounded-full"
+                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&h=880&q=80"
+                  alt="img"
+                />
+                <div className="text-left rtl:text-right">
+                  <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">
+                    {`${emp?.firstName} ${emp?.lastName}`}
+                  </h1>
+                </div>
+              </button>
+            </div>
+          ))
+        ) : (
+          <>ไม่มีรายชื่อ</>
+        )}
       </div>
     </aside>
   );

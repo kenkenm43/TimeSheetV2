@@ -11,6 +11,8 @@ import {
   Radio,
   InputGroup,
   SelectPicker,
+  CheckboxGroup,
+  Checkbox,
 } from "rsuite";
 
 enum WorkStatus {
@@ -54,11 +56,12 @@ const EventModal = (props: any) => {
     setLeaveReason,
     leaveCause,
     setLeaveCause,
+    checkBoxed,
+    setCheckBoxed,
     ...rest
   } = props;
   const formRef: any = useRef();
   const [formError, setFormError] = useState({});
-
   // const [expenses, setExpenses] = useState([{ name: "", quantity: null }]);
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
@@ -70,7 +73,9 @@ const EventModal = (props: any) => {
     label: item,
     value: item,
   }));
-
+  const handleCheckBox = (e: any) => {
+    setCheckBoxed(e);
+  };
   const handleChange = (e: any) => {
     setWorkStatus(e);
   };
@@ -85,6 +90,7 @@ const EventModal = (props: any) => {
     setLeaveType("");
   };
   console.log("workstatus", workStatus);
+  console.log("checkbox", checkBoxed);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
@@ -114,6 +120,17 @@ const EventModal = (props: any) => {
 
           {WorkStatus.COME == workStatus && (
             <>
+              <div className="mb-2 pb-1">
+                <CheckboxGroup
+                  inline
+                  name="checkbox-group"
+                  value={checkBoxed}
+                  onChange={(e: any) => handleCheckBox(e)}
+                >
+                  <Checkbox value="OT">OT</Checkbox>
+                  <Checkbox value="Perdiem">Per Diem</Checkbox>
+                </CheckboxGroup>
+              </div>
               <Stack spacing={6}>
                 <InputGroup.Addon>เวลามาทำงาน</InputGroup.Addon>
                 <DatePicker
@@ -182,12 +199,14 @@ const EventModal = (props: any) => {
               </Form.Group>
             </>
           )}
-          <Button
-            appearance="primary"
-            onClick={(e: any) => handleOk(e, formValue)}
-          >
-            บันทึก
-          </Button>
+          <div className="mt-6">
+            <Button
+              appearance="primary"
+              onClick={(e: any) => handleOk(e, formValue)}
+            >
+              บันทึก
+            </Button>
+          </div>
         </Form>
       </Modal.Body>
     </Modal>

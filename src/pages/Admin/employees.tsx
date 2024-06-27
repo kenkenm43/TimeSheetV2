@@ -2,45 +2,44 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useState } from "react";
 import useKeepEmployeeStore from "../../context/KeepEmployeeProvider";
-import {
-  getEmployee,
-  getLeaves,
-  getWorkSchedules,
-} from "../../services/employeeServices";
+import { getLeaves, getWorkSchedules } from "../../services/employeeServices";
 import Calendar from "../../components/Admin/Calendar";
 import { FaEdit } from "react-icons/fa";
 import moment from "moment";
-import { useLocation } from "react-router-dom";
+import useKeepEmployeesStore from "../../context/KeepEmployeesProvider";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
   LEAVE = "leave",
 }
 const employees = () => {
+  const { employees, setEmployees, setEvents } = useKeepEmployeesStore();
   const { employee, setEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
   const [typeButton, setTypeButton] = useState("Calendar");
   const [leave, setLeave] = useState<[]>();
   const [costSSO, setCostSSO] = useState(750);
-  const [events, setEvents] = useState<any>();
+  // const [events, setEvents] = useState<any>();
 
   useEffect(() => {
     const fetchData = async () => {
+      const findEmployees = employees.find(
+        (emp: any) => emp.id === employee.id
+      );
+
       const work = await getWorkSchedules(employee.id);
       const leave = await getLeaves(employee.id);
-      const employeeData = await getEmployee(employee.id);
-      console.log("employeeData", employeeData);
 
-      setEmployee(employeeData.data);
+      setEmployee(findEmployees);
       setWorkSchedule(work.data);
       setLeave(leave.data);
 
       const eventsData = addEvents(work.data, leave.data);
-
-      setEvents(eventsData);
+      setEvents(employee.id, eventsData);
+      // setEvents(eventsData);
     };
     fetchData();
-  }, [setEmployee, employee.id]);
+  }, [setEmployee, employee.id, setEvents]);
 
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
@@ -146,12 +145,14 @@ const employees = () => {
           ปฎิทิน
         </button>
       </div>
-      {typeButton === "Calendar" && <Calendar events={events} />}
+      {typeButton === "Calendar" && <Calendar events={employee.events} />}
       <div>
         <div>Based salary : {employee.Employment_Details?.salary}</div>
         <div>ประกันสังคม : {costSSO}</div>
         <div>Add : Expenses claim : -</div>
-        <div>Total Paid: {employee?.Employment_Details?.salary - costSSO}</div>
+        <div>
+          Total Paid: {employee?.Employment_Details?.salary - costSSO || "-"}
+        </div>
       </div>
     </div>
   );

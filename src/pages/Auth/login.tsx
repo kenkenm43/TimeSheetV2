@@ -49,9 +49,8 @@ const Login = () => {
       console.log(employeeData.data);
 
       setEmployee({ ...employeeData.data });
-      console.log("auth", role);
 
-      const navigation = role?.name === "admin" ? "/employee" : "/";
+      const navigation = await role?.name === "admin" ? "/employee" : "/";
       toast.success(message);
       navigate(navigation, { replace: true });
     }
