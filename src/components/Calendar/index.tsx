@@ -201,6 +201,8 @@ const index = () => {
         start: startDate,
         end: endDate,
         cause: leaveCause,
+        ot: data.work_ot,
+        perdiem: data.work_perdium,
         reason: leaveReason,
         type: leaveType,
         allDay: true,
@@ -224,26 +226,29 @@ const index = () => {
     if (typeOld !== typeNew) {
       if (typeOld === WorkStatus.LEAVE) {
         await deleteLeaveSchedule(employee.id, idDate);
-        await addWorkSchedule(
+        const { data } = await addWorkSchedule(
           {
             work_status: typeNew,
-            work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-            work_end:
-              formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]") || null,
+            work_start: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+            work_end: formatDate(timeEnd, "", "YYYY-MM-DDTHH:mm:ss[Z]") || null,
             work_ot: checkBoxed.includes("OT") ? true : false,
             work_perdium: checkBoxed.includes("Perdiem") ? true : false,
           },
           employee.id
         );
-        updateEvent = {
+        updateEvent = events.filter((event: any) => event.id !== idDate);
+
+        updateEvent.push({
           id: idDate,
           title: typeNew,
           start: timeStart,
+          ot: data.work_ot || false,
+          perdiem: data.work_perdium || false,
           end: timeEnd,
           allDay: true,
           display: "background",
           backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
-        };
+        });
       } else if (typeNew === WorkStatus.LEAVE) {
         await deleteWorkSchedule(employee.id, idDate);
 
@@ -256,7 +261,9 @@ const index = () => {
           },
           employee.id
         );
-        updateEvent = {
+        updateEvent = events.filter((event: any) => event.id !== idDate);
+
+        updateEvent.push({
           id: idDate,
           title: WorkStatus.LEAVE,
           start: timeStart,
@@ -266,37 +273,54 @@ const index = () => {
           allDay: true,
           display: "background",
           backgroundColor: "red",
-        };
+        });
       } else {
-        console.log("updateWOrk");
+        console.log(
+          "update notcome",
+          checkBoxed.includes("Perdiem")
+            ? true
+            : typeNew === WorkStatus.NOTCOME
+            ? false
+            : true
+        );
 
-        updateWorkSchedule(
+        const { data } = await updateWorkSchedule(
           {
             work_start: timeStart,
             work_end: timeEnd,
             work_status: typeNew,
-            work_ot: checkBoxed.includes("OT") ? true : false,
-            work_perdium: checkBoxed.includes("Perdiem") ? true : false,
+            work_ot: checkBoxed.includes("OT")
+              ? true
+              : typeNew === WorkStatus.NOTCOME
+              ? false
+              : true,
+            work_perdium: checkBoxed.includes("Perdiem")
+              ? true
+              : typeNew === WorkStatus.NOTCOME
+              ? false
+              : true,
           },
           employee.id,
           idDate
         );
-
-        updateEvent = {
+        updateEvent = events.filter((event: any) => event.id !== idDate);
+        updateEvent.push({
           id: idDate,
           title: typeNew,
           start: timeStart,
           end: timeEnd,
+          ot: data.work_ot || false,
+          perdiem: data.work_perdium || false,
           allDay: true,
           display: "background",
           backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
-        };
+        });
       }
     } else {
       if (typeNew === WorkStatus.LEAVE) {
         console.log("updatesameleave");
 
-        const { data } = await updateLeave(
+        await updateLeave(
           {
             leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             leave_reason: leaveReason,
@@ -306,11 +330,9 @@ const index = () => {
           employee.id,
           idDate
         );
-        console.log("leave update data", data);
-        console.log("leave updateReason", leaveReason);
-        console.log("leaveupdate caues", leaveCause);
+        updateEvent = events.filter((event: any) => event.id !== idDate);
 
-        updateEvent = {
+        updateEvent.push({
           id: idDate,
           title: WorkStatus.LEAVE,
           start: timeStart,
@@ -321,37 +343,53 @@ const index = () => {
           allDay: true,
           display: "background",
           backgroundColor: "red",
-        };
+        });
       } else if (typeOld === typeNew) {
-        console.log("update work");
-        console.log("chckbox", checkBoxed);
-        console.log("OT", checkBoxed.includes("OT") ? true : false);
-        console.log("Perdiem", checkBoxed.includes("Perdiem") ? true : false);
-
-        updateWorkSchedule(
+        console.log(
+          "update same notcome",
+          checkBoxed.includes("Perdiem")
+            ? true
+            : typeNew === WorkStatus.NOTCOME
+            ? false
+            : true
+        );
+        const { data } = await updateWorkSchedule(
           {
             work_start: timeStart,
             work_end: timeEnd,
             work_status: typeNew,
-            work_ot: checkBoxed.includes("OT") ? true : false,
-            work_perdium: checkBoxed.includes("Perdiem") ? true : false,
+            work_ot: checkBoxed.includes("OT")
+              ? true
+              : typeNew === WorkStatus.NOTCOME
+              ? false
+              : true,
+            work_perdium: checkBoxed.includes("Perdiem")
+              ? true
+              : typeNew === WorkStatus.NOTCOME
+              ? false
+              : true,
           },
           employee.id,
           idDate
         );
+        updateEvent = events.filter((event: any) => event.id !== idDate);
 
-        updateEvent = {
+        updateEvent.push({
           id: idDate,
           title: typeNew,
           start: timeStart,
           end: timeEnd,
+          ot: data.work_ot || false,
+          perdiem: data.work_perdium || false,
           allDay: true,
           display: "background",
           backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
-        };
+        });
       }
     }
-    setEvents((events: any) => [...events, updateEvent]);
+    console.log("updateEvent", updateEvent);
+
+    setEvents((events: any) => [...updateEvent]);
   };
 
   const dateCurrent = (date: any) => {
