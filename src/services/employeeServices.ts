@@ -19,6 +19,17 @@ export const getWorkSchedules = async (employeeId: any) => {
     return error.response;
   }
 };
+export const getWorkSchedulesByPost = async (payload: any, employeeId: any) => {
+  try {
+    const response = await httpClient.post(
+      `/work-scheduleByPost/${employeeId}`,
+      payload
+    );
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
 export const addWorkSchedule = async (payload: any, employeeId: any) => {
   try {
     const response = await httpClient.post(
@@ -59,6 +70,17 @@ export const deleteWorkSchedule = async (employeeId: any, dateId: any) => {
 export const getLeaves = async (employeeId: any) => {
   try {
     const response = await httpClient.get(`/leave/${employeeId}`);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+export const getLeavesBypost = async (payload: any, employeeId: any) => {
+  try {
+    const response = await httpClient.post(
+      `/leaveByPost/${employeeId}`,
+      payload
+    );
     return response;
   } catch (error: any) {
     return error.response;

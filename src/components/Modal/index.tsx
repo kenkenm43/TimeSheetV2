@@ -67,8 +67,6 @@ const EventModal = (props: any) => {
     work_status: workStatus,
   });
 
-  // console.log("value start", values.start);
-  // console.log("value end", values.end);
   const data = ["ลาป่วย", "ลาโดยใช้วันหยุด"].map((item) => ({
     label: item,
     value: item,
@@ -79,7 +77,6 @@ const EventModal = (props: any) => {
   const handleChange = (e: any) => {
     setWorkStatus(e);
   };
-  // console.log(WorkStatus.COME == values.current.title);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleOk = (e: any, formValue: any) => {
     if (!formRef.current.check()) {
@@ -89,8 +86,6 @@ const EventModal = (props: any) => {
     setFormValue({ work_status: WorkStatus.COME });
     setLeaveType("");
   };
-  console.log("workstatus", workStatus);
-  console.log("checkbox", checkBoxed);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>

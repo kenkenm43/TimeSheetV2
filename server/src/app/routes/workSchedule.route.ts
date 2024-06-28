@@ -3,7 +3,7 @@ import workScheduleController from "../controllers/workSchedule.controller";
 const router = express.Router();
 
 router.get("/work-schedule", workScheduleController.workSchedule);
-router.get("/work-schedule/:id", workScheduleController.workSchedule);
+router.post("/work-scheduleByPost/:id/", workScheduleController.workSchedule);
 router.patch(
   "/work-schedule/:id/:dateId",
   workScheduleController.updateWorkSchedule
@@ -16,6 +16,7 @@ router.delete(
 );
 
 router.get("/leave/:id", workScheduleController.leaveSchedule);
+router.post("/leaveByPost/:id", workScheduleController.leaveSchedule);
 router.patch("/leave/:id/:dateId", workScheduleController.updateLeaveSchedule);
 router.post("/leave/:id", workScheduleController.addLeaveSchedule);
 router.delete("/leave/:id/:dateId", workScheduleController.deleteLeaveSchedule);

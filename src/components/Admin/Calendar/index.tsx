@@ -8,10 +8,14 @@ import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import "./calendar.module.css";
 
-const index = (events: any) => {
+const index = ({ handleMonthChange, events }: any): any => {
   const calendarRef = useRef<any>(null);
-  console.log("eventsData", events);
-
+  const onHandleMonthChange = (payload: any) => {
+    console.log(payload.view.currentStart);
+    console.log(payload.view.currentEnd);
+    handleMonthChange(payload);
+    // setMonthDate(payload.view.title);
+  };
   return (
     <div className="w-full">
       {" "}
@@ -36,6 +40,7 @@ const index = (events: any) => {
             titleFormat: { year: "numeric", month: "long" },
           },
         }}
+        datesSet={onHandleMonthChange}
         editable
         height={650}
         events={events}

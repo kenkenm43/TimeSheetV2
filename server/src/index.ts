@@ -2,6 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 import { timestampLoggerMiddleware } from "./app/middlewares/logging";
 // const router = express.Router();
 
@@ -19,6 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 7000;
 
 async function main() {
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(credentials);
   app.use(cors(corsOptions));
   app.use(

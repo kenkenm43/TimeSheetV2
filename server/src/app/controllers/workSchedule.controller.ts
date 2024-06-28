@@ -19,8 +19,26 @@ const workSchedule: RequestHandler = async (
 ) => {
   try {
     const employeeId = req.params["id"];
+    const payload = req.body;
+    const date = new Date(),
+      y = date.getFullYear(),
+      m = date.getMonth();
+    const firstDay = new Date(y, m, 1);
+    const lastDay = new Date(y, m + 1, 0);
+    const { currentStart, currentEnd } = req.body;
+
     const workSchedule = await prisma.workSchedule.findMany({
-      where: { employeeId: employeeId },
+      where: {
+        employeeId: employeeId,
+        work_start: {
+          gte: new Date(currentStart || firstDay),
+          lte: new Date(currentEnd || lastDay),
+        },
+        work_end: {
+          gte: new Date(currentStart || firstDay),
+          lte: new Date(currentEnd || lastDay),
+        },
+      },
     });
 
     return res.status(200).json([...workSchedule]);
@@ -36,10 +54,23 @@ const leaveSchedule: RequestHandler = async (
 ) => {
   try {
     const employeeId = req.params["id"];
+    const date = new Date(),
+      y = date.getFullYear(),
+      m = date.getMonth();
+    const firstDay = new Date(y, m, 1);
+    const lastDay = new Date(y, m + 1, 0);
+    const { currentStart, currentEnd } = req.body;
 
     const leaveSchedule = await prisma.leave.findMany({
-      where: { employeeId: employeeId },
+      where: {
+        employeeId: employeeId,
+        leave_date: {
+          gte: new Date(currentStart || firstDay),
+          lte: new Date(currentEnd || lastDay),
+        },
+      },
     });
+    console.log(leaveSchedule);
 
     return res.status(200).json([...leaveSchedule]);
   } catch (error) {
@@ -55,6 +86,7 @@ const addWorkSchedule: RequestHandler = async (
   try {
     const employeeId = req.params["id"];
     const payload = req.body;
+    console.log(payload);
     const newDate = await prisma.workSchedule.create({
       data: {
         employeeId: employeeId,
@@ -79,6 +111,7 @@ const updateWorkSchedule: RequestHandler = async (
     const employeeId = req.params["id"];
     const dateId = req.params["dateId"];
     const payload = req.body;
+    console.log(payload);
     const update = await prisma.workSchedule.update({
       where: { id: dateId, employeeId: employeeId },
       data: {
@@ -125,13 +158,14 @@ const addLeaveSchedule: RequestHandler = async (
       data: {
         employeeId: employeeId,
         leave_date: payload.leave_date,
-        leave_reason: payload.leave_reason,
-        leave_type: payload.leave_type,
-        leave_cause: payload.leave_cause,
+        leave_reason: payload.leave_reason || "",
+        leave_type: payload.leave_type || "",
+        leave_cause: payload.leave_cause || "",
       },
     });
     return res.status(200).json({ ...newLeave, message: "บันทึกเรียบร้อย" });
   } catch (error) {
+    console.log(req.path);
     return handleError(error, res);
   }
 };
@@ -159,13 +193,14 @@ const updateLeaveSchedule: RequestHandler = async (
     const employeeId = req.params["id"];
     const dateId = req.params["dateId"];
     const payload = req.body;
+    console.log(payload);
     const update = await prisma.leave.update({
       where: { id: dateId, employeeId: employeeId },
       data: {
         leave_date: payload.leave_date,
-        leave_reason: payload.leave_reason,
-        leave_cause: payload.leave_cause,
-        leave_type: payload.leave_type,
+        leave_reason: payload.leave_reason || "",
+        leave_cause: payload.leave_cause || "",
+        leave_type: payload.leave_type || "",
       },
     });
     return res

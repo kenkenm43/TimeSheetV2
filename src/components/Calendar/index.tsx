@@ -12,7 +12,9 @@ import {
   deleteLeaveSchedule,
   deleteWorkSchedule,
   getLeaves,
+  getLeavesBypost,
   getWorkSchedules,
+  getWorkSchedulesByPost,
   updateLeave,
   updateWorkSchedule,
 } from "../../services/employeeServices";
@@ -20,6 +22,7 @@ import "./calendar.module.css";
 import EventModal from "../Modal";
 import moment from "moment";
 import useEmployeeStore from "../../context/EmployeeProvider";
+import ListWorking from "../ListWorking";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -40,23 +43,37 @@ const index = () => {
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const [checkBoxed, setCheckBoxed] = useState<any>([]);
-  const [currentMonth, setCurretMonth] = useState("");
-  const [costSSO, setCostSSO] = useState(750);
+  const [costSSO] = useState(750);
   const { employee } = useEmployeeStore();
-  console.log("new events", events);
+  const handleMonthChange = async (payload: any) => {
+    if (payload.view.currentStart || payload.view.currentEnd) {
+      const work = await getWorkSchedulesByPost(
+        {
+          currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
+          currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
+        },
+        employee.id
+      );
+      const leave = await getLeavesBypost(
+        {
+          currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
+          currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
+        },
+        employee.id
+      );
+      console.log("work", work.data);
+      console.log("leave", leave.data);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const work = await getWorkSchedules(employee.id);
-      const leave = await getLeaves(employee.id);
-      setLeaveType(leave);
       const event = addEvents(work.data, leave.data);
       setEvents(event);
-    };
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {};
     fetchData();
   }, [employee.id]);
 
-  useEffect(() => {});
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
     return dateF;
@@ -66,7 +83,15 @@ const index = () => {
     const formatWorkEvents = workArr.map((arr: any) => {
       let background;
       if (arr.work_status === WorkStatus.COME) {
-        background = "green";
+        if (arr.work_perdium && arr.work_ot) {
+          background = "#e100ff";
+        } else if (arr.work_perdium) {
+          background = "#0044ff";
+        } else if (arr.work_ot) {
+          background = "#38bdf8";
+        } else {
+          background = "green";
+        }
       } else if (arr.work_status === WorkStatus.NOTCOME) {
         background = "gray";
       }
@@ -157,10 +182,6 @@ const index = () => {
   ) => {
     let newEvent;
     if (title === WorkStatus.LEAVE) {
-      console.log("leaveReason", leaveReason);
-      console.log("leaveType", leaveType);
-      console.log("leaveCause", leaveCause);
-
       const { data } = await addLeave(
         {
           leave_date: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
@@ -171,6 +192,12 @@ const index = () => {
         employee.id
       );
       // console.log("dataLEave", data);
+      console.group();
+      console.log("leave reason", leaveReason);
+      console.log("leave cause", leaveCause);
+      console.log("leave type", leaveType);
+
+      console.groupEnd();
 
       newEvent = {
         id: data.id,
@@ -190,8 +217,12 @@ const index = () => {
           work_status: title,
           work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
           work_end: formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-          work_ot: checkBoxed.includes("OT") ? true : false,
-          work_perdium: checkBoxed.includes("Perdiem") ? true : false,
+          work_ot:
+            title === WorkStatus.NOTCOME ? false : checkBoxed.includes("OT"),
+          work_perdium:
+            title === WorkStatus.NOTCOME
+              ? false
+              : checkBoxed.includes("Perdiem"),
         },
         employee.id
       );
@@ -210,9 +241,11 @@ const index = () => {
         backgroundColor: backgroundColor,
       };
     }
+    console.log("new event", newEvent);
+
     setEvents([...events, newEvent]);
   };
-
+  console.log("events", events);
   const handleEventUpdate = async (
     idDate: any,
     typeOld: any,
@@ -225,21 +258,29 @@ const index = () => {
     let updateEvent: any;
     if (typeOld !== typeNew) {
       if (typeOld === WorkStatus.LEAVE) {
+        console.log("change old leaves");
+
         await deleteLeaveSchedule(employee.id, idDate);
         const { data } = await addWorkSchedule(
           {
             work_status: typeNew,
             work_start: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-            work_end: formatDate(timeEnd, "", "YYYY-MM-DDTHH:mm:ss[Z]") || null,
-            work_ot: checkBoxed.includes("OT") ? true : false,
-            work_perdium: checkBoxed.includes("Perdiem") ? true : false,
+            work_end: formatDate(timeEnd, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+            work_ot:
+              typeNew === WorkStatus.NOTCOME
+                ? false
+                : checkBoxed.includes("OT"),
+            work_perdium:
+              typeNew === WorkStatus.NOTCOME
+                ? false
+                : checkBoxed.includes("Perdiem"),
           },
           employee.id
         );
         updateEvent = events.filter((event: any) => event.id !== idDate);
 
         updateEvent.push({
-          id: idDate,
+          id: data.id,
           title: typeNew,
           start: timeStart,
           ot: data.work_ot || false,
@@ -252,7 +293,7 @@ const index = () => {
       } else if (typeNew === WorkStatus.LEAVE) {
         await deleteWorkSchedule(employee.id, idDate);
 
-        await addLeave(
+        const { data } = await addLeave(
           {
             leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             leave_reason: leaveReason,
@@ -264,7 +305,7 @@ const index = () => {
         updateEvent = events.filter((event: any) => event.id !== idDate);
 
         updateEvent.push({
-          id: idDate,
+          id: data.id,
           title: WorkStatus.LEAVE,
           start: timeStart,
           end: timeEnd,
@@ -275,30 +316,19 @@ const index = () => {
           backgroundColor: "red",
         });
       } else {
-        console.log(
-          "update notcome",
-          checkBoxed.includes("Perdiem")
-            ? true
-            : typeNew === WorkStatus.NOTCOME
-            ? false
-            : true
-        );
-
         const { data } = await updateWorkSchedule(
           {
             work_start: timeStart,
             work_end: timeEnd,
             work_status: typeNew,
-            work_ot: checkBoxed.includes("OT")
-              ? true
-              : typeNew === WorkStatus.NOTCOME
-              ? false
-              : true,
-            work_perdium: checkBoxed.includes("Perdiem")
-              ? true
-              : typeNew === WorkStatus.NOTCOME
-              ? false
-              : true,
+            work_ot:
+              typeNew === WorkStatus.NOTCOME
+                ? false
+                : checkBoxed.includes("OT"),
+            work_perdium:
+              typeNew === WorkStatus.NOTCOME
+                ? false
+                : checkBoxed.includes("Perdiem"),
           },
           employee.id,
           idDate
@@ -318,8 +348,6 @@ const index = () => {
       }
     } else {
       if (typeNew === WorkStatus.LEAVE) {
-        console.log("updatesameleave");
-
         await updateLeave(
           {
             leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
@@ -345,29 +373,19 @@ const index = () => {
           backgroundColor: "red",
         });
       } else if (typeOld === typeNew) {
-        console.log(
-          "update same notcome",
-          checkBoxed.includes("Perdiem")
-            ? true
-            : typeNew === WorkStatus.NOTCOME
-            ? false
-            : true
-        );
         const { data } = await updateWorkSchedule(
           {
             work_start: timeStart,
             work_end: timeEnd,
             work_status: typeNew,
-            work_ot: checkBoxed.includes("OT")
-              ? true
-              : typeNew === WorkStatus.NOTCOME
-              ? false
-              : true,
-            work_perdium: checkBoxed.includes("Perdiem")
-              ? true
-              : typeNew === WorkStatus.NOTCOME
-              ? false
-              : true,
+            work_ot:
+              typeNew === WorkStatus.NOTCOME
+                ? false
+                : checkBoxed.includes("OT"),
+            work_perdium:
+              typeNew === WorkStatus.NOTCOME
+                ? false
+                : checkBoxed.includes("Perdiem"),
           },
           employee.id,
           idDate
@@ -387,7 +405,6 @@ const index = () => {
         });
       }
     }
-    console.log("updateEvent", updateEvent);
 
     setEvents((events: any) => [...updateEvent]);
   };
@@ -401,13 +418,19 @@ const index = () => {
   };
 
   const handleOk = async (e: any, formValue: any) => {
-    console.log("formValue", formValue);
-
     let title = "";
     let backgroundColor = "";
     if (workStatus === WorkStatus.COME) {
+      if (checkBoxed.includes("OT")) {
+        backgroundColor = "#38bdf8";
+      } else if (checkBoxed.includes("Perdiem")) {
+        backgroundColor = "#104efa";
+      } else if (checkBoxed.includes(["OT", "Perdiem"])) {
+        backgroundColor = "#c026d3";
+      } else {
+        backgroundColor = "green";
+      }
       title = WorkStatus.COME;
-      backgroundColor = "green";
     } else if (workStatus === WorkStatus.NOTCOME) {
       title = WorkStatus.NOTCOME;
       backgroundColor = "gray";
@@ -415,6 +438,8 @@ const index = () => {
       title = WorkStatus.LEAVE;
       backgroundColor = "red";
     }
+    console.log("background color", backgroundColor);
+
     const currentDateValue = dateCurrent(values.start);
 
     if (!dateCurrent(values.start)) {
@@ -455,8 +480,8 @@ const index = () => {
   };
 
   return (
-    <div className="w-full">
-      {" "}
+    <div className="w-full ml-10">
+      <ListWorking />
       <FullCalendar
         ref={calendarRef}
         plugins={[
@@ -482,6 +507,7 @@ const index = () => {
         height={650}
         events={events}
         dateClick={handleDateClick}
+        datesSet={handleMonthChange}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
       />
