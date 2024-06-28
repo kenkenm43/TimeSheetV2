@@ -61,8 +61,6 @@ const index = () => {
         },
         employee.id
       );
-      console.log("work", work.data);
-      console.log("leave", leave.data);
 
       const event = addEvents(work.data, leave.data);
       setEvents(event);
@@ -191,13 +189,6 @@ const index = () => {
         },
         employee.id
       );
-      // console.log("dataLEave", data);
-      console.group();
-      console.log("leave reason", leaveReason);
-      console.log("leave cause", leaveCause);
-      console.log("leave type", leaveType);
-
-      console.groupEnd();
 
       newEvent = {
         id: data.id,
@@ -241,11 +232,9 @@ const index = () => {
         backgroundColor: backgroundColor,
       };
     }
-    console.log("new event", newEvent);
 
     setEvents([...events, newEvent]);
   };
-  console.log("events", events);
   const handleEventUpdate = async (
     idDate: any,
     typeOld: any,
@@ -258,8 +247,6 @@ const index = () => {
     let updateEvent: any;
     if (typeOld !== typeNew) {
       if (typeOld === WorkStatus.LEAVE) {
-        console.log("change old leaves");
-
         await deleteLeaveSchedule(employee.id, idDate);
         const { data } = await addWorkSchedule(
           {
@@ -438,7 +425,6 @@ const index = () => {
       title = WorkStatus.LEAVE;
       backgroundColor = "red";
     }
-    console.log("background color", backgroundColor);
 
     const currentDateValue = dateCurrent(values.start);
 

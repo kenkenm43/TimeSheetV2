@@ -6,8 +6,6 @@ const firstDay = startOfMonth(today);
 const lastDay = endOfMonth(today);
 const todayStr = format(today, "yyyy-MM-dd");
 
-console.log(todayStr);
-
 export const INITIAL_EVENTS = [
   {
     id: uniqueId(),
