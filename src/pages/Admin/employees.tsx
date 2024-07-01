@@ -32,6 +32,8 @@ const employees = () => {
   // const [events, setEvents] = useState<any>();
 
   const handleMonthChange = async (payload: any) => {
+    console.log("view payload", payload);
+
     setCurrentStart(payload.view.currentStart);
     setCurrentEnd(payload.view.currentEnd);
 
@@ -50,9 +52,7 @@ const employees = () => {
       employee.id
     );
 
-    const event = addEvents(work.data, leave.data);
-
-    const eventsData = addEvents(work.data, leave.data);
+    const eventsData = await addEvents(work.data, leave.data);
     setEvents(employee.id, eventsData);
   };
   useEffect(() => {
@@ -93,7 +93,15 @@ const employees = () => {
     const formatWorkEvents = workArr.map((arr: any) => {
       let background;
       if (arr.work_status === WorkStatus.COME) {
-        background = "green";
+        if (arr.work_perdium && arr.work_ot) {
+          background = "#e100ff";
+        } else if (arr.work_perdium) {
+          background = "#0044ff";
+        } else if (arr.work_ot) {
+          background = "#38bdf8";
+        } else {
+          background = "green";
+        }
       } else if (arr.work_status === WorkStatus.NOTCOME) {
         background = "gray";
       }

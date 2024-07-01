@@ -43,6 +43,11 @@ const index = () => {
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const [checkBoxed, setCheckBoxed] = useState<any>([]);
+  const [leaves, setLeaves] = useState<any>([]);
+  const [works, setWorks] = useState<any>([]);
+  const [countNotCome, setCountNotCome] = useState(0);
+  const [countCome, setCountCome] = useState(0);
+  const [countLeave, setCountLeave] = useState(0);
   const [costSSO] = useState(750);
   const { employee } = useEmployeeStore();
   const handleMonthChange = async (payload: any) => {
@@ -54,6 +59,15 @@ const index = () => {
         },
         employee.id
       );
+      setWorks(work.data);
+      setCountCome(
+        work.data.filter((wrk: any) => wrk.work_status == WorkStatus.COME)
+          .length
+      );
+      setCountNotCome(
+        work.data.filter((wrk: any) => wrk.work_status == WorkStatus.NOTCOME)
+          .length
+      );
       const leave = await getLeavesBypost(
         {
           currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
@@ -61,16 +75,12 @@ const index = () => {
         },
         employee.id
       );
-
+      setLeaves(leave.data);
+      setCountLeave(leave.data.length);
       const event = addEvents(work.data, leave.data);
       setEvents(event);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {};
-    fetchData();
-  }, [employee.id]);
 
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
@@ -178,7 +188,7 @@ const index = () => {
     leaveReason: any,
     leaveType: any
   ) => {
-    let newEvent;
+    let newEvent: any;
     if (title === WorkStatus.LEAVE) {
       const { data } = await addLeave(
         {
@@ -202,6 +212,7 @@ const index = () => {
         display: "background",
         backgroundColor: backgroundColor,
       };
+      setLeaves((leave: any) => [...leave, newEvent]);
     } else {
       const { data } = await addWorkSchedule(
         {
@@ -231,6 +242,7 @@ const index = () => {
         display: "background",
         backgroundColor: backgroundColor,
       };
+      await setWorks((work: any) => [...work, newEvent]);
     }
 
     setEvents([...events, newEvent]);
@@ -393,7 +405,7 @@ const index = () => {
       }
     }
 
-    setEvents((events: any) => [...updateEvent]);
+    setEvents(() => [...updateEvent]);
   };
 
   const dateCurrent = (date: any) => {
@@ -453,8 +465,8 @@ const index = () => {
     setEditable(false);
     setValues({ title: "", start: new Date(), end: new Date() });
     setWorkStatus(WorkStatus.COME);
-    setLeaveCause("");
     setLeaveType("");
+    setLeaveCause("");
     setLeaveReason("");
     title = "";
     backgroundColor = "";
@@ -466,8 +478,42 @@ const index = () => {
   };
 
   return (
-    <div className="w-full ml-10">
+    <div className="w-full ml-10 mb-10 mt-5">
       <ListWorking />
+      <div className="flex justify-between text-xl ">
+        <div>
+          <div>
+            <span className="font-semibold">Based salary :</span>{" "}
+            {employee.Employment_Details?.salary}
+          </div>
+          <div>
+            <span className="font-semibold">ประกันสังคม :</span> {costSSO}
+          </div>
+          <div>
+            <span className="font-semibold"> Total Paid: </span>
+            {employee?.Employment_Details?.salary - costSSO}
+          </div>
+        </div>
+
+        <div className="flex ">
+          <div className="font-semibold">เดือนนี้</div>
+          <div>
+            <div>มา: {countCome} วัน</div>
+            <div>ลา: {leaves.length === 0 ? "0" : leaves.length} วัน</div>
+            <div>
+              หยุด: {countNotCome}
+              วัน
+            </div>
+          </div>
+          <div>
+            <div>OT: {leaves.length === 0 ? "0" : leaves.length} วัน</div>
+            <div>Perdiem: {leaves.length === 0 ? "0" : leaves.length} วัน</div>
+          </div>
+          {/* {leaves.map((leave: any) => (
+            <>{leave}</>
+          ))} */}
+        </div>
+      </div>
       <FullCalendar
         ref={calendarRef}
         plugins={[
@@ -514,12 +560,6 @@ const index = () => {
         onClose={handleClose}
         onAddEvent={handleOk}
       />
-      <div>
-        <div>Based salary : {employee.Employment_Details?.salary}</div>
-        <div>ประกันสังคม : {costSSO}</div>
-        <div>Add : Expenses claim : -</div>
-        <div>Total Paid: {employee?.Employment_Details?.salary - costSSO}</div>
-      </div>
     </div>
   );
 };
