@@ -76,11 +76,13 @@ const index = () => {
         employee.id
       );
       setLeaves(leave.data);
+
       setCountLeave(leave.data.length);
       const event = addEvents(work.data, leave.data);
       setEvents(event);
     }
   };
+  console.log(leaves);
 
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
@@ -154,7 +156,6 @@ const index = () => {
       currentValueDate?.ot ? "OT" : null,
       currentValueDate?.perdiem ? "Perdiem" : null,
     ]);
-
     if (!currentValueDate) {
       setValues({
         title: WorkStatus.COME,
@@ -170,11 +171,9 @@ const index = () => {
       });
 
       setWorkStatus(currentValueDate.title);
-      if (currentValueDate.title === WorkStatus.LEAVE) {
-        setLeaveCause(currentValueDate.leave_cause);
-        setLeaveReason(currentValueDate.leave_reason);
-        setLeaveType(currentValueDate.type);
-      }
+      setLeaveCause(() => currentValueDate.leave_cause);
+      setLeaveReason(() => currentValueDate.leave_reason);
+      setLeaveType(() => currentValueDate.type);
     }
     setEditable(true);
   };
@@ -199,20 +198,19 @@ const index = () => {
         },
         employee.id
       );
-
-      newEvent = {
+      newEvent = events.filter((event: any) => event);
+      newEvent.push({
         id: data.id,
         title: title,
         start: startDate,
         end: endDate,
-        cause: leaveCause,
         reason: leaveReason,
+        cause: leaveCause,
         type: leaveType,
         allDay: true,
         display: "background",
         backgroundColor: backgroundColor,
-      };
-      setLeaves((leave: any) => [...leave, newEvent]);
+      });
     } else {
       const { data } = await addWorkSchedule(
         {
@@ -228,7 +226,8 @@ const index = () => {
         },
         employee.id
       );
-      newEvent = {
+      newEvent = events.filter((event: any) => event);
+      newEvent.push({
         id: data.id,
         title: title,
         start: startDate,
@@ -241,16 +240,17 @@ const index = () => {
         allDay: true,
         display: "background",
         backgroundColor: backgroundColor,
-      };
-      await setWorks((work: any) => [...work, newEvent]);
+      });
     }
 
-    setEvents([...events, newEvent]);
+    setEvents(() => [...newEvent]);
   };
+
   const handleEventUpdate = async (
     idDate: any,
     typeOld: any,
     typeNew: any,
+    backgroundColor: any,
     timeStart: any,
     timeEnd: any,
     leaveCause: any,
@@ -287,7 +287,7 @@ const index = () => {
           end: timeEnd,
           allDay: true,
           display: "background",
-          backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
+          backgroundColor: backgroundColor,
         });
       } else if (typeNew === WorkStatus.LEAVE) {
         await deleteWorkSchedule(employee.id, idDate);
@@ -309,6 +309,7 @@ const index = () => {
           start: timeStart,
           end: timeEnd,
           cause: leaveCause,
+          reason: leaveReason,
           type: leaveType,
           allDay: true,
           display: "background",
@@ -342,7 +343,7 @@ const index = () => {
           perdiem: data.work_perdium || false,
           allDay: true,
           display: "background",
-          backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
+          backgroundColor: backgroundColor,
         });
       }
     } else {
@@ -400,7 +401,7 @@ const index = () => {
           perdiem: data.work_perdium || false,
           allDay: true,
           display: "background",
-          backgroundColor: typeNew === WorkStatus.COME ? "green" : "gray",
+          backgroundColor: backgroundColor,
         });
       }
     }
@@ -420,12 +421,12 @@ const index = () => {
     let title = "";
     let backgroundColor = "";
     if (workStatus === WorkStatus.COME) {
-      if (checkBoxed.includes("OT")) {
-        backgroundColor = "#38bdf8";
+      if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) {
+        backgroundColor = "#c026d3 ";
       } else if (checkBoxed.includes("Perdiem")) {
         backgroundColor = "#104efa";
-      } else if (checkBoxed.includes(["OT", "Perdiem"])) {
-        backgroundColor = "#c026d3";
+      } else if (checkBoxed.includes("OT")) {
+        backgroundColor = "#38bdf8";
       } else {
         backgroundColor = "green";
       }
@@ -455,6 +456,7 @@ const index = () => {
         currentDateValue.id,
         currentDateValue.title,
         title,
+        backgroundColor,
         values.start,
         values.end,
         leaveCause,
@@ -476,6 +478,14 @@ const index = () => {
     setWorkStatus(WorkStatus.COME);
     setEditable(false);
   };
+  const filterWorkStatus = (text: any) => {
+    const filter = events.filter((event: any) => event.title === text);
+    return filter.length;
+  };
+  console.log(
+    "events",
+    events.filter((event: any) => event.ot)
+  );
 
   return (
     <div className="w-full ml-10 mb-10 mt-5">
@@ -490,7 +500,7 @@ const index = () => {
             <span className="font-semibold">ประกันสังคม :</span> {costSSO}
           </div>
           <div>
-            <span className="font-semibold"> Total Paid: </span>
+            <span className="font-semibold"> Total Paid : </span>
             {employee?.Employment_Details?.salary - costSSO}
           </div>
         </div>
@@ -498,16 +508,15 @@ const index = () => {
         <div className="flex ">
           <div className="font-semibold">เดือนนี้</div>
           <div>
-            <div>มา: {countCome} วัน</div>
-            <div>ลา: {leaves.length === 0 ? "0" : leaves.length} วัน</div>
-            <div>
-              หยุด: {countNotCome}
-              วัน
-            </div>
+            <div>มา: {filterWorkStatus(WorkStatus.COME)} วัน</div>
+            <div>ลา: {filterWorkStatus(WorkStatus.LEAVE)} วัน</div>
+            <div>หยุด: {filterWorkStatus(WorkStatus.NOTCOME)} วัน</div>
           </div>
           <div>
-            <div>OT: {leaves.length === 0 ? "0" : leaves.length} วัน</div>
-            <div>Perdiem: {leaves.length === 0 ? "0" : leaves.length} วัน</div>
+            <div>OT: {events.filter((event: any) => event.ot).length} วัน</div>
+            <div>
+              Perdiem: {events.filter((event: any) => event.perdiem).length} วัน
+            </div>
           </div>
           {/* {leaves.map((leave: any) => (
             <>{leave}</>

@@ -178,7 +178,6 @@ const EventModal = (props: any) => {
                 <SelectPicker
                   data={data}
                   name="leave_cause"
-                  defaultValue={"ลาโดยใช้วันหยุด"}
                   value={leaveCause}
                   onChange={setLeaveCause}
                 />
