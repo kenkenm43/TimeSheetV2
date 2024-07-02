@@ -500,17 +500,18 @@ const index = () => {
     <div className="w-full ml-10 mb-10 mt-5">
       <ListWorking />
       <div className="flex text-xl ">
-        <div>
-          <div>
-            <span className="font-semibold">Based salary :</span>{" "}
-            {employee.Employment_Details?.salary}
-          </div>
-          <div>
-            <span className="font-semibold">ประกันสังคม :</span> {costSSO}
-          </div>
-          <div>
+        <div className="flex space-x-4">
+          <div className="flex flex-col">
+            <span className="font-semibold">เงินเดือน :</span>{" "}
+            <span className="font-semibold">
+              <u>หัก</u> ประกันสังคม :
+            </span>{" "}
             <span className="font-semibold"> Total Paid : </span>
-            {employee?.Employment_Details?.salary - costSSO}
+          </div>
+          <div className="flex flex-col items-end peer-[:nth-of-type(3)_&]:block">
+            <span>{employee.Employment_Details?.salary}</span>
+            <span>{costSSO}</span>
+            <span>{employee?.Employment_Details?.salary - costSSO}</span>
           </div>
         </div>
 
@@ -573,17 +574,12 @@ const index = () => {
         ]}
         headerToolbar={{
           left: "prev,next today",
+          center: "title",
           right: "",
         }}
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
         }}
-        // views={{
-        //   dayGridMonth: {
-        //     titleFormat: { year: "numeric", month: "short", day: "2-digit" },
-        //   },
-        // }}
-
         editable
         height={650}
         events={events}
