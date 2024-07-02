@@ -11,7 +11,7 @@ import {
 } from "../../types/userTypes";
 import { getAuthToken } from "../middlewares/authToken";
 import { ErrorHandler, handleError } from "../../utils/error";
-import moment from "moment";
+import moment from "moment-timezone";
 const workSchedule: RequestHandler = async (
   req: any,
   res: Response,
@@ -86,17 +86,26 @@ const addWorkSchedule: RequestHandler = async (
   try {
     const employeeId = req.params["id"];
     const payload = req.body;
-    console.log(payload);
+    console.log(
+      "timeStart",
+      moment.utc(payload.work_start).tz("Asia/Bangkok").format()
+    );
+    console.log(
+      "timeEnd",
+      moment.utc(payload.work_start).tz("Asia/Bangkok").format()
+    );
+
     const newDate = await prisma.workSchedule.create({
       data: {
         employeeId: employeeId,
-        work_start: new Date(payload.work_start),
-        work_end: new Date(payload.work_end),
+        work_start: moment.utc(payload.work_start).tz("Asia/Bangkok").format(),
+        work_end: moment.utc(payload.work_end).tz("Asia/Bangkok").format(),
         work_status: payload.work_status,
         work_ot: payload.work_ot,
         work_perdium: payload.work_perdium,
       },
     });
+
     return res.status(200).json({ ...newDate, message: "บันทึกเรียบร้อย" });
   } catch (error) {
     return handleError(error, res);

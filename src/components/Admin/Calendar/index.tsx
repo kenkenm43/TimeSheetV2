@@ -46,6 +46,8 @@ const index = ({ handleMonthChange, events }: any): any => {
         events={events}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
+        fixedWeekCount={false}
+        showNonCurrentDates={false}
       />
     </div>
   );

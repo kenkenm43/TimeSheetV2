@@ -86,6 +86,7 @@ const EventModal = (props: any) => {
     setFormValue({ work_status: WorkStatus.COME });
     setLeaveType("");
   };
+  console.log("values", values);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
@@ -131,7 +132,7 @@ const EventModal = (props: any) => {
                 <DatePicker
                   placeholder="เวลามาทำงาน"
                   format="HH:mm"
-                  defaultValue={moment(values.start)!.utcOffset("-07:00")._d}
+                  value={values.start}
                   onChange={(date: any) => {
                     setValues({
                       ...values,
@@ -149,7 +150,7 @@ const EventModal = (props: any) => {
                   name="end"
                   placeholder="เวลาเลิกงาน"
                   format="HH:mm"
-                  defaultValue={moment(values.end)!.utcOffset("-07:00")._d}
+                  value={values.end}
                   onChange={(date: any) => {
                     setValues({
                       ...values,

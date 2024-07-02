@@ -20,7 +20,7 @@ import {
 } from "../../services/employeeServices";
 import "./calendar.module.css";
 import EventModal from "../Modal";
-import moment from "moment";
+import moment from "moment-timezone";
 import useEmployeeStore from "../../context/EmployeeProvider";
 import ListWorking from "../ListWorking";
 enum WorkStatus {
@@ -52,6 +52,9 @@ const index = () => {
   const { employee } = useEmployeeStore();
   const handleMonthChange = async (payload: any) => {
     if (payload.view.currentStart || payload.view.currentEnd) {
+      console.log("get data");
+      console.log("employee", employee);
+
       const work = await getWorkSchedulesByPost(
         {
           currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
@@ -82,7 +85,6 @@ const index = () => {
       setEvents(event);
     }
   };
-  console.log(leaves);
 
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
@@ -143,10 +145,10 @@ const index = () => {
   const handleDateClick = (arg: any) => {
     const { dateStr } = arg;
     const startDate = new Date(
-      formatDate(dateStr, "T14:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateStr, "T07:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const endDate = new Date(
-      formatDate(dateStr, "T01:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateStr, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const currentValueDate = events.find((event: any) => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
@@ -166,7 +168,7 @@ const index = () => {
     } else {
       setValues({
         title: currentValueDate.title,
-        start: startDate,
+        start: currentValueDate.start || startDate,
         end: currentValueDate.end || endDate,
       });
 
@@ -212,6 +214,13 @@ const index = () => {
         backgroundColor: backgroundColor,
       });
     } else {
+      console.log("add work");
+      console.log(
+        "workStart",
+        formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]")
+      );
+      console.log("workEnd", values.end);
+
       const { data } = await addWorkSchedule(
         {
           work_status: title,
@@ -375,8 +384,8 @@ const index = () => {
       } else if (typeOld === typeNew) {
         const { data } = await updateWorkSchedule(
           {
-            work_start: timeStart,
-            work_end: timeEnd,
+            work_start: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
+            work_end: formatDate(timeEnd, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             work_status: typeNew,
             work_ot:
               typeNew === WorkStatus.NOTCOME
@@ -490,7 +499,7 @@ const index = () => {
   return (
     <div className="w-full ml-10 mb-10 mt-5">
       <ListWorking />
-      <div className="flex justify-between text-xl ">
+      <div className="flex text-xl ">
         <div>
           <div>
             <span className="font-semibold">Based salary :</span>{" "}
@@ -505,22 +514,53 @@ const index = () => {
           </div>
         </div>
 
-        <div className="flex ">
-          <div className="font-semibold">เดือนนี้</div>
-          <div>
-            <div>มา: {filterWorkStatus(WorkStatus.COME)} วัน</div>
-            <div>ลา: {filterWorkStatus(WorkStatus.LEAVE)} วัน</div>
-            <div>หยุด: {filterWorkStatus(WorkStatus.NOTCOME)} วัน</div>
-          </div>
-          <div>
-            <div>OT: {events.filter((event: any) => event.ot).length} วัน</div>
+        <div className="flex ml-10 space-x-5">
+          <div className="font-semibold">เดือนนี้ : </div>
+          <div className="space-y-1">
             <div>
-              Perdiem: {events.filter((event: any) => event.perdiem).length} วัน
+              {" "}
+              <div className="flex items-center space-x-2 ">
+                <div
+                  className={`w-[30px] h-[30px] bg-[#A9D0A9] border-2 border-black`}
+                ></div>
+                <span>มา: {filterWorkStatus(WorkStatus.COME)} วัน</span>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 ">
+              <div
+                className={`w-[30px] h-[30px] bg-[#fda4af] border-2 border-black`}
+              ></div>
+              <span> ลา: {filterWorkStatus(WorkStatus.LEAVE)} วัน</span>
+            </div>
+            <div className="flex items-center space-x-2 ">
+              <div
+                className={`w-[30px] h-[30px] bg-[#9ca3af] border-2 border-black`}
+              ></div>
+              <span>หยุด: {filterWorkStatus(WorkStatus.NOTCOME)} วัน</span>
             </div>
           </div>
-          {/* {leaves.map((leave: any) => (
-            <>{leave}</>
-          ))} */}
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2 ">
+              <div
+                className={`w-[30px] h-[30px] bg-[#B7C9FD] border-2 border-black`}
+              ></div>
+              <span>
+                OT: {events.filter((event: any) => event.ot).length} วัน
+              </span>
+            </div>
+            <div className="flex items-center space-x-2 ">
+              <div
+                className={`w-[30px] h-[30px] bg-[#ECBDF2] border-2 border-black`}
+              ></div>
+              <span>
+                {" "}
+                Perdiem: {
+                  events.filter((event: any) => event.perdiem).length
+                }{" "}
+                วัน
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       <FullCalendar
@@ -533,17 +573,17 @@ const index = () => {
         ]}
         headerToolbar={{
           left: "prev,next today",
-          center: "title",
           right: "",
         }}
         businessHours={{
           daysOfWeek: [1, 2, 3, 4, 5],
         }}
-        views={{
-          dayGridMonth: {
-            titleFormat: { year: "numeric", month: "long" },
-          },
-        }}
+        // views={{
+        //   dayGridMonth: {
+        //     titleFormat: { year: "numeric", month: "short", day: "2-digit" },
+        //   },
+        // }}
+
         editable
         height={650}
         events={events}
@@ -551,6 +591,9 @@ const index = () => {
         datesSet={handleMonthChange}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
+        fixedWeekCount={false}
+        showNonCurrentDates={false}
+        nowIndicator={true}
       />
       <EventModal
         values={values}

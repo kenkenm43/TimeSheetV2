@@ -99,12 +99,12 @@ model WorkSchedule {
 }
 
 model Leave {
-  id           String    @id @default(uuid())
+  id           String   @id @default(uuid())
   leave_type   String?
-  leave_date   DateTime?
+  leave_date            @db.DateTime(7)?
   leave_reason String?
   leave_cause  String?
-  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employee     Employee @relation(fields: [employeeId], references: [id])
   employeeId   String
 }
 
