@@ -64,6 +64,15 @@ model Employee {
   Performance        Performance?
   Leave              Leave[]
   WorkSchedule       WorkSchedule[]
+  Salary             Salary[]
+}
+
+model Salary {
+  id         String    @id @default(uuid())
+  Month      DateTime?
+  Amount     Decimal?  @db.Decimal(10, 2)
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employeeId String    @unique
 }
 
 model Employment_Details {
@@ -99,12 +108,12 @@ model WorkSchedule {
 }
 
 model Leave {
-  id           String   @id @default(uuid())
+  id           String    @id @default(uuid())
   leave_type   String?
-  leave_date            @db.DateTime(7)?
+  leave_date   DateTime?
   leave_reason String?
   leave_cause  String?
-  employee     Employee @relation(fields: [employeeId], references: [id])
+  employee     Employee  @relation(fields: [employeeId], references: [id])
   employeeId   String
 }
 

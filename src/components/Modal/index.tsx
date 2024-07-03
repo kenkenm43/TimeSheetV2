@@ -86,7 +86,9 @@ const EventModal = (props: any) => {
     setFormValue({ work_status: WorkStatus.COME });
     setLeaveType("");
   };
-  console.log("values", values);
+  console.log("modal leavetype", leaveType);
+  console.log("modal leavecause", leaveCause);
+  console.log("modal leavereason", leaveReason);
 
   return (
     <Modal open={open} onClose={onClose} backdrop="static" {...rest}>

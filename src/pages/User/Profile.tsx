@@ -27,7 +27,7 @@ const Profile = () => {
         {employee.photo ? (
           <div></div>
         ) : (
-          <div className="h-56 w-56 bg-slate-500 flex items-center justify-center">
+          <div className="h-56 w-56 flex items-center justify-center">
             <img
               className="md:w-48 md:h-48 h-20 w-20"
               src={

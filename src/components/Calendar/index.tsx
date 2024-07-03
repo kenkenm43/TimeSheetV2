@@ -23,6 +23,7 @@ import EventModal from "../Modal";
 import moment from "moment-timezone";
 import useEmployeeStore from "../../context/EmployeeProvider";
 import ListWorking from "../ListWorking";
+import { useLocation } from "react-router-dom";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -50,11 +51,29 @@ const index = () => {
   const [countLeave, setCountLeave] = useState(0);
   const [costSSO] = useState(750);
   const { employee } = useEmployeeStore();
+  const { state } = useLocation();
+  const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
+
+  function getTotalDaysInMonth(monthString: string) {
+    // Parse the month string into a Date object
+    const date: any = new Date(monthString);
+
+    // Check if the date is valid
+    if (isNaN(date)) {
+      return -1; // Invalid date
+    }
+
+    // Get the month and year from the Date object
+    const month = date.getMonth() + 1; // Months are zero indexed, so we add 1
+    const year = date.getFullYear();
+
+    // Return the number of days in the month
+    return new Date(year, month, 0).getDate();
+  }
+
   const handleMonthChange = async (payload: any) => {
     if (payload.view.currentStart || payload.view.currentEnd) {
-      console.log("get data");
-      console.log("employee", employee);
-
+      setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
       const work = await getWorkSchedulesByPost(
         {
           currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
@@ -110,8 +129,8 @@ const index = () => {
       const formatEvent = {
         id: arr.id,
         title: arr.work_status,
-        start: moment(arr.work_start)!.utcOffset("-07:00")._d,
-        end: moment(arr.work_end)!.utcOffset("-07:00")._d,
+        start: moment(arr.work_start).utcOffset("-07:00")._d,
+        end: moment(arr.work_end).utcOffset("-07:00")._d,
         ot: arr.work_ot,
         perdiem: arr.work_perdium,
         allDay: true,
@@ -126,7 +145,7 @@ const index = () => {
         ...arr,
         id: arr.id,
         title: "leave",
-        start: arr.leave_date,
+        start: moment(arr.leave_date).utcOffset("-07:00")._d,
         end: arr.work_end,
         reason: arr.leave_reason,
         cause: arr.leave_cause,
@@ -173,9 +192,9 @@ const index = () => {
       });
 
       setWorkStatus(currentValueDate.title);
-      setLeaveCause(() => currentValueDate.leave_cause);
-      setLeaveReason(() => currentValueDate.leave_reason);
-      setLeaveType(() => currentValueDate.type);
+      setLeaveCause(currentValueDate.cause || "ลาโดยใช้วันหยุด");
+      setLeaveReason(currentValueDate.reason);
+      setLeaveType(currentValueDate.type);
     }
     setEditable(true);
   };
@@ -190,6 +209,7 @@ const index = () => {
     leaveType: any
   ) => {
     let newEvent: any;
+
     if (title === WorkStatus.LEAVE) {
       const { data } = await addLeave(
         {
@@ -213,14 +233,10 @@ const index = () => {
         display: "background",
         backgroundColor: backgroundColor,
       });
+      setLeaveReason(leaveReason);
+      setLeaveCause(leaveCause);
+      setLeaveType(leaveType);
     } else {
-      console.log("add work");
-      console.log(
-        "workStart",
-        formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]")
-      );
-      console.log("workEnd", values.end);
-
       const { data } = await addWorkSchedule(
         {
           work_status: title,
@@ -491,32 +507,69 @@ const index = () => {
     const filter = events.filter((event: any) => event.title === text);
     return filter.length;
   };
-  console.log(
-    "events",
-    events.filter((event: any) => event.ot)
-  );
 
   return (
     <div className="w-full ml-10 mb-10 mt-5">
       <ListWorking />
       <div className="flex text-xl ">
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 relative">
+          <div className="pl-5 absolute top-7 right-[-27px]">+</div>
           <div className="flex flex-col">
             <span className="font-semibold">เงินเดือน :</span>{" "}
+            <span>
+              OT (750 X {events.filter((event: any) => event.ot).length})
+            </span>
+            <span>
+              {" "}
+              Perdiem (250 X{" "}
+              {events.filter((event: any) => event.perdiem).length})
+            </span>
             <span className="font-semibold">
               <u>หัก</u> ประกันสังคม :
             </span>{" "}
             <span className="font-semibold"> Total Paid : </span>
           </div>
-          <div className="flex flex-col items-end peer-[:nth-of-type(3)_&]:block">
-            <span>{employee.Employment_Details?.salary}</span>
-            <span>{costSSO}</span>
-            <span>{employee?.Employment_Details?.salary - costSSO}</span>
+          <div className="flex flex-col items-end">
+            <span className="font-medium">
+              {employee.Employment_Details?.salary
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
+            <span>
+              {(events.filter((event: any) => event.ot).length * 750)
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
+            <span className="border-b-2 border-black w-full text-right">
+              {(events.filter((event: any) => event.perdiem).length * 250)
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
+            <span className="border-b-2 border-black w-full text-right relative">
+              <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
+                -
+              </div>
+              {costSSO
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
+            <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
+              {(
+                employee?.Employment_Details?.salary +
+                events.filter((event: any) => event.ot).length * 750 +
+                events.filter((event: any) => event.perdiem).length * 250 -
+                costSSO
+              )
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
           </div>
         </div>
 
         <div className="flex ml-10 space-x-5">
-          <div className="font-semibold">เดือนนี้ : </div>
+          <div className="font-semibold">
+            เดือนนี้ มี {totalDayInMonth} วัน :{" "}
+          </div>
           <div className="space-y-1">
             <div>
               {" "}
@@ -543,7 +596,7 @@ const index = () => {
           <div className="space-y-1">
             <div className="flex items-center space-x-2 ">
               <div
-                className={`w-[30px] h-[30px] bg-[#B7C9FD] border-2 border-black`}
+                className={`w-[30px] h-[30px] bg-[#C3EBFD] border-2 border-black`}
               ></div>
               <span>
                 OT: {events.filter((event: any) => event.ot).length} วัน
@@ -551,7 +604,7 @@ const index = () => {
             </div>
             <div className="flex items-center space-x-2 ">
               <div
-                className={`w-[30px] h-[30px] bg-[#ECBDF2] border-2 border-black`}
+                className={`w-[30px] h-[30px] bg-[#B7C9FD] border-2 border-black`}
               ></div>
               <span>
                 {" "}
@@ -561,6 +614,13 @@ const index = () => {
                 วัน
               </span>
             </div>
+          </div>
+          <div>
+            รวมทั้งหมด{" "}
+            {filterWorkStatus(WorkStatus.COME) +
+              filterWorkStatus(WorkStatus.LEAVE) +
+              filterWorkStatus(WorkStatus.NOTCOME)}{" "}
+            วัน
           </div>
         </div>
       </div>
@@ -614,13 +674,14 @@ const index = () => {
 
 function renderEventContent(eventContent: any) {
   const { timeText } = eventContent;
+  console.log("eventContent", eventContent.event.extendedProps);
 
   return (
-    <div className="bg-red-800">
+    <div className="">
+      <div className="fc-event-time">{eventContent.event.title}</div>
       {timeText && (
         <>
           <div className="fc-daygrid-event-dot"></div>
-          <div className="fc-event-time">{timeText}</div>
         </>
       )}
       {/* <div className="fc-event-title">{event.title}</div> */}

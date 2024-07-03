@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from "uuid";
 const Login = () => {
   // console.log(auth.username);
   const { setAuth }: any = useAuth();
-  const { setEmployee }: any = useEmployeeStore();
+  const { employee, setEmployee }: any = useEmployeeStore();
 
   const navigate = useNavigate();
   const {
@@ -50,9 +50,13 @@ const Login = () => {
 
       setEmployee({ ...employeeData.data });
 
-      const navigation = await role?.name === "admin" ? "/employee" : "/";
       toast.success(message);
-      navigate(navigation, { replace: true });
+      const navigation = (await role?.name) === "admin" ? "/employee" : "/";
+      await navigate(navigation, {
+        replace: true,
+        state: { employeeId: employeeData.data.id },
+      });
+      navigate(0);
     }
   };
 
