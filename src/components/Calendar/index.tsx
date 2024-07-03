@@ -134,7 +134,7 @@ const index = () => {
         ot: arr.work_ot,
         perdiem: arr.work_perdium,
         allDay: true,
-        display: "background",
+        display: "auto",
         backgroundColor: background,
       };
 
@@ -637,9 +637,6 @@ const index = () => {
           center: "title",
           right: "",
         }}
-        businessHours={{
-          daysOfWeek: [1, 2, 3, 4, 5],
-        }}
         editable
         height={650}
         events={events}
@@ -648,8 +645,7 @@ const index = () => {
         eventContent={renderEventContent}
         initialView="dayGridMonth"
         fixedWeekCount={false}
-        showNonCurrentDates={false}
-        nowIndicator={true}
+        displayEventTime={true}
       />
       <EventModal
         values={values}
@@ -673,17 +669,13 @@ const index = () => {
 };
 
 function renderEventContent(eventContent: any) {
-  const { timeText } = eventContent;
   console.log("eventContent", eventContent.event.extendedProps);
 
   return (
-    <div className="">
-      <div className="fc-event-time">{eventContent.event.title}</div>
-      {timeText && (
-        <>
-          <div className="fc-daygrid-event-dot"></div>
-        </>
-      )}
+    <div className="w-full h-full">
+      <div className="z-50">
+        {eventContent.event.extendedProps?.leave_cause}
+      </div>
       {/* <div className="fc-event-title">{event.title}</div> */}
     </div>
   );
