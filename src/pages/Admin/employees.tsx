@@ -14,13 +14,14 @@ import { FaEdit } from "react-icons/fa";
 import moment from "moment";
 import useKeepEmployeesStore from "../../context/KeepEmployeesProvider";
 import Loading from "../../components/Loading";
+import ListWorking from "../../components/ListWorking";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
   LEAVE = "leave",
 }
 const employees = () => {
-  const { employees, setEmployees, setEvents } = useKeepEmployeesStore();
+  const { employees, setEmployees } = useKeepEmployeesStore();
   const { employee, setEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
   const [typeButton, setTypeButton] = useState("Calendar");
@@ -29,13 +30,31 @@ const employees = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStart, setCurrentStart] = useState("");
   const [currentEnd, setCurrentEnd] = useState("");
+  const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
+  const [events, setEvents]: any = useState([]);
   // const [events, setEvents] = useState<any>();
+  function getTotalDaysInMonth(monthString: string) {
+    // Parse the month string into a Date object
+    const date: any = new Date(monthString);
 
+    // Check if the date is valid
+    if (isNaN(date)) {
+      return -1; // Invalid date
+    }
+
+    // Get the month and year from the Date object
+    const month = date.getMonth() + 1; // Months are zero indexed, so we add 1
+    const year = date.getFullYear();
+
+    // Return the number of days in the month
+    return new Date(year, month, 0).getDate();
+  }
   const handleMonthChange = async (payload: any) => {
     console.log("view payload", payload);
 
     setCurrentStart(payload.view.currentStart);
     setCurrentEnd(payload.view.currentEnd);
+    setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
 
     const work = await getWorkSchedulesByPost(
       {
@@ -52,42 +71,73 @@ const employees = () => {
       employee.id
     );
 
+    console.log("workData", work.data, "leaveData", leave.data);
+
     const eventsData = await addEvents(work.data, leave.data);
-    setEvents(employee.id, eventsData);
+    console.log("eventdata", eventsData);
+
+    setEvents(eventsData);
   };
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-      const findEmployees = employees.find(
-        (emp: any) => emp.id === employee.id
+      const work = await getWorkSchedulesByPost(
+        {
+          currentStart: moment(currentStart).format("YYYY-MM-DD"),
+          currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
+        },
+        employee.id
       );
-      setEmployee(findEmployees);
+      const leave = await getLeavesBypost(
+        {
+          currentStart: moment(currentStart).format("YYYY-MM-DD"),
+          currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
+        },
+        employee.id
+      );
 
-      if (currentStart || currentEnd) {
-        const work = await getWorkSchedulesByPost(
-          {
-            currentStart: moment(currentStart).format("YYYY-MM-DD"),
-            currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
-          },
-          employee.id
-        );
-        setWorkSchedule(work.data);
-        const leave = await getLeavesBypost(
-          {
-            currentStart: moment(currentStart).format("YYYY-MM-DD"),
-            currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
-          },
-          employee.id
-        );
-        setLeave(leave.data);
-        const eventsData = addEvents(work.data, leave.data);
-        setEvents(employee.id, eventsData);
-      }
+      const eventsData = await addEvents(work.data, leave.data);
+      console.log("eventdata", eventsData);
 
-      setIsLoading(false);
+      setEvents(eventsData);
     };
-    fetchData();
-  }, [setEmployee, employee.id, setEvents]);
+    if (currentStart && currentEnd) {
+      fetchData();
+    }
+  }, [employee.id]);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsLoading(true);
+  //     const findEmployees = employees.find(
+  //       (emp: any) => emp.id === employee.id
+  //     );
+  //     setEmployee(findEmployees);
+
+  //     if (currentStart || currentEnd) {
+  //       const work = await getWorkSchedulesByPost(
+  //         {
+  //           currentStart: moment(currentStart).format("YYYY-MM-DD"),
+  //           currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
+  //         },
+  //         employee.id
+  //       );
+  //       setWorkSchedule(work.data);
+  //       const leave = await getLeavesBypost(
+  //         {
+  //           currentStart: moment(currentStart).format("YYYY-MM-DD"),
+  //           currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
+  //         },
+  //         employee.id
+  //       );
+  //       setLeave(leave.data);
+  //       const eventsData = addEvents(work.data, leave.data);
+  //       setEvents(employee.id, eventsData);
+  //     }
+
+  //     setIsLoading(false);
+  //   };
+  //   fetchData();
+  // }, [setEmployee, employee.id, setEvents]);
 
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
@@ -108,11 +158,15 @@ const employees = () => {
       const formatEvent = {
         id: arr.id,
         title: arr.work_status,
-        start: moment(arr.work_start)!.utcOffset("-07:00")._d,
-        end: moment(arr.work_end)!.utcOffset("-07:00")._d,
+        start: moment(arr.work_start).utcOffset("-07:00")._d,
+        end: moment(arr.work_end).utcOffset("-07:00")._d,
+        ot: arr.work_ot,
+        perdiem: arr.work_perdium,
         allDay: true,
-        display: "background",
         backgroundColor: background,
+        type: arr.work_status,
+        timeStart: moment(arr.work_start).utcOffset("-07:00")._d,
+        timeEnd: moment(arr.work_end).utcOffset("-07:00")._d,
       };
 
       return formatEvent;
@@ -122,13 +176,13 @@ const employees = () => {
         ...arr,
         id: arr.id,
         title: "leave",
-        start: arr.leave_date,
+        start: moment(arr.leave_date).utcOffset("-07:00")._d,
         end: arr.work_end,
         reason: arr.leave_reason,
         cause: arr.leave_cause,
         type: arr.leave_type,
         allDay: true,
-        display: "background",
+        timeStart: moment(arr.leave_date).utcOffset("-07:00")._d,
         backgroundColor: "red",
       };
 
@@ -137,7 +191,14 @@ const employees = () => {
 
     return [...formatWorkEvents, ...leaveWorkEvents];
   };
+  console.log("event", employee.events);
+  console.log(employee.events);
 
+  const filterWorkStatus = (text: any) => {
+    const filter = events.filter((event: any) => event.title === text);
+    return filter.length;
+  };
+  const handleEditProfile = () => {};
   return (
     <>
       {employee ? (
@@ -150,15 +211,15 @@ const employees = () => {
                 <>
                   {" "}
                   <img
-                    className="lg:w-48 lg:h-48 h-36 w-36"
-                    src={`${employee.photo}`}
+                    className="object-cover md:w-48 md:h-48 h-20 w-20"
+                    src={`http://localhost:8081/${employee.photo}`}
                     alt="img"
                   />
                 </>
               ) : (
                 <>
                   <img
-                    className="md:w-48 md:h-48 h-20 w-20"
+                    className="object-cover md:w-48 md:h-48 h-20 w-20"
                     src={
                       "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
                     }
@@ -178,7 +239,10 @@ const employees = () => {
                 <p className="flex flex-col w-full space-y-1">
                   <span>เบอร์โทรศัพท์ : {employee?.phone_number || "-"}</span>
                   <span>
-                    เงินเดือน : {employee?.Employment_Details?.salary || "-"}
+                    เงินเดือน :{" "}
+                    {employee?.Employment_Details?.salary
+                      .toString()
+                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
                   </span>
                   <span>
                     วันเริ่มงาน :{" "}
@@ -206,21 +270,141 @@ const employees = () => {
               ปฎิทิน
             </button>
           </div>
+
           {typeButton === "Calendar" && (
-            <Calendar
-              handleMonthChange={handleMonthChange}
-              events={employee.events}
-            />
+            <>
+              <div className="flex">
+                <div className="flex ml-10 space-x-5">
+                  <div className="font-semibold">
+                    เดือนนี้ มี {totalDayInMonth} วัน :{" "}
+                  </div>
+                  <div className="space-y-1">
+                    <div>
+                      {" "}
+                      <div className="flex items-center space-x-2 ">
+                        <div
+                          className={`w-[30px] h-[30px] bg-[#008000] border-2 border-black`}
+                        ></div>
+                        <span>มา: {filterWorkStatus(WorkStatus.COME)} วัน</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 ">
+                      <div
+                        className={`w-[30px] h-[30px] bg-[#FF0000] border-2 border-black`}
+                      ></div>
+                      <span> ลา: {filterWorkStatus(WorkStatus.LEAVE)} วัน</span>
+                    </div>
+                    <div className="flex items-center space-x-2 ">
+                      <div
+                        className={`w-[30px] h-[30px] bg-[#808080] border-2 border-black`}
+                      ></div>
+                      <span>
+                        หยุด: {filterWorkStatus(WorkStatus.NOTCOME)} วัน
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2 ">
+                      <div
+                        className={`w-[30px] h-[30px] bg-[#38BDF8] border-2 border-black`}
+                      ></div>
+                      <span>
+                        OT: {events.filter((event: any) => event.ot).length} วัน
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2 ">
+                      <div
+                        className={`w-[30px] h-[30px] bg-[#0044FF] border-2 border-black`}
+                      ></div>
+                      <span>
+                        {" "}
+                        Perdiem:{" "}
+                        {
+                          events.filter((event: any) => event.perdiem).length
+                        }{" "}
+                        วัน
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2 ">
+                      <div
+                        className={`w-[30px] h-[30px] bg-[#E100FF] border-2 border-black`}
+                      ></div>
+                      <span>OT+Perdiem </span>
+                    </div>
+                  </div>
+                  <div>
+                    รวมทั้งหมด{" "}
+                    {filterWorkStatus(WorkStatus.COME) +
+                      filterWorkStatus(WorkStatus.LEAVE) +
+                      filterWorkStatus(WorkStatus.NOTCOME)}{" "}
+                    วัน
+                  </div>
+                </div>
+                <div className="flex space-x-4 relative bottom-5 left-10">
+                  <div className="pl-5 absolute top-7 right-[-27px]">+</div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold">เงินเดือน :</span>{" "}
+                    <span>
+                      OT (750 X {events.filter((event: any) => event.ot).length}
+                      )
+                    </span>
+                    <span>
+                      {" "}
+                      Perdiem (250 X{" "}
+                      {events.filter((event: any) => event.perdiem).length})
+                    </span>
+                    <span className="font-semibold">
+                      <u>หัก</u> ประกันสังคม :
+                    </span>{" "}
+                    <span className="font-semibold"> Total Paid : </span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="font-medium">
+                      {employee.Employment_Details?.salary
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || 0}
+                    </span>
+                    <span>
+                      {(events.filter((event: any) => event.ot).length * 750)
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || 0}
+                    </span>
+                    <span className="border-b-2 border-black w-full text-right">
+                      {(
+                        events.filter((event: any) => event.perdiem).length *
+                        250
+                      )
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || 0}
+                    </span>
+                    <span className="border-b-2 border-black w-full text-right relative">
+                      <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
+                        -
+                      </div>
+                      {costSSO
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                    </span>
+                    {employee?.Employment_Details?.salary === 0}
+                    <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
+                      {(
+                        employee?.Employment_Details?.salary +
+                        events.filter((event: any) => event.ot).length * 750 +
+                        events.filter((event: any) => event.perdiem).length *
+                          250 -
+                        costSSO
+                      )
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <Calendar handleMonthChange={handleMonthChange} events={events} />
+            </>
           )}
-          <div>
-            <div>Based salary : {employee.Employment_Details?.salary}</div>
-            <div>ประกันสังคม : {costSSO}</div>
-            <div>Add : Expenses claim : -</div>
-            <div>
-              Total Paid:{" "}
-              {employee?.Employment_Details?.salary - costSSO || "-"}
-            </div>
-          </div>
         </div>
       ) : (
         <>

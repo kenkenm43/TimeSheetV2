@@ -95,13 +95,13 @@ export const useKeepEmployeesStore = create<any>()(
       setEvents: (empId: any, events: any) =>
         set((state: any) => ({
           employees: state.employees.map((emp: any) =>
-            emp.id === empId ? { ...emp, events: [...events] } : emp
+            emp.id === empId ? { ...emp, events } : emp
           ),
         })),
     }),
     {
       name: "KeepEmployeesStore",
-      storage: createJSONStorage(() => sessionStorage),
+      // storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

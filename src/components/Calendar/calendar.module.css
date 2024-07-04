@@ -12,3 +12,7 @@
 .fc-day-sat {
   background-color: red;
 }
+
+.fc-event.main {
+  color: var(--fc-event-text-color, #fff);
+}

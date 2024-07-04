@@ -134,8 +134,10 @@ const index = () => {
         ot: arr.work_ot,
         perdiem: arr.work_perdium,
         allDay: true,
-        display: "auto",
         backgroundColor: background,
+        type: arr.work_status,
+        timeStart: moment(arr.work_start).utcOffset("-07:00")._d,
+        timeEnd: moment(arr.work_end).utcOffset("-07:00")._d,
       };
 
       return formatEvent;
@@ -151,7 +153,7 @@ const index = () => {
         cause: arr.leave_cause,
         type: arr.leave_type,
         allDay: true,
-        display: "background",
+        timeStart: moment(arr.leave_date).utcOffset("-07:00")._d,
         backgroundColor: "red",
       };
 
@@ -162,16 +164,20 @@ const index = () => {
   };
 
   const handleDateClick = (arg: any) => {
+    console.log("arg", arg);
+
     const { dateStr } = arg;
+
+    const dateSelect = dateStr || arg.event.startStr;
     const startDate = new Date(
-      formatDate(dateStr, "T07:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateSelect, "T07:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const endDate = new Date(
-      formatDate(dateStr, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateSelect, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const currentValueDate = events.find((event: any) => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
-      return eventDate === formatDate(dateStr, "", "YYYY-MM-DD");
+      return eventDate === formatDate(dateSelect, "", "YYYY-MM-DD");
     });
     setCheckBoxed([
       currentValueDate?.ot ? "OT" : null,
@@ -230,7 +236,7 @@ const index = () => {
         cause: leaveCause,
         type: leaveType,
         allDay: true,
-        display: "background",
+
         backgroundColor: backgroundColor,
       });
       setLeaveReason(leaveReason);
@@ -261,9 +267,10 @@ const index = () => {
         ot: data.work_ot,
         perdiem: data.work_perdium,
         reason: leaveReason,
-        type: leaveType,
+        type: title,
+        timeStart: timeStart,
+        timeEnd: timeEnd,
         allDay: true,
-        display: "background",
         backgroundColor: backgroundColor,
       });
     }
@@ -311,7 +318,9 @@ const index = () => {
           perdiem: data.work_perdium || false,
           end: timeEnd,
           allDay: true,
-          display: "background",
+          type: typeNew,
+          timeStart: timeStart,
+          timeEnd: timeEnd,
           backgroundColor: backgroundColor,
         });
       } else if (typeNew === WorkStatus.LEAVE) {
@@ -337,7 +346,6 @@ const index = () => {
           reason: leaveReason,
           type: leaveType,
           allDay: true,
-          display: "background",
           backgroundColor: "red",
         });
       } else {
@@ -367,7 +375,9 @@ const index = () => {
           ot: data.work_ot || false,
           perdiem: data.work_perdium || false,
           allDay: true,
-          display: "background",
+          type: typeNew,
+          timeStart: timeStart,
+          timeEnd: timeEnd,
           backgroundColor: backgroundColor,
         });
       }
@@ -394,7 +404,6 @@ const index = () => {
           cause: leaveCause,
           type: leaveType,
           allDay: true,
-          display: "background",
           backgroundColor: "red",
         });
       } else if (typeOld === typeNew) {
@@ -425,7 +434,9 @@ const index = () => {
           ot: data.work_ot || false,
           perdiem: data.work_perdium || false,
           allDay: true,
-          display: "background",
+          type: typeNew,
+          timeStart: timeStart,
+          timeEnd: timeEnd,
           backgroundColor: backgroundColor,
         });
       }
@@ -493,7 +504,7 @@ const index = () => {
     setValues({ title: "", start: new Date(), end: new Date() });
     setWorkStatus(WorkStatus.COME);
     setLeaveType("");
-    setLeaveCause("");
+    setLeaveCause("ลาโดยใช้วันหยุด");
     setLeaveReason("");
     title = "";
     backgroundColor = "";
@@ -508,9 +519,15 @@ const index = () => {
     return filter.length;
   };
 
+  const handleSelect = (arg: any) => {
+    console.log("handleSelect", arg);
+  };
+
   return (
     <div className="w-full ml-10 mb-10 mt-5">
-      <ListWorking />
+      <div className="absolute top-32 left-5 flex flex-col w-40 justify-center">
+        <ListWorking />
+      </div>
       <div className="flex text-xl ">
         <div className="flex space-x-4 relative">
           <div className="pl-5 absolute top-7 right-[-27px]">+</div>
@@ -575,20 +592,20 @@ const index = () => {
               {" "}
               <div className="flex items-center space-x-2 ">
                 <div
-                  className={`w-[30px] h-[30px] bg-[#A9D0A9] border-2 border-black`}
+                  className={`w-[30px] h-[30px] bg-[#008000] border-2 border-black`}
                 ></div>
                 <span>มา: {filterWorkStatus(WorkStatus.COME)} วัน</span>
               </div>
             </div>
             <div className="flex items-center space-x-2 ">
               <div
-                className={`w-[30px] h-[30px] bg-[#fda4af] border-2 border-black`}
+                className={`w-[30px] h-[30px] bg-[#FF0000] border-2 border-black`}
               ></div>
               <span> ลา: {filterWorkStatus(WorkStatus.LEAVE)} วัน</span>
             </div>
             <div className="flex items-center space-x-2 ">
               <div
-                className={`w-[30px] h-[30px] bg-[#9ca3af] border-2 border-black`}
+                className={`w-[30px] h-[30px] bg-[#808080] border-2 border-black`}
               ></div>
               <span>หยุด: {filterWorkStatus(WorkStatus.NOTCOME)} วัน</span>
             </div>
@@ -596,7 +613,7 @@ const index = () => {
           <div className="space-y-1">
             <div className="flex items-center space-x-2 ">
               <div
-                className={`w-[30px] h-[30px] bg-[#C3EBFD] border-2 border-black`}
+                className={`w-[30px] h-[30px] bg-[#38BDF8] border-2 border-black`}
               ></div>
               <span>
                 OT: {events.filter((event: any) => event.ot).length} วัน
@@ -604,7 +621,7 @@ const index = () => {
             </div>
             <div className="flex items-center space-x-2 ">
               <div
-                className={`w-[30px] h-[30px] bg-[#B7C9FD] border-2 border-black`}
+                className={`w-[30px] h-[30px] bg-[#0044FF] border-2 border-black`}
               ></div>
               <span>
                 {" "}
@@ -616,7 +633,7 @@ const index = () => {
             </div>
           </div>
           <div>
-            รวมทั้งหมด{" "}
+            กรอกไปแล้ว{" "}
             {filterWorkStatus(WorkStatus.COME) +
               filterWorkStatus(WorkStatus.LEAVE) +
               filterWorkStatus(WorkStatus.NOTCOME)}{" "}
@@ -637,15 +654,22 @@ const index = () => {
           center: "title",
           right: "",
         }}
-        editable
+        businessHours={{
+          daysOfWeek: [1, 2, 3, 4, 5],
+        }}
+        editable={false}
         height={650}
         events={events}
+        selectable={true}
+        eventClick={handleDateClick}
         dateClick={handleDateClick}
         datesSet={handleMonthChange}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
         fixedWeekCount={false}
+        showNonCurrentDates={false}
         displayEventTime={true}
+        select={handleSelect}
       />
       <EventModal
         values={values}
@@ -669,13 +693,36 @@ const index = () => {
 };
 
 function renderEventContent(eventContent: any) {
-  console.log("eventContent", eventContent.event.extendedProps);
+  console.log("eventContent", eventContent.event.extendedProps.timeStart);
 
   return (
-    <div className="w-full h-full">
-      <div className="z-50">
-        {eventContent.event.extendedProps?.leave_cause}
-      </div>
+    <div className="cursor-pointer">
+      {/* <a className="fc-daygrid-event fc-daygrid-block-event fc-h-event fc-event fc-event-draggable fc-event-resizable fc-event-start fc-event-end fc-event-past ticket ticket"> */}
+      {eventContent.event.extendedProps &&
+      eventContent.event.extendedProps.type === "come" ? (
+        <div className="fc-event-main cursor-pointer text-sm">
+          <div>เวลาเริ่มงาน</div>
+          {moment(eventContent.event.extendedProps.timeStart).format("HH:mm")}
+          <div>เวลาเลิกงาน</div>
+          {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
+        </div>
+      ) : eventContent.event.extendedProps.type === "leave" ? (
+        <>
+          <div>
+            <span>
+              {eventContent.event.extendedProps.cause || "ลาโดยใช้วันหยุด"}
+            </span>
+          </div>
+          <div>
+            เหตุผล:
+            <span>{eventContent.event.extendedProps.reason || " - "}</span>
+          </div>
+        </>
+      ) : (
+        <div>หยุด</div>
+      )}
+      {/* <div className="fc-event-resizer fc-event-resizer-end"></div> */}
+      {/* </a> */}
       {/* <div className="fc-event-title">{event.title}</div> */}
     </div>
   );

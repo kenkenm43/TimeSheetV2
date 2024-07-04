@@ -10,6 +10,14 @@ export const getEmployee = async (employeeId: any) => {
     return error.response;
   }
 };
+export const updateEmployee = async (payload: any, employeeId: any) => {
+  try {
+    const response = await httpClient.put(`/employee/${employeeId}`, payload);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
 
 export const getWorkSchedules = async (employeeId: any) => {
   try {

@@ -136,11 +136,19 @@ const Sidebar = () => {
                 ${emp?.id === employee?.id ? "bg-gray-100" : ""} 
                 `}
               >
-                <img
-                  className="object-cover w-8 h-8 rounded-full"
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&h=880&q=80"
-                  alt="img"
-                />
+                {emp.photo ? (
+                  <img
+                    className="object-cover w-8 h-8 rounded-full"
+                    src={`http://localhost:8081/${emp.photo}`}
+                    alt="img"
+                  />
+                ) : (
+                  <img
+                    className="object-cover w-8 h-8 rounded-full"
+                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&h=880&q=80"
+                    alt="img"
+                  />
+                )}
                 <div className="text-left rtl:text-right">
                   <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">
                     {`${emp?.firstName} ${emp?.lastName}`}

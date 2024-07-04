@@ -2,6 +2,48 @@
 import { Request, Response } from "express";
 import prisma from "../../config/prisma";
 
+const updateEmployee = async (req: Request, res: Response) => {
+  try {
+    const employeeId = req.params["id"];
+    const payload = req.body;
+    const employee = await prisma.employee.update({
+      where: { id: employeeId },
+      data: {
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        idCard: payload.idCard,
+        gender: payload.gender,
+        date_of_birth: payload.date_of_birth,
+        phone_number: payload.phone_number,
+        email: payload.email,
+      },
+    });
+
+    return res.status(200).json(employee);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+};
+const uploadImage = async (req: Request, res: Response) => {
+  try {
+    const employeeId = req.params["id"];
+    if (!req.file) {
+      res.status(413).send(`File not uploaded!, Please 
+                            attach jpeg file under 5 MB`);
+      return;
+    }
+    await prisma.employee.update({
+      where: { id: employeeId },
+      data: {
+        photo: req.file.filename,
+      },
+    });
+    // successfull completion
+    res.status(201).send(req.file);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+};
 const getEmployees = async (req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
@@ -31,4 +73,6 @@ const getEmployee = async (req: Request, res: Response) => {
 export default {
   getEmployees,
   getEmployee,
+  updateEmployee,
+  uploadImage,
 };
