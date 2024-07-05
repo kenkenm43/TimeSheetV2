@@ -38,6 +38,7 @@
     "react-toastify": "^10.0.4",
     "rsuite": "^5.54.0",
     "sort-by": "^1.2.0",
+    "sweetalert2": "^11.12.1",
     "uuid": "^10.0.0",
     "yup": "^1.3.3",
     "zustand": "^4.5.1"

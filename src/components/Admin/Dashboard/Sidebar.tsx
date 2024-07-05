@@ -10,7 +10,7 @@ import useKeepEmployeeStore from "../../../context/KeepEmployeeProvider";
 import useKeepEmployeesStore from "../../../context/KeepEmployeesProvider";
 const Sidebar = () => {
   const { employees, setEmployees } = useKeepEmployeesStore();
-  const { employee, setEmployee } = useKeepEmployeeStore();
+  const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
   const getEmployeesData = () => {
     return getEmployees();
   };
@@ -18,18 +18,21 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await getEmployeesData();
+      console.log("update data");
+
+      console.log(data);
+
       setEmployees(data);
       setIsOpenListEmployees(location.pathname == "/employee" ? true : false);
+      setKeepEmployee(data[0]);
     };
 
-    if (employees.length === 0) {
-      fetchData();
-    }
+    fetchData();
   }, []);
 
   const selectEmployee = (emp: any) => {
-    if (!(employee.id === emp.id)) {
-      setEmployee(emp);
+    if (!(keepEmployee.id === emp.id)) {
+      setKeepEmployee(emp);
     }
   };
   const [isOpenListEmployees, setIsOpenListEmployees] = useState<boolean>(true);
@@ -133,7 +136,7 @@ const Sidebar = () => {
               <button
                 onClick={() => selectEmployee(emp)}
                 className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none
-                ${emp?.id === employee?.id ? "bg-gray-100" : ""} 
+                ${emp?.id === keepEmployee?.id ? "bg-gray-100" : ""} 
                 `}
               >
                 {emp.photo ? (
@@ -151,7 +154,8 @@ const Sidebar = () => {
                 )}
                 <div className="text-left rtl:text-right">
                   <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">
-                    {`${emp?.firstName} ${emp?.lastName}`}
+                    <div>{emp?.firstName}</div>
+                    <div>{emp?.lastName}</div>
                   </h1>
                 </div>
               </button>

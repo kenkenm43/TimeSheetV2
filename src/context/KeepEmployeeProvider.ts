@@ -85,10 +85,10 @@ export type TEmployeeStoreState = {
   employee: TEmployee;
   setEmployee: (value: object) => void;
 };
-export const useKeepEmployeeStore = create<TEmployeeStoreState>()(
+export const useKeepEmployeeStore = create<any>()(
   persist(
     (set) => ({
-      employee: {
+      keepEmployee: {
         id: "",
         firstName: "",
         lastName: "",
@@ -100,9 +100,9 @@ export const useKeepEmployeeStore = create<TEmployeeStoreState>()(
         email: "",
         photo: "",
       },
-      setEmployee: (value: object) =>
+      setKeepEmployee: (value: object) =>
         set((state: any) => ({
-          employee: { ...state.employee, ...value },
+          keepEmployee: { ...state.keepEmployee, ...value },
         })),
     }),
     {

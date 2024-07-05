@@ -15,6 +15,7 @@ import moment from "moment";
 import useKeepEmployeesStore from "../../context/KeepEmployeesProvider";
 import Loading from "../../components/Loading";
 import ListWorking from "../../components/ListWorking";
+import Note from "../../components/Admin/์Note";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -22,12 +23,13 @@ enum WorkStatus {
 }
 const employees = () => {
   const { employees, setEmployees } = useKeepEmployeesStore();
-  const { employee, setEmployee } = useKeepEmployeeStore();
+  const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
-  const [typeButton, setTypeButton] = useState("Calendar");
+  const [typeButton, setTypeButton] = useState("Note");
   const [leave, setLeave] = useState<[]>();
   const [costSSO, setCostSSO] = useState(750);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingEvent, setIsLoadingEvent] = useState(false);
   const [currentStart, setCurrentStart] = useState("");
   const [currentEnd, setCurrentEnd] = useState("");
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
@@ -61,20 +63,17 @@ const employees = () => {
         currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
         currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
       },
-      employee.id
+      keepEmployee.id
     );
     const leave = await getLeavesBypost(
       {
         currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
         currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
       },
-      employee.id
+      keepEmployee.id
     );
 
-    console.log("workData", work.data, "leaveData", leave.data);
-
     const eventsData = await addEvents(work.data, leave.data);
-    console.log("eventdata", eventsData);
 
     setEvents(eventsData);
   };
@@ -85,14 +84,14 @@ const employees = () => {
           currentStart: moment(currentStart).format("YYYY-MM-DD"),
           currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
         },
-        employee.id
+        keepEmployee.id
       );
       const leave = await getLeavesBypost(
         {
           currentStart: moment(currentStart).format("YYYY-MM-DD"),
           currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
         },
-        employee.id
+        keepEmployee.id
       );
 
       const eventsData = await addEvents(work.data, leave.data);
@@ -103,41 +102,7 @@ const employees = () => {
     if (currentStart && currentEnd) {
       fetchData();
     }
-  }, [employee.id]);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     const findEmployees = employees.find(
-  //       (emp: any) => emp.id === employee.id
-  //     );
-  //     setEmployee(findEmployees);
-
-  //     if (currentStart || currentEnd) {
-  //       const work = await getWorkSchedulesByPost(
-  //         {
-  //           currentStart: moment(currentStart).format("YYYY-MM-DD"),
-  //           currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
-  //         },
-  //         employee.id
-  //       );
-  //       setWorkSchedule(work.data);
-  //       const leave = await getLeavesBypost(
-  //         {
-  //           currentStart: moment(currentStart).format("YYYY-MM-DD"),
-  //           currentEnd: moment(currentEnd).format("YYYY-MM-DD"),
-  //         },
-  //         employee.id
-  //       );
-  //       setLeave(leave.data);
-  //       const eventsData = addEvents(work.data, leave.data);
-  //       setEvents(employee.id, eventsData);
-  //     }
-
-  //     setIsLoading(false);
-  //   };
-  //   fetchData();
-  // }, [setEmployee, employee.id, setEvents]);
+  }, [keepEmployee.id]);
 
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
@@ -191,28 +156,43 @@ const employees = () => {
 
     return [...formatWorkEvents, ...leaveWorkEvents];
   };
-  console.log("event", employee.events);
-  console.log(employee.events);
 
   const filterWorkStatus = (text: any) => {
     const filter = events.filter((event: any) => event.title === text);
     return filter.length;
   };
+  // const formatPhoneNumber = (phoneNumberString: any) => {
+  //   // Add dashes to the phone number
+  //   const formatted = phoneNumberString.replace(
+  //     /(\d{3})(\d{3})(\d{4})/,
+  //     "$1-$2-$3"
+  //   );
+
+  //   return formatted;
+  // };
   const handleEditProfile = () => {};
+  function formatPhoneNumber(phoneNumberString: any) {
+    // Add dashes to the phone number
+    const formatted = phoneNumberString?.replace(
+      /(\d{3})(\d{3})(\d{4})/,
+      "$1-$2-$3"
+    );
+
+    return formatted;
+  }
   return (
     <>
-      {employee ? (
+      {keepEmployee ? (
         <div className="transition-all p-4 ml-8 min-w-[720px] relative">
           {isLoading && <Loading />}
 
           <div className="p-1 border rounded-lg relative">
             <div className="flex items-center rounded space-x-5 ">
-              {employee?.photo ? (
+              {keepEmployee?.photo ? (
                 <>
-                  {" "}
                   <img
                     className="object-cover md:w-48 md:h-48 h-20 w-20"
-                    src={`http://localhost:8081/${employee.photo}`}
+                    src={`http://localhost:8081/${keepEmployee.photo}`}
                     alt="img"
                   />
                 </>
@@ -228,27 +208,50 @@ const employees = () => {
                 </>
               )}
               <div className="grid grid-cols-2 lg:space-x-14 space-x-5">
-                <p className="flex flex-col w-full space-y-1">
+                <p className="flex flex-col w-full space-y-1 ">
+                  <div className="flex font-semibold">
+                    <div className="first-letter:uppercase">
+                      {keepEmployee.firstName}
+                    </div>{" "}
+                    <div className="ml-5 first-letter:uppercase">
+                      {keepEmployee.lastName}
+                    </div>
+                  </div>
                   <span>
-                    ชื่อ : {employee.firstName} {employee.lastName}
+                    <span className="font-semibold"> เลขบัตรประชาชน : </span>
+                    {keepEmployee.idCard || "-"}
                   </span>
-                  <span>เลขบัตรประชาชน : {employee.idCard || "-"}</span>
-                  <span>วันเกิด : {employee?.date_of_birth || "-"}</span>
-                  <span>อีเมล : {employee?.email || "-"}</span>
+                  <span>
+                    <span className="font-semibold"> วันเกิด : </span>
+
+                    {moment(keepEmployee.date_of_birth).format("yyyy-MM-DD") ||
+                      "-"}
+                  </span>
+                  <span>
+                    <span className="font-semibold"> อีเมล : </span>
+                    {keepEmployee?.email || "-"}
+                  </span>
                 </p>
                 <p className="flex flex-col w-full space-y-1">
-                  <span>เบอร์โทรศัพท์ : {employee?.phone_number || "-"}</span>
                   <span>
-                    เงินเดือน :{" "}
-                    {employee?.Employment_Details?.salary
+                    <span className="font-semibold"> เบอร์โทรศัพท์ : </span>
+
+                    {formatPhoneNumber(keepEmployee?.phone_number) || "-"}
+                  </span>
+                  <span>
+                    <span className="font-semibold"> เงินเดือน : </span>
+                    {keepEmployee?.Employment_Details?.salary
                       .toString()
                       .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
                   </span>
                   <span>
-                    วันเริ่มงาน :{" "}
-                    {employee?.Employment_Details?.start_date || "-"}
+                    <span className="font-semibold"> วันเริ่มงาน : </span>
+                    {keepEmployee?.Employment_Details?.start_date || "-"}
                   </span>
-                  <span>ที่อยู่ : {employee?.address || "-"}</span>
+                  <span>
+                    <span className="font-semibold"> ที่อยู่ : </span>
+                    {keepEmployee?.address || "-"}
+                  </span>
                 </p>
               </div>
               <div className="absolute top-3 right-5">
@@ -265,9 +268,19 @@ const employees = () => {
         </button> */}
             <button
               onClick={() => setTypeButton("Calendar")}
-              className="border p-1 min-w-16"
+              className={`bg-gray-300 border border-gray-400 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded text-sm ${
+                typeButton === "Calendar" ? "bg-gray-400 cursor-default" : ""
+              }`}
             >
               ปฎิทิน
+            </button>
+            <button
+              onClick={() => setTypeButton("Note")}
+              className={`bg-gray-300 border border-gray-400 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded text-sm ${
+                typeButton === "Note" ? "bg-gray-400 cursor-default" : ""
+              }`}
+            >
+              โน๊ต
             </button>
           </div>
 
@@ -361,7 +374,7 @@ const employees = () => {
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="font-medium">
-                      {employee.Employment_Details?.salary
+                      {keepEmployee.Employment_Details?.salary
                         .toString()
                         .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || 0}
                     </span>
@@ -386,10 +399,10 @@ const employees = () => {
                         .toString()
                         .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
                     </span>
-                    {employee?.Employment_Details?.salary === 0}
+                    {keepEmployee?.Employment_Details?.salary === 0}
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
                       {(
-                        employee?.Employment_Details?.salary +
+                        keepEmployee?.Employment_Details?.salary +
                         events.filter((event: any) => event.ot).length * 750 +
                         events.filter((event: any) => event.perdiem).length *
                           250 -
@@ -405,6 +418,7 @@ const employees = () => {
               <Calendar handleMonthChange={handleMonthChange} events={events} />
             </>
           )}
+          {typeButton === "Note" && <Note />}
         </div>
       ) : (
         <>

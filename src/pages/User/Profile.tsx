@@ -1,29 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
-import useAuth from "../../hooks/useAuth";
-import { TAuthStoreState } from "../../context/AuthProvider";
+import { useEffect, useRef, useState } from "react";
 import useEmployeeStore, {
   TEmployeeStoreState,
 } from "../../context/EmployeeProvider";
-import { getEmployee, updateEmployee } from "../../services/employeeServices";
-import { FaEdit, FaRegSave } from "react-icons/fa";
+import {
+  getEmployee,
+  updateEmployee,
+  uploadImage,
+} from "../../services/employeeServices";
+import { FaRegEdit, FaEdit, FaRegSave } from "react-icons/fa";
 import { Button, DatePicker, Modal } from "rsuite";
 import moment from "moment";
-
+import { IoMdPerson } from "react-icons/io";
+import Swal from "sweetalert2";
 const Profile = () => {
-  const { auth }: TAuthStoreState = useAuth();
   const { employee, setEmployee }: TEmployeeStoreState = useEmployeeStore();
   const [isEditable, setIsEditable] = useState<boolean>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>();
+  const [isEditName, setIsEditName] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     firstName: employee.firstName,
     lastName: employee.lastName,
     idCard: employee.idCard,
     gender: employee.gender,
+    address: employee.address,
     date_of_birth: employee.date_of_birth,
     phone_number: employee.phone_number,
     email: employee.email,
   });
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
 
@@ -51,48 +56,156 @@ const Profile = () => {
     setEmployee(employee.data);
     setIsOpenModal(false);
     setIsEditable(false);
+    setIsEditName(false);
   };
 
   const handleClose = async () => {
     setIsOpenModal(false);
     setIsEditable(false);
+    setIsEditName(false);
   };
-  const [image, setImage] = useState(null);
-  const handleFileChange = (e: any) => {
-    const file = e.target.files[0];
-    setImage(file);
+
+  const handleEditName = () => {
+    setIsEditName(true);
   };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (image) {
-      onUpload(image);
-      // Optionally, reset the form after submission
-      setImage(null);
+  function formatPhoneNumber(phoneNumberString: any) {
+    // Add dashes to the phone number
+    const formatted = phoneNumberString.replace(
+      /(\d{3})(\d{3})(\d{4})/,
+      "$1-$2-$3"
+    );
+
+    return formatted;
+  }
+
+  // Function to handle input change
+  const inputStyle = {
+    width: `${(formData.firstName.length + 1) * 8}px`, // Adjust multiplier based on font size and padding
+    // Add other styles as needed, e.g., padding, border, etc.
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    fontSize: "16px",
+  };
+  const inputStyle2 = {
+    width: `${(formData.lastName.length + 1) * 8}px`, // Adjust multiplier based on font size and padding
+    // Add other styles as needed, e.g., padding, border, etc.
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    fontSize: "16px",
+  };
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const fileUploadRef: any = useRef(null);
+  const handleImageUpload = (event: any) => {
+    event.preventDefault();
+    fileUploadRef.current.click();
+  };
+  const uploadImageDisplay = async () => {
+    try {
+      const file = fileUploadRef.current.files[0];
+      setSelectedFile(file);
+      // Preview image
+      const reader: any = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.log(error);
     }
   };
-  {
-    employee.photo;
-  }
+  const handleConfirmUpload = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("oldImage", String(employee.photo));
+      const response = await uploadImage(formData, employee.id);
+      Swal.fire({
+        title: "Success!",
+        text: "อัพโหลดไฟล์เสร็จสิ้น",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      setPreviewUrl(null);
+      setEmployee({ employee, photo: response.data.fileUrl });
+    } catch (error: any) {
+      Swal?.fire({
+        title: "Error!",
+        text: error,
+        icon: "error",
+        confirmButtonText: "Cool",
+      });
+      setPreviewUrl(null);
+    }
+  };
+  console.log("employee", employee);
+
   return (
-    <div className="flex max-w-7xl w-full mt-10">
-      <div className="px-10">
-        {employee.photo ? (
-          <div className="h-56 w-56 flex items-center justify-center">
+    <div className="flex max-w-7xl w-full mt-10 px-10">
+      <div className="flex flex-col items-center md:w-64 md:h-64 h-32 w-32 relative">
+        {previewUrl ? (
+          <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
             <img
-              className="md:w-48 md:h-48 h-20 w-20"
-              src={`http://localhost:8081/${employee.photo}`}
-              alt="img"
+              className="md:w-64 md:h-64 h-32 w-32 object-cover"
+              src={previewUrl}
+              alt="Preview"
             />
           </div>
         ) : (
-          <div className="h-56 w-56 flex items-center justify-center">
-            <img
-              className="md:w-48 md:h-48 h-20 w-20"
-              src={
-                "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
-              }
-              alt="img"
-            />
+          <>
+            {employee.photo ? (
+              <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
+                <img
+                  className="md:w-64 md:h-64 h-32 w-32 object-cover"
+                  src={`http://localhost:8081/${employee.photo}`}
+                  alt="img"
+                />
+              </div>
+            ) : (
+              <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
+                <img
+                  className="md:w-64 md:h-64 h-32 w-32 object-cover"
+                  src={
+                    "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
+                  }
+                  alt="img"
+                />
+              </div>
+            )}
+          </>
+        )}
+        {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          แก้ไขรูปภาพ
+          </button> */}
+        <input
+          type="file"
+          accept="image/png, image/jpeg"
+          hidden
+          ref={fileUploadRef}
+          onChange={uploadImageDisplay}
+        />
+        <div
+          className="absolute top-0 right-0 opacity-30 hover:opacity-75 cursor-pointer"
+          onClick={handleImageUpload}
+        >
+          <FaEdit size={25} />
+        </div>
+        {previewUrl && (
+          <div className="flex space-x-5">
+            <button
+              onClick={() => handleConfirmUpload()}
+              className="bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition ease-in-out duration-300"
+            >
+              บันทึก
+            </button>
+            <button
+              onClick={() => setPreviewUrl(null)}
+              className="bg-red-500 text-white font-bold py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition ease-in-out duration-300"
+            >
+              ยกเลิก
+            </button>
           </div>
         )}
       </div>
@@ -119,119 +232,152 @@ const Profile = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <form className="grid grid-cols-2 text-2xl relative p-5 min-w-52">
-        <p className="flex justify-between">
-          <div className="w-96 text-right space-y-3">
-            <div>ชื่อ:</div>
-            <div>นามสกุล:</div>
-            <div>เลขบัตรประชาชน:</div>
-            {/* <div>เพศ:</div> */}
-            <div>วันเกิด:</div>
-            <div>เบอร์โทรศัพท์:</div>
-            <div>อีเมล:</div>
-          </div>
-          {!isEditable ? (
-            <div className="w-96 pl-5 space-y-3">
-              <div>{employee.firstName || "-"}</div>
-              <div>{employee.lastName || "-"}</div>
-              <div>{employee.idCard || "-"}</div>
-              {/* <div>{employee.gender || "-"}</div> */}
-              <div>
-                {moment(employee.date_of_birth).format("yyyy-MM-DD") || "-"}
+      <div className="mx-14 w-full">
+        <div className="flex items-center text-2xl font-bold relative h-16">
+          {!isEditName ? (
+            <>
+              <div className="first-letter:uppercase">
+                {employee.firstName || "-"}
+              </div>{" "}
+              <div className="ml-5 first-letter:uppercase">
+                {employee.lastName || "-"}
               </div>
-              <div>{employee.phone_number || "-"}</div>
-              <div>{employee.email || "-"}</div>
-            </div>
+              <div
+                className="absolute right-0 opacity-30 hover:opacity-75 cursor-pointer"
+                onClick={handleEditName}
+              >
+                <FaRegEdit />
+              </div>
+            </>
           ) : (
-            <div className="w-96 ml-2 space-y-3">
+            <>
               <input
-                className="border-b-2 border-black"
+                style={inputStyle}
+                className="min-w-56 max-w-56 appearance-none border border-gray-300 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
                 name="firstName"
                 defaultValue={employee.firstName}
                 value={formData.firstName}
                 onChange={handleChange}
               />
               <input
-                className="border-b-2 border-black"
+                style={inputStyle2}
+                className="ml-5 min-w-56 max-w-56 appearance-none border border-gray-300 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
                 name="lastName"
+                defaultValue={employee.lastName}
                 value={formData.lastName}
                 onChange={handleChange}
               />
-              <input
-                className="border-b-2 border-black"
-                name="idCard"
-                value={formData.idCard}
-                onChange={handleChange}
-              />
-              {/* <input
+
+              <div
+                className="absolute right-0 opacity-30 hover:opacity-75 cursor-pointer"
+                onClick={() => setIsOpenModal(true)}
+              >
+                <FaRegSave size={30} />
+              </div>
+            </>
+          )}
+        </div>
+        <div className="relative">
+          <div className="flex items-center space-x-3 justify-center text-xl font-semibold mt-9 border-b-4 border-blue-600 w-32">
+            <IoMdPerson /> <span>เกี่ยวกับ</span>
+          </div>
+          <div className="border absolute w-full bottom-"></div>
+        </div>
+        <div className="mt-9 text-xl font-semibold">ข้อมูลติดต่อ</div>
+        <form className="relative mt-9">
+          <div className="flex">
+            <div className=" space-y-5 font-bold">
+              <div>เลขบัตรประชาชน:</div>
+              {/* <div>เพศ:</div> */}
+              <div>วันเกิด:</div>
+              <div>เบอร์โทรศัพท์:</div>
+              <div>อีเมล:</div>
+              <div>ที่อยู่:</div>
+              {/* <div>เริ่มทำงาน: </div>
+              <div>เงินเดือน: </div> */}
+            </div>
+            {!isEditable ? (
+              <div className="w-96 pl-5 space-y-5">
+                <div>{employee.idCard || "-"}</div>
+                {/* <div>{employee.gender || "-"}</div> */}
+                <div>
+                  {moment(employee.date_of_birth).format("yyyy-MM-DD") || "-"}
+                </div>
+                <div>{formatPhoneNumber(employee.phone_number) || "-"}</div>
+                <div>{employee.email || "-"}</div>
+                <div>{employee.address || "-"}</div>
+              </div>
+            ) : (
+              <div className="flex flex-col w-96 ml-2 space-y-4">
+                <input
+                  className="border-b-2 border-black"
+                  name="idCard"
+                  value={formData.idCard}
+                  onChange={handleChange}
+                />
+                {/* <input
                 className="border-b-2 border-black"
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
               /> */}
-              <DatePicker
-                name="dob"
-                value={formData.date_of_birth}
-                format="yyyy-MM-dd"
-                onChange={handleDateChange}
-              />
-              {/* <input
+                <DatePicker
+                  name="dob"
+                  value={
+                    new Date(
+                      moment(employee.date_of_birth).format("YYYY-MM-DD")
+                    )
+                  }
+                  format="yyyy-MM-dd"
+                  onChange={handleDateChange}
+                />
+                {/* <input
                 className="border-b-2 border-black"
                 name="dob"
                 value={employee.date_of_birth}
                 onChange={handleChange}
               /> */}
-              <input
-                className="border-b-2 border-black"
-                name="phone"
-                value={formData.phone_number}
-                onChange={handleChange}
-              />
-              <input
-                className="border-b-2 border-black"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
+                <input
+                  className="border-b-2 border-black"
+                  name="phone"
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                />
+                <input
+                  className="border-b-2 border-black"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+                <input
+                  className="border-b-2 border-black"
+                  name="email"
+                  value={formData.address}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
+          </div>
+
+          {!isEditable ? (
+            <div
+              className="absolute top-[-10px] right-0 opacity-30 hover:opacity-75 cursor-pointer"
+              onClick={() => setIsEditable(true)}
+            >
+              <FaEdit size={25} />
+            </div>
+          ) : (
+            <div
+              className="absolute top-[-10px] right-0 opacity-30 hover:opacity-75 cursor-pointer"
+              onClick={() => {
+                setIsOpenModal(true);
+              }}
+            >
+              <FaRegSave size={30} />
             </div>
           )}
-        </p>
-        <p className="flex">
-          <div className="w-96 text-right space-y-3">
-            <div>เริ่มทำงาน: </div>
-            <div>เงินเดือน: </div>
-            {/* <div>วันที่ผ่านโปร: </div>
-            <div>เงินสะสม: </div>
-            <div>วันลาคงเหลือ: </div> */}
-          </div>
-          <div className="w-full pl-5 space-y-3">
-            <div>{employee.Employment_Details?.start_date || "-"}</div>
-            <div>
-              {employee.Employment_Details?.salary
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-            </div>
-          </div>
-        </p>
-
-        {!isEditable ? (
-          <div
-            className="absolute top-0 right-0 cursor-pointer"
-            onClick={() => setIsEditable(true)}
-          >
-            <FaEdit size={30} />
-          </div>
-        ) : (
-          <div
-            className="absolute top-0 right-0 cursor-pointer"
-            onClick={() => {
-              setIsOpenModal(true);
-            }}
-          >
-            <FaRegSave size={30} />
-          </div>
-        )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

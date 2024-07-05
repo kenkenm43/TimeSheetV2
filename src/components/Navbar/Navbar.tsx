@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { logout } from "../../services/authServices";
+import useEmployeeStore from "../../context/EmployeeProvider";
 type TNavigation = {
   name: string;
   authorization?: string[];
@@ -33,6 +34,9 @@ const navLists: TNavigation[] = [
 const Navbar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
+  const { employee } = useEmployeeStore();
+  console.log(employee.photo);
+
   return (
     <nav className="w-full  bg-orange-400  font-bold">
       <div className="flex items-center justify-between px-14 h-14 max-w-7xl mx-auto">
@@ -49,7 +53,13 @@ const Navbar = () => {
           {auth.username ? (
             <>
               <button onClick={() => navigate("/profile")}>
-                {auth.username}
+                <div className="flex items-center space-x-2">
+                  <span>{auth.username}</span>
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={`http://localhost:8081/${employee.photo}`}
+                  />
+                </div>
               </button>
 
               <button onClick={() => logout()}>ออกจากระบบ</button>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import prisma from "../../config/prisma";
-
+import fs from "fs";
 const updateEmployee = async (req: Request, res: Response) => {
   try {
     const employeeId = req.params["id"];
@@ -27,11 +27,27 @@ const updateEmployee = async (req: Request, res: Response) => {
 const uploadImage = async (req: Request, res: Response) => {
   try {
     const employeeId = req.params["id"];
+
     if (!req.file) {
       res.status(413).send(`File not uploaded!, Please 
                             attach jpeg file under 5 MB`);
       return;
     }
+
+    fs.readdir("uploads/", (err, files) => {
+      files.forEach((file) => {
+        if (req.body.oldImage === file) {
+          fs.unlink("uploads/" + req.body.oldImage, (err) => {
+            if (err) {
+              throw err;
+            }
+          });
+        }
+      });
+    });
+
+    // console.log(req.body.oldImage);
+
     await prisma.employee.update({
       where: { id: employeeId },
       data: {
@@ -39,7 +55,10 @@ const uploadImage = async (req: Request, res: Response) => {
       },
     });
     // successfull completion
-    res.status(201).send(req.file);
+    res.status(201).send({
+      message: "File uploaded successfully",
+      fileUrl: req.file.filename,
+    });
   } catch (e) {
     return res.status(500).json({ error: e });
   }
