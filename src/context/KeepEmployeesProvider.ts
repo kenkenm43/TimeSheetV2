@@ -12,6 +12,7 @@ export type TEmployee = {
   id?: string;
   firstName: string;
   lastName: string;
+  nickName: string;
   idCard: string;
   gender: string;
   date_of_birth?: string;
@@ -90,7 +91,7 @@ export const useKeepEmployeesStore = create<any>()(
       employees: [],
       setEmployees: (value: any) =>
         set((state: any) => ({
-          employees: [...state.employees, ...value],
+          // employees: [...value],
         })),
       setEvents: (empId: any, events: any) =>
         set((state: any) => ({
@@ -101,7 +102,7 @@ export const useKeepEmployeesStore = create<any>()(
     }),
     {
       name: "KeepEmployeesStore",
-      // storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

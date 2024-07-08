@@ -13,6 +13,7 @@ export type TEmployee = {
   id?: string;
   firstName: string;
   lastName: string;
+  nickName: string;
   idCard: string;
   gender: string;
   date_of_birth?: string;
@@ -92,6 +93,7 @@ export const useKeepEmployeeStore = create<any>()(
         id: "",
         firstName: "",
         lastName: "",
+        nickName: "",
         idCard: "",
         gender: "",
         date_of_birth: "",

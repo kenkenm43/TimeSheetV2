@@ -9,7 +9,8 @@ import {
   uploadImage,
 } from "../../services/employeeServices";
 import { FaRegEdit, FaEdit, FaRegSave } from "react-icons/fa";
-import { Button, DatePicker, Modal } from "rsuite";
+import { CiBank } from "react-icons/ci";
+import { Button, DatePicker, Input, Modal } from "rsuite";
 import moment from "moment";
 import { IoMdPerson } from "react-icons/io";
 import Swal from "sweetalert2";
@@ -18,9 +19,12 @@ const Profile = () => {
   const [isEditable, setIsEditable] = useState<boolean>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>();
   const [isEditName, setIsEditName] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
+  const [isChangeImg, setIsChangeImg] = useState<boolean>(false);
+  const [state, setState] = useState("about");
+  const [formData, setFormData] = useState<any>({
     firstName: employee.firstName,
     lastName: employee.lastName,
+    nickName: employee.nickName,
     idCard: employee.idCard,
     gender: employee.gender,
     address: employee.address,
@@ -29,16 +33,20 @@ const Profile = () => {
     email: employee.email,
   });
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
+  const handleChange = (value: string, e: any) => {
+    console.log("e", e.target);
 
-    setFormData((prevState) => ({
+    const { name } = e.target;
+
+    setFormData((prevState: any) => ({
       ...prevState,
       [name]: value,
     }));
   };
   const handleDateChange = (date: any) => {
-    setFormData((prevState) => ({
+    console.log(date);
+
+    setFormData((prevState: any) => ({
       ...prevState,
       date_of_birth: date,
     }));
@@ -60,6 +68,7 @@ const Profile = () => {
   };
 
   const handleClose = async () => {
+    setFormData(employee);
     setIsOpenModal(false);
     setIsEditable(false);
     setIsEditName(false);
@@ -79,32 +88,29 @@ const Profile = () => {
   }
 
   // Function to handle input change
-  const inputStyle = {
-    width: `${(formData.firstName.length + 1) * 8}px`, // Adjust multiplier based on font size and padding
-    // Add other styles as needed, e.g., padding, border, etc.
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    fontSize: "16px",
-  };
-  const inputStyle2 = {
-    width: `${(formData.lastName.length + 1) * 8}px`, // Adjust multiplier based on font size and padding
-    // Add other styles as needed, e.g., padding, border, etc.
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    fontSize: "16px",
-  };
+  // const inputStyle = {
+  //   width: `${(formData.firstName.length + 1) * 8}px`, // Adjust multiplier based on font size and padding
+  //   // Add other styles as needed, e.g., padding, border, etc.
+  //   padding: "10px",
+  //   border: "1px solid #ccc",
+  //   borderRadius: "4px",
+  //   fontSize: "16px",
+  // };
+
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const fileUploadRef: any = useRef(null);
   const handleImageUpload = (event: any) => {
     event.preventDefault();
+    setIsChangeImg(true);
+
     fileUploadRef.current.click();
   };
-  const uploadImageDisplay = async () => {
-    try {
+  const uploadImageDisplay = async (event: any) => {
+    if (event.target.files.length > 0) {
       const file = fileUploadRef.current.files[0];
+      console.log("file", file);
+
       setSelectedFile(file);
       // Preview image
       const reader: any = new FileReader();
@@ -112,8 +118,8 @@ const Profile = () => {
         setPreviewUrl(reader.result);
       };
       reader.readAsDataURL(file);
-    } catch (error) {
-      console.log(error);
+    } else {
+      console.log("File selection canceled.");
     }
   };
   const handleConfirmUpload = async () => {
@@ -129,6 +135,7 @@ const Profile = () => {
         confirmButtonText: "OK",
       });
       setPreviewUrl(null);
+      setIsChangeImg(false);
       setEmployee({ employee, photo: response.data.fileUrl });
     } catch (error: any) {
       Swal?.fire({
@@ -137,10 +144,10 @@ const Profile = () => {
         icon: "error",
         confirmButtonText: "Cool",
       });
+      setIsChangeImg(false);
       setPreviewUrl(null);
     }
   };
-  console.log("employee", employee);
 
   return (
     <div className="flex max-w-7xl w-full mt-10 px-10">
@@ -187,12 +194,20 @@ const Profile = () => {
           onChange={uploadImageDisplay}
         />
         <div
-          className="absolute top-0 right-0 opacity-30 hover:opacity-75 cursor-pointer"
+          className="absolute right-0 opacity-70 hover:opacity-100 cursor-pointer"
           onClick={handleImageUpload}
         >
-          <FaEdit size={25} />
+          <FaEdit size={30} />
         </div>
-        {previewUrl && (
+
+        {/* <div className="flex space-x-5" onClick={handleImageUpload}>
+          <FaEdit
+            size={25}
+            style={{ stroke: "black", strokeWidth: 2, color: "white" }}
+          />
+        </div> */}
+        <div></div>
+        {isChangeImg && (
           <div className="flex space-x-5">
             <button
               onClick={() => handleConfirmUpload()}
@@ -201,7 +216,10 @@ const Profile = () => {
               บันทึก
             </button>
             <button
-              onClick={() => setPreviewUrl(null)}
+              onClick={() => {
+                setIsChangeImg(false);
+                setPreviewUrl(null);
+              }}
               className="bg-red-500 text-white font-bold py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition ease-in-out duration-300"
             >
               ยกเลิก
@@ -242,6 +260,9 @@ const Profile = () => {
               <div className="ml-5 first-letter:uppercase">
                 {employee.lastName || "-"}
               </div>
+              <div className="ml-5 first-letter:uppercase">
+                ({employee.nickName || "-"})
+              </div>
               <div
                 className="absolute right-0 opacity-30 hover:opacity-75 cursor-pointer"
                 onClick={handleEditName}
@@ -250,21 +271,30 @@ const Profile = () => {
               </div>
             </>
           ) : (
-            <>
-              <input
-                style={inputStyle}
-                className="min-w-56 max-w-56 appearance-none border border-gray-300 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+            <div className="flex space-x-4">
+              <Input
+                placeholder="ชื่อจริง"
+                // style={inputStyle}
+                classPrefix="input"
+                className="min-w-56 max-w-56"
                 name="firstName"
                 defaultValue={employee.firstName}
                 value={formData.firstName}
                 onChange={handleChange}
               />
-              <input
-                style={inputStyle2}
-                className="ml-5 min-w-56 max-w-56 appearance-none border border-gray-300 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
+              <Input
+                placeholder="นามสกุล"
+                className="min-w-56 max-w-56"
                 name="lastName"
                 defaultValue={employee.lastName}
                 value={formData.lastName}
+                onChange={handleChange}
+              />
+              <Input
+                placeholder="ชื่อเล่น"
+                className="min-w-56 max-w-56"
+                defaultValue={employee.nickName}
+                value={formData.nickName}
                 onChange={handleChange}
               />
 
@@ -274,16 +304,28 @@ const Profile = () => {
               >
                 <FaRegSave size={30} />
               </div>
-            </>
+            </div>
           )}
         </div>
-        <div className="relative">
-          <div className="flex items-center space-x-3 justify-center text-xl font-semibold mt-9 border-b-4 border-blue-600 w-32">
-            <IoMdPerson /> <span>เกี่ยวกับ</span>
+        <div className="relative flex space-x-3 text-xl font-semibold mt-9 border-b-2 w-full ">
+          <div
+            className={`flex items-center w-32  transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
+              state === "about" ? "border-b-4 border-blue-600 " : ""
+            }`}
+            onClick={() => setState("about")}
+          >
+            <IoMdPerson /> <span className="ml-2">เกี่ยวกับ</span>
           </div>
-          <div className="border absolute w-full bottom-"></div>
+          <div
+            className={`flex items-center w-32  transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
+              state === "bank" ? "border-b-4 border-blue-600" : ""
+            }`}
+            onClick={() => setState("bank")}
+          >
+            <CiBank /> <span className="ml-2">ธนาคาร</span>
+          </div>
         </div>
-        <div className="mt-9 text-xl font-semibold">ข้อมูลติดต่อ</div>
+        <div className="mt-9 text-xl font-semibold">ข้อมูลทั่วไป / ติดต่อ</div>
         <form className="relative mt-9">
           <div className="flex">
             <div className=" space-y-5 font-bold">
@@ -308,9 +350,8 @@ const Profile = () => {
                 <div>{employee.address || "-"}</div>
               </div>
             ) : (
-              <div className="flex flex-col w-96 ml-2 space-y-4">
-                <input
-                  className="border-b-2 border-black"
+              <div className="flex flex-col w-96 ml-2 space-y-2">
+                <Input
                   name="idCard"
                   value={formData.idCard}
                   onChange={handleChange}
@@ -325,7 +366,7 @@ const Profile = () => {
                   name="dob"
                   value={
                     new Date(
-                      moment(employee.date_of_birth).format("YYYY-MM-DD")
+                      moment(formData.date_of_birth).format("YYYY-MM-DD")
                     )
                   }
                   format="yyyy-MM-dd"
@@ -337,20 +378,17 @@ const Profile = () => {
                 value={employee.date_of_birth}
                 onChange={handleChange}
               /> */}
-                <input
-                  className="border-b-2 border-black"
+                <Input
                   name="phone"
                   value={formData.phone_number}
                   onChange={handleChange}
                 />
-                <input
-                  className="border-b-2 border-black"
+                <Input
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                 />
-                <input
-                  className="border-b-2 border-black"
+                <Input
                   name="email"
                   value={formData.address}
                   onChange={handleChange}

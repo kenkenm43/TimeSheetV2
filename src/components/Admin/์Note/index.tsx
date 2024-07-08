@@ -8,7 +8,7 @@ const index = () => {
   const { employee } = useEmployeeStore();
   const [messages, setMessages] = useState(["12", "awd", "123", "da", "as"]);
   return (
-    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+    <div className="mt-5 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
       <div className="w-64 h-full border flex flex-col items-center text-center">
         <div className="w-full">
           <input

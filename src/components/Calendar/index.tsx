@@ -268,8 +268,8 @@ const index = () => {
         perdiem: data.work_perdium,
         reason: leaveReason,
         type: title,
-        timeStart: timeStart,
-        timeEnd: timeEnd,
+        timeStart: startDate,
+        timeEnd: endDate,
         allDay: true,
         backgroundColor: backgroundColor,
       });
@@ -524,8 +524,8 @@ const index = () => {
   };
 
   return (
-    <div className="w-full ml-10 mb-10 mt-5">
-      <div className="absolute top-32 left-5 flex flex-col w-40 justify-center">
+    <div className="w-full ml-20 mb-10 mt-5">
+      <div className="absolute top-32 left-5 flex flex-col w-72 justify-center">
         <ListWorking />
       </div>
       <div className="flex text-xl ">
@@ -583,7 +583,7 @@ const index = () => {
           </div>
         </div>
 
-        <div className="flex ml-10 space-x-5">
+        <div className="flex ml-16 space-x-5">
           <div className="font-semibold">
             เดือนนี้ มี {totalDayInMonth} วัน :{" "}
           </div>

@@ -207,7 +207,7 @@ const employees = () => {
                   />
                 </>
               )}
-              <div className="grid grid-cols-2 lg:space-x-14 space-x-5">
+              <div className="grid grid-cols-3 lg:space-x-14 space-x-5">
                 <p className="flex flex-col w-full space-y-1 ">
                   <div className="flex font-semibold">
                     <div className="first-letter:uppercase">
@@ -253,6 +253,23 @@ const employees = () => {
                     {keepEmployee?.address || "-"}
                   </span>
                 </p>
+                <p className="flex flex-col w-full space-y-1">
+                  <span>
+                    <span className="font-semibold"> ธนาคาร : </span>
+
+                    {keepEmployee?.Financial_Details?.bank_name || "-"}
+                  </span>
+                  <span>
+                    <span className="font-semibold"> บัญชี : </span>
+                    {keepEmployee?.Financial_Details?.bank_account_number ||
+                      "-"}
+                  </span>
+                  <span>
+                    <span className="font-semibold"> เลขประกันสังคม : </span>
+                    {keepEmployee?.Financial_Details?.social_security_number ||
+                      "-"}
+                  </span>
+                </p>
               </div>
               <div className="absolute top-3 right-5">
                 <FaEdit size={30} />
@@ -287,7 +304,7 @@ const employees = () => {
           {typeButton === "Calendar" && (
             <>
               <div className="flex">
-                <div className="flex ml-10 space-x-5">
+                <div className="flex pt-5 ml-10 space-x-5">
                   <div className="font-semibold">
                     เดือนนี้ มี {totalDayInMonth} วัน :{" "}
                   </div>
@@ -339,7 +356,7 @@ const employees = () => {
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-cenเิter space-x-2 ">
                       <div
                         className={`w-[30px] h-[30px] bg-[#E100FF] border-2 border-black`}
                       ></div>
@@ -355,7 +372,7 @@ const employees = () => {
                   </div>
                 </div>
                 <div className="flex space-x-4 relative bottom-5 left-10">
-                  <div className="pl-5 absolute top-7 right-[-27px]">+</div>
+                  <div className="pl-5 absolute right-[-27px]">+</div>
                   <div className="flex flex-col">
                     <span className="font-semibold">เงินเดือน :</span>{" "}
                     <span>

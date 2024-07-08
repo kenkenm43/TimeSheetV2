@@ -11,6 +11,7 @@ const updateEmployee = async (req: Request, res: Response) => {
       data: {
         firstName: payload.firstName,
         lastName: payload.lastName,
+        nickName: payload.nickName,
         idCard: payload.idCard,
         gender: payload.gender,
         date_of_birth: payload.date_of_birth,
