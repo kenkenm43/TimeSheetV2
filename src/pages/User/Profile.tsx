@@ -8,7 +8,7 @@ import {
   updateEmployee,
   uploadImage,
 } from "../../services/employeeServices";
-import { FaRegEdit, FaEdit, FaRegSave } from "react-icons/fa";
+import { FaRegEdit, FaEdit, FaRegSave, FaInfoCircle } from "react-icons/fa";
 import { CiBank } from "react-icons/ci";
 import { Button, DatePicker, Input, Modal } from "rsuite";
 import moment from "moment";
@@ -31,9 +31,13 @@ const Profile = () => {
     date_of_birth: employee.date_of_birth,
     phone_number: employee.phone_number,
     email: employee.email,
+    Financial_Details: {
+      ...employee.Financial_Details,
+    },
   });
 
   const handleChange = (value: string, e: any) => {
+    console.log("value", value);
     console.log("e", e.target);
 
     const { name } = e.target;
@@ -44,8 +48,6 @@ const Profile = () => {
     }));
   };
   const handleDateChange = (date: any) => {
-    console.log(date);
-
     setFormData((prevState: any) => ({
       ...prevState,
       date_of_birth: date,
@@ -61,14 +63,20 @@ const Profile = () => {
   }, [employee.id]);
   const handleUpdateProfile = async (employeeId: any) => {
     const employee = await updateEmployee(formData, employeeId);
-    setEmployee(employee.data);
+    setEmployee(() => {
+      employee.data;
+    });
     setIsOpenModal(false);
     setIsEditable(false);
     setIsEditName(false);
   };
 
+  console.log(employee);
+
   const handleClose = async () => {
-    setFormData(employee);
+    setFormData((formData: any) => {
+      formData;
+    });
     setIsOpenModal(false);
     setIsEditable(false);
     setIsEditName(false);
@@ -86,16 +94,6 @@ const Profile = () => {
 
     return formatted;
   }
-
-  // Function to handle input change
-  // const inputStyle = {
-  //   width: `${(formData.firstName.length + 1) * 8}px`, // Adjust multiplier based on font size and padding
-  //   // Add other styles as needed, e.g., padding, border, etc.
-  //   padding: "10px",
-  //   border: "1px solid #ccc",
-  //   borderRadius: "4px",
-  //   fontSize: "16px",
-  // };
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -309,7 +307,7 @@ const Profile = () => {
         </div>
         <div className="relative flex space-x-3 text-xl font-semibold mt-9 border-b-2 w-full ">
           <div
-            className={`flex items-center w-32  transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
+            className={`flex items-center w-32 p-1  transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
               state === "about" ? "border-b-4 border-blue-600 " : ""
             }`}
             onClick={() => setState("about")}
@@ -317,85 +315,128 @@ const Profile = () => {
             <IoMdPerson /> <span className="ml-2">เกี่ยวกับ</span>
           </div>
           <div
-            className={`flex items-center w-32  transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
-              state === "bank" ? "border-b-4 border-blue-600" : ""
+            className={`flex items-center w-32 p-1 transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
+              state === "general" ? "border-b-4 border-blue-600" : ""
             }`}
-            onClick={() => setState("bank")}
+            onClick={() => setState("general")}
           >
-            <CiBank /> <span className="ml-2">ธนาคาร</span>
+            <FaInfoCircle /> <span className="ml-2">ข้อมูล</span>
           </div>
         </div>
-        <div className="mt-9 text-xl font-semibold">ข้อมูลทั่วไป / ติดต่อ</div>
+        {/* <div className="mt-9 text-xl font-semibold">ข้อมูลทั่วไป / ติดต่อ</div> */}
         <form className="relative mt-9">
-          <div className="flex">
-            <div className=" space-y-5 font-bold">
-              <div>เลขบัตรประชาชน:</div>
-              {/* <div>เพศ:</div> */}
-              <div>วันเกิด:</div>
-              <div>เบอร์โทรศัพท์:</div>
-              <div>อีเมล:</div>
-              <div>ที่อยู่:</div>
-              {/* <div>เริ่มทำงาน: </div>
-              <div>เงินเดือน: </div> */}
-            </div>
-            {!isEditable ? (
-              <div className="w-96 pl-5 space-y-5">
-                <div>{employee.idCard || "-"}</div>
-                {/* <div>{employee.gender || "-"}</div> */}
-                <div>
-                  {moment(employee.date_of_birth).format("yyyy-MM-DD") || "-"}
+          {state === "general" ? (
+            <div className="flex">
+              <div className=" space-y-5 font-bold">
+                <div>ธนาคาร:</div>
+                {/* <div>เพศ:</div> */}
+                <div>เลขที่บัญชี:</div>
+                <div>เลขประกันสังคม:</div>
+                {/* <div>:</div>
+                <div>ที่อยู่:</div> */}
+                {/* <div>เริ่มทำงาน: </div>
+            <div>เงินเดือน: </div> */}
+              </div>
+              {!isEditable ? (
+                <div className="w-96 pl-5 space-y-5">
+                  <div>{employee.Financial_Details?.bank_name || "-"}</div>
+                  {/* <div>{employee.gender || "-"}</div> */}
+                  <div>
+                    <div>
+                      {employee.Financial_Details?.bank_account_number || "-"}
+                    </div>
+                  </div>
+                  <div>
+                    {employee.Financial_Details?.social_security_number || "-"}
+                  </div>
                 </div>
-                <div>{formatPhoneNumber(employee.phone_number) || "-"}</div>
-                <div>{employee.email || "-"}</div>
-                <div>{employee.address || "-"}</div>
+              ) : (
+                <div className="flex flex-col w-96 ml-2 space-y-2">
+                  <Input
+                    name="bank_name"
+                    value={formData.Financial_Details?.bank_name}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="bank_account_number"
+                    value={formData.Financial_Details?.bank_account_number}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="social_security_number"
+                    value={formData.Financial_Details?.social_security_number}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+            </div>
+          ) : state === "about" ? (
+            <div className="flex">
+              <div className=" space-y-5 font-bold">
+                <div>เลขบัตรประชาชน:</div>
+                {/* <div>เพศ:</div> */}
+                <div>วันเกิด:</div>
+                <div>เบอร์โทรศัพท์:</div>
+                <div>อีเมล:</div>
+                <div>ที่อยู่:</div>
+                {/* <div>เริ่มทำงาน: </div>
+        <div>เงินเดือน: </div> */}
               </div>
-            ) : (
-              <div className="flex flex-col w-96 ml-2 space-y-2">
-                <Input
-                  name="idCard"
-                  value={formData.idCard}
-                  onChange={handleChange}
-                />
-                {/* <input
-                className="border-b-2 border-black"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-              /> */}
-                <DatePicker
-                  name="dob"
-                  value={
-                    new Date(
-                      moment(formData.date_of_birth).format("YYYY-MM-DD")
-                    )
-                  }
-                  format="yyyy-MM-dd"
-                  onChange={handleDateChange}
-                />
-                {/* <input
-                className="border-b-2 border-black"
-                name="dob"
-                value={employee.date_of_birth}
-                onChange={handleChange}
-              /> */}
-                <Input
-                  name="phone"
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                />
-                <Input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-                <Input
-                  name="email"
-                  value={formData.address}
-                  onChange={handleChange}
-                />
-              </div>
-            )}
-          </div>
+              {!isEditable ? (
+                <div className="w-96 pl-5 space-y-5">
+                  <div>{employee.idCard || "-"}</div>
+                  {/* <div>{employee.gender || "-"}</div> */}
+                  <div>
+                    {moment(employee.date_of_birth).format("yyyy-MM-DD") || "-"}
+                  </div>
+                  <div>{formatPhoneNumber(employee.phone_number) || "-"}</div>
+                  <div>{employee.email || "-"}</div>
+                  <div>{employee.address || "-"}</div>
+                </div>
+              ) : (
+                <div className="flex flex-col w-96 ml-2 space-y-2">
+                  <Input
+                    name="idCard"
+                    value={formData.idCard}
+                    onChange={handleChange}
+                  />
+                  {/* <input
+          className="border-b-2 border-black"
+          name="gender"
+          value={formData.gender}
+          onChange={handleChange}
+        /> */}
+                  <DatePicker
+                    name="dob"
+                    value={
+                      new Date(
+                        moment(formData.date_of_birth).format("YYYY-MM-DD")
+                      )
+                    }
+                    format="yyyy-MM-dd"
+                    onChange={handleDateChange}
+                  />
+                  <Input
+                    name="phone"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    name="email"
+                    value={formData.address}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <></>
+          )}
 
           {!isEditable ? (
             <div

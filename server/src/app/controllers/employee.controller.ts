@@ -17,8 +17,17 @@ const updateEmployee = async (req: Request, res: Response) => {
         date_of_birth: payload.date_of_birth,
         phone_number: payload.phone_number,
         email: payload.email,
+        Financial_Details: {
+          update: {
+            bank_account_number: payload.bank_account_number,
+            bank_name: payload.bank_name,
+            social_security_number: payload.social_security_number,
+          },
+        },
       },
+      include: { Financial_Details: {}, Employment_Details: {} },
     });
+    console.log(employee);
 
     return res.status(200).json(employee);
   } catch (e) {
