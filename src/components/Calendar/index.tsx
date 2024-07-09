@@ -24,6 +24,8 @@ import moment from "moment-timezone";
 import useEmployeeStore from "../../context/EmployeeProvider";
 import ListWorking from "../ListWorking";
 import { useLocation } from "react-router-dom";
+import ListMessage from "../ListMessage";
+import { employeeReceiveMessage } from "../../services/messageServices";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -522,11 +524,22 @@ const index = () => {
   const handleSelect = (arg: any) => {
     console.log("handleSelect", arg);
   };
+  console.log(employee.id);
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await employeeReceiveMessage(employee.id);
 
+      setMessages(data);
+    };
+    fetchData();
+  }, []);
   return (
     <div className="w-full ml-20 mb-10 mt-5">
       <div className="absolute top-32 left-5 flex flex-col w-72 justify-center">
         <ListWorking />
+        ข้อความ
+        <ListMessage messages={messages} />
       </div>
       <div className="flex text-xl ">
         <div className="flex space-x-4 relative">
@@ -693,8 +706,6 @@ const index = () => {
 };
 
 function renderEventContent(eventContent: any) {
-  console.log("eventContent", eventContent.event.extendedProps.timeStart);
-
   return (
     <div className="cursor-pointer">
       {/* <a className="fc-daygrid-event fc-daygrid-block-event fc-h-event fc-event fc-event-draggable fc-event-resizable fc-event-start fc-event-end fc-event-past ticket ticket"> */}

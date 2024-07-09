@@ -1,5 +1,3 @@
-import React from "react";
-
 const lists = [
   { id: "1", name: "come", title: "มาทำงาน", color: "bg-[#008000]" },
   { id: "2", name: "notcome", title: "หยุด", color: "bg-[#808080]" },

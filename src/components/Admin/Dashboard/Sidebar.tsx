@@ -20,7 +20,7 @@ const Sidebar = () => {
       const { data } = await getEmployeesData();
       console.log("update data");
 
-      console.log(data);
+      console.log("data", data);
 
       setEmployees(data);
       setIsOpenListEmployees(location.pathname == "/employee" ? true : false);
@@ -29,6 +29,7 @@ const Sidebar = () => {
 
     fetchData();
   }, []);
+  console.log("employee", employees);
 
   const selectEmployee = (emp: any) => {
     if (!(keepEmployee.id === emp.id)) {

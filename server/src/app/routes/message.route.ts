@@ -1,7 +1,8 @@
 import express from "express";
 const router = express.Router();
 import messageController from "../controllers/message.controller";
-router.get("/", messageController.receiveMessage);
+router.get("/:senderId/:receivedId", messageController.receiveMessage);
+router.get("/:receivedId", messageController.employeeReceiveMessage);
 router.post("/", messageController.sendMessage);
 router.put("/", messageController.updateMessage);
 router.delete("/", messageController.deleteMessage);

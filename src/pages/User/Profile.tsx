@@ -31,15 +31,12 @@ const Profile = () => {
     date_of_birth: employee.date_of_birth,
     phone_number: employee.phone_number,
     email: employee.email,
-    Financial_Details: {
-      ...employee.Financial_Details,
-    },
+    bank_name: employee.Financial_Details?.bank_name,
+    bank_account_number: employee.Financial_Details?.bank_account_number,
+    social_security_number: employee.Financial_Details?.social_security_number,
   });
 
   const handleChange = (value: string, e: any) => {
-    console.log("value", value);
-    console.log("e", e.target);
-
     const { name } = e.target;
 
     setFormData((prevState: any) => ({
@@ -63,9 +60,10 @@ const Profile = () => {
   }, [employee.id]);
   const handleUpdateProfile = async (employeeId: any) => {
     const employee = await updateEmployee(formData, employeeId);
-    setEmployee(() => {
-      employee.data;
-    });
+    console.log(employee);
+
+    setEmployee(employee.data);
+
     setIsOpenModal(false);
     setIsEditable(false);
     setIsEditName(false);
@@ -354,17 +352,17 @@ const Profile = () => {
                 <div className="flex flex-col w-96 ml-2 space-y-2">
                   <Input
                     name="bank_name"
-                    value={formData.Financial_Details?.bank_name}
+                    value={formData.bank_name}
                     onChange={handleChange}
                   />
                   <Input
                     name="bank_account_number"
-                    value={formData.Financial_Details?.bank_account_number}
+                    value={formData.bank_account_number}
                     onChange={handleChange}
                   />
                   <Input
                     name="social_security_number"
-                    value={formData.Financial_Details?.social_security_number}
+                    value={formData.social_security_number}
                     onChange={handleChange}
                   />
                 </div>

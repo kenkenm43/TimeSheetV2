@@ -264,11 +264,11 @@ const employees = () => {
                     {keepEmployee?.Financial_Details?.bank_account_number ||
                       "-"}
                   </span>
-                  <span>
+                  {/* <span>
                     <span className="font-semibold"> เลขประกันสังคม : </span>
                     {keepEmployee?.Financial_Details?.social_security_number ||
                       "-"}
-                  </span>
+                  </span> */}
                 </p>
               </div>
               <div className="absolute top-3 right-5">

@@ -20,12 +20,35 @@ const sendMessage = async (req: Request, res: Response) => {
 };
 const receiveMessage = async (req: Request, res: Response) => {
   try {
-    const { senderId, receivedId }: any = req.body;
+    const senderId = req.params["senderId"];
+    const receivedId = req.params["receivedId"];
+
+    console.log("senderId", senderId, "receive", receivedId);
+
     const messages = await prisma.message.findMany({
       where: {
-        OR: [{ sentById: senderId }, { receivedById: receivedId }],
+        AND: [{ sentById: senderId }, { receivedById: receivedId }],
       },
     });
+
+    return res.status(200).json(messages);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+};
+const employeeReceiveMessage = async (req: Request, res: Response) => {
+  try {
+    const receivedId = req.params["receivedId"];
+    console.log("employeereceivedmessage", receivedId);
+
+    const messages = await prisma.message.findMany({
+      where: {
+        receivedById: receivedId,
+      },
+      include: { receiver: {}, sender: {} },
+      orderBy: { createdAt: "desc" },
+    });
+    console.log("message", messages);
 
     return res.status(200).json(messages);
   } catch (e) {
@@ -55,6 +78,7 @@ const deleteMessage = async (req: Request, res: Response) => {
     const message = await prisma.message.delete({
       where: { id: messageId },
     });
+    console.log(message);
 
     return res.status(200).json(message);
   } catch (e) {
@@ -67,4 +91,5 @@ export default {
   receiveMessage,
   updateMessage,
   deleteMessage,
+  employeeReceiveMessage,
 };

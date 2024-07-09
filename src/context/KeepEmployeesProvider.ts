@@ -91,7 +91,7 @@ export const useKeepEmployeesStore = create<any>()(
       employees: [],
       setEmployees: (value: any) =>
         set((state: any) => ({
-          // employees: [...value],
+          employees: value,
         })),
       setEvents: (empId: any, events: any) =>
         set((state: any) => ({
