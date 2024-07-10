@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useRef, useState } from "react";
@@ -6,6 +7,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
+import { addSalary } from "../../services/salaryServices";
 import {
   addLeave,
   addWorkSchedule,
@@ -506,12 +508,8 @@ const index = () => {
 
     console.log(updateEvent.length);
 
-    if (
-      filterWorkStatus(WorkStatus.COME) +
-        filterWorkStatus(WorkStatus.LEAVE) +
-        filterWorkStatus(WorkStatus.NOTCOME) ===
-      totalDayInMonth
-    ) {
+    if (updateEvent.length === totalDayInMonth) {
+      const salary = await addSalary();
       console.log("set");
     }
 

@@ -16,7 +16,7 @@ const addSalary = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(200).json(users);
+    return res.status(201).json(users);
   } catch (e) {
     return res.status(500).json({ error: e });
   }
