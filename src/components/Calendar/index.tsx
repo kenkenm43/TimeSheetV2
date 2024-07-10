@@ -277,7 +277,8 @@ const index = () => {
       });
     }
 
-    setEvents(() => [...newEvent]);
+    await setEvents(() => [...newEvent]);
+    return [...newEvent];
   };
 
   const handleEventUpdate = async (
@@ -445,6 +446,7 @@ const index = () => {
     }
 
     setEvents(() => [...updateEvent]);
+    return [...updateEvent];
   };
 
   const dateCurrent = (date: any) => {
@@ -478,9 +480,9 @@ const index = () => {
     }
 
     const currentDateValue = dateCurrent(values.start);
-
+    let updateEvent;
     if (!dateCurrent(values.start)) {
-      handleEventCreation(
+      updateEvent = await handleEventCreation(
         values.start,
         values.end,
         title,
@@ -490,7 +492,7 @@ const index = () => {
         workStatus
       );
     } else {
-      handleEventUpdate(
+      updateEvent = await handleEventUpdate(
         currentDateValue.id,
         currentDateValue.title,
         title,
@@ -500,6 +502,17 @@ const index = () => {
         leaveCause,
         workStatus
       );
+    }
+
+    console.log(updateEvent.length);
+
+    if (
+      filterWorkStatus(WorkStatus.COME) +
+        filterWorkStatus(WorkStatus.LEAVE) +
+        filterWorkStatus(WorkStatus.NOTCOME) ===
+      totalDayInMonth
+    ) {
+      console.log("set");
     }
 
     setEditable(false);

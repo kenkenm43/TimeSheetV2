@@ -288,6 +288,7 @@ const Profile = () => {
               />
               <Input
                 placeholder="ชื่อเล่น"
+                name="nickName"
                 className="min-w-56 max-w-56"
                 defaultValue={employee.nickName}
                 value={formData.nickName}
