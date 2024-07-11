@@ -7,7 +7,11 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
-import { addSalary } from "../../services/salaryServices";
+import {
+  addSalary,
+  getSalaryByEmpId,
+  updateSalaryById,
+} from "../../services/salaryServices";
 import {
   addLeave,
   addWorkSchedule,
@@ -509,8 +513,33 @@ const index = () => {
     console.log(updateEvent.length);
 
     if (updateEvent.length === totalDayInMonth) {
-      const salary = await addSalary();
-      console.log("set");
+      console.log(moment(values.start).month());
+      console.log(moment(values.start).year());
+      const salaryData = await getSalaryByEmpId(
+        {
+          month: moment(values.start).month(),
+          year: moment(values.start).year(),
+        },
+        employee.id
+      );
+
+      if (!salaryData.data) {
+        const salary = await addSalary({
+          employeeId: employee.id,
+          month: moment(values.start).month(),
+          year: moment(values.start).year(),
+          salary: employee.Employment_Details?.salary,
+          ot: updateEvent.filter((event: any) => event.ot).length,
+          perdiem: updateEvent.filter((event: any) => event.perdiem).length,
+        });
+      } else {
+        const updateSalary = await updateSalaryById({
+          id: salaryData.data.id,
+          salary: employee.Employment_Details?.salary,
+          ot: updateEvent.filter((event: any) => event.ot).length,
+          perdiem: updateEvent.filter((event: any) => event.perdiem).length,
+        });
+      }
     }
 
     setEditable(false);
