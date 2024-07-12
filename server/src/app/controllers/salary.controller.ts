@@ -55,7 +55,7 @@ const getSalaryById = async (req: Request, res: Response) => {
 
     console.log("salary: ", salary);
 
-    return res.status(201).json(salary);
+    return res.status(200).json(salary);
   } catch (e) {
     return res.status(500).json({ error: e });
   }

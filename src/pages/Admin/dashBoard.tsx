@@ -15,16 +15,13 @@ import {
   IconButton,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { StaticDatePicker } from "@mui/x-date-pickers/StaticDatePicker";
 import moment from "moment";
 import { getSalaryByEmpId } from "../../services/salaryServices";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import { ArrowLeftIcon } from "@mui/x-date-pickers/icons";
-
+import { MonthCalendar } from "@mui/x-date-pickers/MonthCalendar";
 const getComparator = (order: any, orderBy: any) => {
   return (a: any, b: any) => {
     if (b[orderBy] < a[orderBy]) return order === "asc" ? -1 : 1;
@@ -49,6 +46,8 @@ const dashBoard = () => {
           },
           "all"
         );
+        console.log("res", response.data);
+
         setDatas(response.data);
         setLoading(false);
       } catch (error) {
@@ -59,10 +58,11 @@ const dashBoard = () => {
     fetchData();
   }, []);
 
-  const data = useMemo(
+  const data: any = useMemo(
     () =>
       datas.map((dt: any) => {
         return {
+          date: `${dt.year}/${dt.month + 1}`,
           name: `${dt.employee.firstName} ${dt.employee.lastName} (${dt.employee.nickName})`,
           salary: `${dt.amount}`,
           ot: `${dt.ot * 750}`,
@@ -71,6 +71,8 @@ const dashBoard = () => {
       }),
     [datas]
   );
+  console.log(data);
+  const headers = ["ปี/เดือน", "name", "salary", "ot", "perdiem"];
   const handleRequestSort = (property: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -87,16 +89,20 @@ const dashBoard = () => {
   }, [filteredData, order, orderBy]);
 
   const totalSalary = filteredData.reduce(
-    (sum: any, row: any) => sum + row.salary,
+    (sum: any, row: any) => Number(sum) + Number(row.salary),
     0
   );
-  const totalOT = filteredData.reduce((sum: any, row: any) => sum + row.ot, 0);
+  const totalOT = filteredData.reduce(
+    (sum: any, row: any) => Number(sum) + Number(row.ot),
+    0
+  );
   const totalPerdiem = filteredData.reduce(
-    (sum: any, row: any) => sum + row.perdiem,
+    (sum: any, row: any) => Number(sum) + Number(row.perdiem),
     0
   );
-  console.log(date);
   const handleDate = async (e: any) => {
+    console.log(e);
+
     try {
       const response = await getSalaryByEmpId(
         {
@@ -114,8 +120,8 @@ const dashBoard = () => {
 
   const handleDateChange = (newDate: any) => {
     setSelectedDate(newDate);
-    console.log(newDate); // Do something with the selected date
   };
+
   return (
     <TableContainer component={Paper}>
       <Stack direction="row" justifyItems={"center"} spacing={2}>
@@ -135,7 +141,6 @@ const dashBoard = () => {
             >
               <Stack direction="row" justifyItems={"center"} spacing={2}>
                 <DatePicker
-                  openTo="year"
                   onChange={handleDate}
                   value={date}
                   label={'"year"'}
@@ -144,74 +149,82 @@ const dashBoard = () => {
                 />
                 <DatePicker
                   // onChange={handleDate}
-                  openTo="month"
                   value={date}
+                  onChange={handleDate}
                   label={'"month"'}
                   views={["month"]}
+                  slotProps={{
+                    field: { clearable: true, onClear: () => {} },
+                  }}
                 />
               </Stack>
             </DemoContainer>
           </LocalizationProvider>
         </div>
-        <div>Show date</div>
+        <div>
+          <div>Show date</div>
+        </div>
       </Stack>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell sortDirection={orderBy === "name" ? order : false}>
-              <TableSortLabel
-                active={orderBy === "name"}
-                direction={orderBy === "name" ? order : "asc"}
-                onClick={() => handleRequestSort("name")}
-              >
-                Name
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sortDirection={orderBy === "salary" ? order : false}>
-              <TableSortLabel
-                active={orderBy === "salary"}
-                direction={orderBy === "salary" ? order : "asc"}
-                onClick={() => handleRequestSort("salary")}
-              >
-                Salary
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sortDirection={orderBy === "ot" ? order : false}>
-              <TableSortLabel
-                active={orderBy === "ot"}
-                direction={orderBy === "ot" ? order : "asc"}
-                onClick={() => handleRequestSort("ot")}
-              >
-                OT
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sortDirection={orderBy === "perdiem" ? order : false}>
-              <TableSortLabel
-                active={orderBy === "perdiem"}
-                direction={orderBy === "perdiem" ? order : "asc"}
-                onClick={() => handleRequestSort("perdiem")}
-              >
-                Perdiem
-              </TableSortLabel>
-            </TableCell>
+            {headers.map((v) => {
+              return (
+                <TableCell sortDirection={orderBy === v ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === v}
+                    direction={orderBy === v ? order : "asc"}
+                    onClick={() => handleRequestSort(v)}
+                  >
+                    {v}
+                  </TableSortLabel>
+                </TableCell>
+              );
+            })}
           </TableRow>
         </TableHead>
         <TableBody>
           {sortedData.map((row: any, index: any) => (
             <TableRow key={index}>
+              <TableCell>{row.date}</TableCell>
               <TableCell>{row.name}</TableCell>
-              <TableCell>{row.salary}</TableCell>
-              <TableCell>{row.ot}</TableCell>
-              <TableCell>{row.perdiem}</TableCell>
+              <TableCell>
+                {row.salary
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell>
+                {row.ot
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell>
+                {row.perdiem
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
           <TableRow>
+            <TableCell></TableCell>
             <TableCell>Total</TableCell>
-            <TableCell>{totalSalary}</TableCell>
-            <TableCell>{totalOT}</TableCell>
-            <TableCell>{totalPerdiem}</TableCell>
+            <TableCell>
+              {totalSalary
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+            </TableCell>
+            <TableCell>
+              {totalOT
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+            </TableCell>
+            <TableCell>
+              {totalPerdiem
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>
