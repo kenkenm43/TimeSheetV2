@@ -20,6 +20,7 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import moment from "moment";
+import * as XLSX from "xlsx";
 import { getSalaryByEmpId } from "../../services/salaryServices";
 import { MonthCalendar } from "@mui/x-date-pickers/MonthCalendar";
 const getComparator = (order: any, orderBy: any) => {
@@ -41,7 +42,7 @@ const dashBoard = () => {
       try {
         const response = await getSalaryByEmpId(
           {
-            month: moment().month(),
+            // month: moment().month(),
             year: moment().year(),
           },
           "all"
@@ -62,27 +63,46 @@ const dashBoard = () => {
     () =>
       datas.map((dt: any) => {
         return {
-          date: `${dt.year}/${dt.month + 1}`,
+          year: dt.year,
+          month: dt.month,
           name: `${dt.employee.firstName} ${dt.employee.lastName} (${dt.employee.nickName})`,
           salary: `${dt.amount}`,
           ot: `${dt.ot * 750}`,
           perdiem: `${dt.perdiem * 250}`,
+          sso: `${dt.sso}`,
         };
       }),
     [datas]
   );
   console.log(data);
-  const headers = ["ปี/เดือน", "name", "salary", "ot", "perdiem"];
+  const headers = [
+    "ปี",
+    "เดือน",
+    "ชื่อ",
+    "salary",
+    "ot",
+    "perdiem",
+    "ประกันสังคม",
+    "total",
+  ];
   const handleRequestSort = (property: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
+  const [selectedMonth, setSelectedMonth] = useState<any>();
+  const [selectedYear, setSelectedYear] = useState<any>();
   const filteredData = useMemo(() => {
-    return data.filter((row: any) =>
-      row.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, data]);
+    return data.filter((row: any) => {
+      const matchesName = row.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesMonth = !selectedMonth || row.month === selectedMonth;
+      const matchesYear = !selectedYear || row.year === selectedYear;
+      return matchesName && matchesMonth && matchesYear;
+    });
+  }, [searchTerm, selectedMonth, selectedYear, data]);
+  console.log("filter", filteredData);
 
   const sortedData = useMemo(() => {
     return filteredData.sort(getComparator(order, orderBy));
@@ -100,13 +120,14 @@ const dashBoard = () => {
     (sum: any, row: any) => Number(sum) + Number(row.perdiem),
     0
   );
+  const totalSSO = filteredData.reduce(
+    (sum: any, row: any) => Number(sum) + Number(row.sso),
+    0
+  );
   const handleDate = async (e: any) => {
-    console.log(e);
-
     try {
       const response = await getSalaryByEmpId(
         {
-          month: moment(e).month(),
           year: moment(e).year(),
         },
         "all"
@@ -116,12 +137,22 @@ const dashBoard = () => {
       console.log("Error fetching data: ", error);
     }
   };
-  const [selectedDate, setSelectedDate] = useState(null);
 
-  const handleDateChange = (newDate: any) => {
-    setSelectedDate(newDate);
+  const handleChangeMonth = (e: any) => {
+    setSelectedMonth(moment(e).month());
+  };
+  const handleChangeYear = (e: any) => {
+    setSelectedYear(moment(e).year());
   };
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Data");
+
+    // Export the Excel file
+    XLSX.writeFile(workbook, "List.xlsx");
+  };
   return (
     <TableContainer component={Paper}>
       <Stack direction="row" justifyItems={"center"} spacing={2}>
@@ -141,16 +172,15 @@ const dashBoard = () => {
             >
               <Stack direction="row" justifyItems={"center"} spacing={2}>
                 <DatePicker
-                  onChange={handleDate}
-                  value={date}
+                  onChange={handleChangeYear}
                   label={'"year"'}
-                  defaultValue={moment()}
                   views={["year"]}
+                  slotProps={{
+                    field: { clearable: true, onClear: () => {} },
+                  }}
                 />
                 <DatePicker
-                  // onChange={handleDate}
-                  value={date}
-                  onChange={handleDate}
+                  onChange={handleChangeMonth}
                   label={'"month"'}
                   views={["month"]}
                   slotProps={{
@@ -161,9 +191,12 @@ const dashBoard = () => {
             </DemoContainer>
           </LocalizationProvider>
         </div>
-        <div>
-          <div>Show date</div>
-        </div>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+          onClick={exportToExcel}
+        >
+          Export to Excel
+        </button>
       </Stack>
       <Table>
         <TableHead>
@@ -186,7 +219,8 @@ const dashBoard = () => {
         <TableBody>
           {sortedData.map((row: any, index: any) => (
             <TableRow key={index}>
-              <TableCell>{row.date}</TableCell>
+              <TableCell>{row.year}</TableCell>
+              <TableCell>{row.month + 1}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>
                 {row.salary
@@ -203,11 +237,27 @@ const dashBoard = () => {
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
+              <TableCell>
+                {row.sso
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell>
+                {(
+                  Number(row.perdiem) +
+                  Number(row.ot) +
+                  Number(row.salary) -
+                  Number(row.sso)
+                )
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
           <TableRow>
+            <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell>Total</TableCell>
             <TableCell>
@@ -222,6 +272,16 @@ const dashBoard = () => {
             </TableCell>
             <TableCell>
               {totalPerdiem
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+            </TableCell>
+            <TableCell>
+              {totalSSO
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+            </TableCell>
+            <TableCell>
+              {(totalPerdiem + totalOT + totalSalary - totalSSO)
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
             </TableCell>

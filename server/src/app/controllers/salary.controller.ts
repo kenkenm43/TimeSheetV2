@@ -4,7 +4,7 @@ import prisma from "../../config/prisma";
 
 const addSalary = async (req: Request, res: Response) => {
   try {
-    const { month, year, employeeId, salary, ot, perdiem } = req.body;
+    const { month, year, employeeId, salary, ot, perdiem, sso } = req.body;
     const users = await prisma.salary.create({
       data: {
         employeeId: employeeId,
@@ -13,6 +13,7 @@ const addSalary = async (req: Request, res: Response) => {
         amount: salary,
         ot: ot,
         perdiem,
+        sso: sso,
       },
     });
     console.log(users);
@@ -34,7 +35,6 @@ const getSalaryById = async (req: Request, res: Response) => {
       console.log("all");
 
       salary = await prisma.salary.findMany({
-        where: { year: year, month: month },
         include: {
           employee: {
             select: { firstName: true, lastName: true, nickName: true },
@@ -44,7 +44,7 @@ const getSalaryById = async (req: Request, res: Response) => {
       console.log("salary: ", salary);
     } else {
       console.log("w");
-      salary = await prisma.salary.findFirst({
+      salary = await prisma.salary.findMany({
         where: {
           employeeId: empId,
           year: year,
@@ -63,7 +63,7 @@ const getSalaryById = async (req: Request, res: Response) => {
 
 const updateSalary = async (req: Request, res: Response) => {
   try {
-    const { id, salary, ot, perdiem, employeeId } = req.body;
+    const { id, salary, ot, perdiem, employeeId, sso } = req.body;
     console.log("update", req.body);
     const sly = await prisma.salary.update({
       where: {
@@ -74,6 +74,7 @@ const updateSalary = async (req: Request, res: Response) => {
         amount: Number(salary),
         ot: Number(ot),
         perdiem: Number(perdiem),
+        sso: Number(sso),
       },
     });
     console.log(sly);

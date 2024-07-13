@@ -91,6 +91,7 @@ model Salary {
   amount     Float?
   ot         Float?
   perdiem    Float?
+  sso        Float?
   employee   Employee @relation(fields: [employeeId], references: [id])
   employeeId String   @unique
   createdAt  DateTime @default(now())

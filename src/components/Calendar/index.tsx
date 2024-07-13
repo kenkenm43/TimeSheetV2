@@ -531,6 +531,10 @@ const index = () => {
           salary: employee.Employment_Details?.salary,
           ot: updateEvent.filter((event: any) => event.ot).length,
           perdiem: updateEvent.filter((event: any) => event.perdiem).length,
+          sso:
+            employee.Employment_Details?.salary * 0.05 <= 750
+              ? 750
+              : employee.Employment_Details?.salary * 0.05,
         });
       } else {
         const updateSalary = await updateSalaryById({
@@ -538,6 +542,10 @@ const index = () => {
           salary: employee.Employment_Details?.salary,
           ot: updateEvent.filter((event: any) => event.ot).length,
           perdiem: updateEvent.filter((event: any) => event.perdiem).length,
+          sso:
+            employee.Employment_Details?.salary * 0.05 <= 750
+              ? 750
+              : employee.Employment_Details?.salary * 0.05,
         });
       }
     }
