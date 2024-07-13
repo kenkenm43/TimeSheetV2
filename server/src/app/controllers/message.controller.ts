@@ -73,7 +73,11 @@ const updateMessage = async (req: Request, res: Response) => {
 };
 const deleteMessage = async (req: Request, res: Response) => {
   try {
-    const { messageId }: any = req.body;
+    console.log("delete");
+    const { messageId } = req.params;
+    // const { messageId, id, employeeId }: any = req.body;
+
+    console.log(req.body);
 
     const message = await prisma.message.delete({
       where: { id: messageId },

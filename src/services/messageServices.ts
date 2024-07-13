@@ -40,7 +40,7 @@ export const updateMessage = async (payload: any) => {
 
 export const deleteMessage = async (payload: any) => {
   try {
-    const response = await httpClient.delete(`/message`, payload);
+    const response = await httpClient.delete(`/message/${payload.messageId}`);
     return response;
   } catch (error: any) {
     return error.response;

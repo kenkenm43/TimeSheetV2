@@ -10,19 +10,19 @@ import {
   getWorkSchedulesByPost,
 } from "../../services/employeeServices";
 import Calendar from "../../components/Admin/Calendar";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaRegSave } from "react-icons/fa";
 import moment from "moment";
 import useKeepEmployeesStore from "../../context/KeepEmployeesProvider";
 import Loading from "../../components/Loading";
 import ListWorking from "../../components/ListWorking";
 import Note from "../../components/Admin/์Note";
+import { DatePicker, Input } from "rsuite";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
   LEAVE = "leave",
 }
 const employees = () => {
-  const { employees, setEmployees } = useKeepEmployeesStore();
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
   const [typeButton, setTypeButton] = useState("Note");
@@ -102,7 +102,7 @@ const employees = () => {
     if (currentStart && currentEnd) {
       fetchData();
     }
-  }, [keepEmployee.id]);
+  }, [keepEmployee.id, currentStart, currentEnd]);
 
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
@@ -161,16 +161,11 @@ const employees = () => {
     const filter = events.filter((event: any) => event.title === text);
     return filter.length;
   };
-  // const formatPhoneNumber = (phoneNumberString: any) => {
-  //   // Add dashes to the phone number
-  //   const formatted = phoneNumberString.replace(
-  //     /(\d{3})(\d{3})(\d{4})/,
-  //     "$1-$2-$3"
-  //   );
 
-  //   return formatted;
-  // };
-  const handleEditProfile = () => {};
+  const [isEditProfile, setIsEditProfile] = useState(false);
+  const handleEditProfile = () => {
+    setIsEditProfile(true);
+  };
   function formatPhoneNumber(phoneNumberString: any) {
     // Add dashes to the phone number
     const formatted = phoneNumberString?.replace(
@@ -180,6 +175,7 @@ const employees = () => {
 
     return formatted;
   }
+  const [startDate, setStartDate] = useState();
   return (
     <>
       {keepEmployee ? (
@@ -246,7 +242,14 @@ const employees = () => {
                   </span>
                   <span>
                     <span className="font-semibold"> วันเริ่มงาน : </span>
-                    {keepEmployee?.Employment_Details?.start_date || "-"}
+                    {!isEditProfile ? (
+                      <>{keepEmployee?.Employment_Details?.start_date || "-"}</>
+                    ) : (
+                      <DatePicker
+                        value={keepEmployee?.Employment_Details?.start_date}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                    )}
                   </span>
                   <span>
                     <span className="font-semibold"> ที่อยู่ : </span>
@@ -271,9 +274,21 @@ const employees = () => {
                   </span> */}
                 </p>
               </div>
-              <div className="absolute top-3 right-5">
-                <FaEdit size={30} />
-              </div>
+              {!isEditProfile ? (
+                <div
+                  className="absolute top-0 right-0 cursor-pointer"
+                  onClick={() => handleEditProfile()}
+                >
+                  <FaEdit size={30} />
+                </div>
+              ) : (
+                <div
+                  className="absolute top-0 right-0 cursor-pointer"
+                  onClick={() => setIsEditProfile(false)}
+                >
+                  <FaRegSave size={30} />
+                </div>
+              )}
             </div>
           </div>
           <div className="flex mt-2 space-x-1">

@@ -5,6 +5,6 @@ router.get("/:senderId/:receivedId", messageController.receiveMessage);
 router.get("/:receivedId", messageController.employeeReceiveMessage);
 router.post("/", messageController.sendMessage);
 router.put("/", messageController.updateMessage);
-router.delete("/", messageController.deleteMessage);
+router.delete("/:messageId", messageController.deleteMessage);
 
 export default router;

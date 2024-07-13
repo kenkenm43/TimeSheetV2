@@ -9,7 +9,6 @@ import {
   uploadImage,
 } from "../../services/employeeServices";
 import { FaRegEdit, FaEdit, FaRegSave, FaInfoCircle } from "react-icons/fa";
-import { CiBank } from "react-icons/ci";
 import { Button, DatePicker, Input, Modal } from "rsuite";
 import moment from "moment";
 import { IoMdPerson } from "react-icons/io";

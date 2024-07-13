@@ -62,7 +62,11 @@ const index = () => {
     }));
   };
 
-  const handleDeleteMessage = async (messageId: any) => {
+  const handleDeleteMessage = async (
+    messageId: any,
+    id: any,
+    employeeId: any
+  ) => {
     const result = await Swal.fire({
       title: "ลบข้อความ",
       text: "ต้องการลบข้อความหรือไม่",
@@ -79,42 +83,57 @@ const index = () => {
         text: "ข้อความถูกลบแล้ว",
         icon: "success",
       });
-      const { data } = await deleteMessage({ messageId });
-      console.log("messageId", messageId);
+      const { data } = await deleteMessage({
+        messageId,
+      });
 
-      console.log(data);
+      const updateData = messages.filter((msg: any) => msg.id !== data.id);
 
-      // setMessages(data);
+      setMessages(updateData);
     }
   };
   const [editId, setEditId] = useState(null);
-  const [editedName, setEditedName] = useState("");
-  const [editedMonth, setEditedMonth] = useState("");
-  const startEdit = (id: any) => {
+  const startEdit = (id: any, topic: any, content: any) => {
     setEditId(id);
+    setEditedTopic(topic);
+    setEditedContent(content);
   };
   const saveEdit = async (id: any) => {
-    // const message = await updateMessage({ messageId: id });
-    // Update the data with edited values
-    // const updatedData = data.map((item) => {
-    //   if (item.id === id) {
-    //     return { ...item, name: editedName, month: editedMonth };
-    //   }
-    //   return item;
-    // });
+    const { data } = await updateMessage({
+      messageId: id,
+      topic: editedTopic,
+      content: editedContent,
+    });
+    console.log(data);
 
-    // Update the original data array (this would typically involve updating state or sending the update to a backend)
-    // console.log("Updated Data:", updatedData);
+    const updateData = messages.map((msg: any) => {
+      if (id === msg.id) {
+        return { ...msg, topic: data.topic, content: data.content };
+      }
+      return msg;
+    });
 
-    // Reset edit state
+    const result = await Swal.fire({
+      title: "แก้ไขข้อมูลเรียบร้อย",
+      text: "ทำการแก้ไขเรียบร้อย",
+      icon: "success",
+      confirmButtonColor: "#30d630",
+      confirmButtonText: "ok",
+    });
+
+    setMessages(updateData);
+    setEditedContent("");
+    setEditedTopic("");
     setEditId(null);
   };
   const cancel = () => {
     setEditId(null);
   };
+  const [editedTopic, setEditedTopic] = useState<any>();
+  const [editedContent, setEditedContent] = useState<any>();
   return (
-    <div className="mt-5 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
-      <div className="w-64 h-full border flex flex-col items-center text-center">
+    <div className="mt-5 grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 ">
+      <div className="h-full border flex flex-col items-center text-center">
         <div className="w-full">
           <input
             value={formData.topic}
@@ -142,11 +161,12 @@ const index = () => {
         </div>
       </div>
       {messages.map((message: any) => (
-        <div className="w-64 border flex flex-col items-center text-center bg-slate-100 min-h-40">
+        <div className="border flex flex-col items-center text-center bg-slate-100 min-h-40">
           <div className="w-full p-1 border-b-2 text-left">
             {editId === message.id ? (
               <input
-                value={message.topic}
+                value={editedTopic}
+                onChange={(e: any) => setEditedTopic(e.target.value)}
                 placeholder="เรื่อง"
                 className="bg-gray-200 focus:bg-white border border-gray-300  w-full p-1"
               />
@@ -157,7 +177,8 @@ const index = () => {
           <div className="mt-2 h-full w-full p-1 text-left">
             {editId === message.id ? (
               <textarea
-                value={message.content}
+                value={editedContent}
+                onChange={(e: any) => setEditedContent(e.target.value)}
                 className="resize-none bg-gray-200 focus:bg-white border border-gray-300 rounded p-1 block w-full"
                 placeholder="กรอกข้อความ"
                 rows={4}
@@ -169,7 +190,9 @@ const index = () => {
           <div className=" w-full grid grid-cols-2">
             {!(editId === message.id) ? (
               <div
-                onClick={() => startEdit(message.id)}
+                onClick={() =>
+                  startEdit(message.id, message.topic, message.content)
+                }
                 className="cursor-pointer border border-black  hover:bg-green-700 bg-green-500 mt-5 flex items-center justify-center"
               >
                 <p className="font-bold">แก้ไข</p>
@@ -184,7 +207,13 @@ const index = () => {
             )}
             {!(editId === message.id) ? (
               <div
-                onClick={() => handleDeleteMessage(message.id)}
+                onClick={() =>
+                  handleDeleteMessage(
+                    message.id,
+                    message.sentById,
+                    message.receivedById
+                  )
+                }
                 className="cursor-pointer border border-black hover:bg-red-700 bg-red-500 mt-5 flex items-center justify-center"
               >
                 <p className="font-bold">ลบ</p>
