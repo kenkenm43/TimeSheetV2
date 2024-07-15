@@ -55,10 +55,17 @@ const Navbar = () => {
               <button onClick={() => navigate("/profile")}>
                 <div className="flex items-center space-x-2">
                   <span>{auth.username}</span>
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src={`http://localhost:8081/${employee.photo}`}
-                  />
+                  {employee.photo ? (
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src={`http://localhost:8081/${employee.photo}`}
+                    />
+                  ) : (
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src="https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
+                    />
+                  )}
                 </div>
               </button>
 

@@ -37,11 +37,9 @@ const Profile = () => {
 
   const handleChange = (value: string, e: any) => {
     const { name } = e.target;
+    console.log(name, value);
 
-    setFormData((prevState: any) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData((prevState: any) => ({ ...prevState, [name]: value }));
   };
   const handleDateChange = (date: any) => {
     setFormData((prevState: any) => ({
@@ -53,19 +51,36 @@ const Profile = () => {
   useEffect(() => {
     const fetchData = async () => {
       const employeeData = await getEmployee(employee.id);
+      console.log(employeeData.data);
+
       setEmployee(employeeData.data);
     };
     fetchData();
   }, [employee.id]);
   const handleUpdateProfile = async (employeeId: any) => {
-    const employee = await updateEmployee(formData, employeeId);
-    console.log(employee);
+    try {
+      const employee = await updateEmployee(formData, employeeId);
+      console.log(employee);
 
-    setEmployee(employee.data);
-
-    setIsOpenModal(false);
-    setIsEditable(false);
-    setIsEditName(false);
+      setEmployee(employee.data);
+      Swal.fire({
+        title: "Success!",
+        text: "อัพเดตข้อมูลเสร็จสิ้น",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "ไม่สำเร็จ",
+        text: `${error}`,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setIsOpenModal(false);
+      setIsEditable(false);
+      setIsEditName(false);
+    }
   };
 
   console.log(employee);
@@ -421,7 +436,7 @@ const Profile = () => {
                     onChange={handleDateChange}
                   />
                   <Input
-                    name="phone"
+                    name="phone_number"
                     value={formData.phone_number}
                     onChange={handleChange}
                   />
@@ -431,7 +446,7 @@ const Profile = () => {
                     onChange={handleChange}
                   />
                   <Input
-                    name="email"
+                    name="address"
                     value={formData.address}
                     onChange={handleChange}
                   />

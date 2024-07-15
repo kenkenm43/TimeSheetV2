@@ -37,6 +37,12 @@ const handleRegister: RequestHandler = async (
             password: passwordHash,
           },
         },
+        Employment_Details: {
+          create: {},
+        },
+        Financial_Details: {
+          create: {},
+        },
       },
     });
     console.log("newUser", newUser);

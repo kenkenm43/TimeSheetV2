@@ -177,24 +177,60 @@ const employees = () => {
 
     return formatted;
   }
-  const [startDate, setStartDate] = useState<any>(
-    new Date(keepEmployee?.Employment_Details?.start_date)
+  console.log("keepEmp", keepEmployee?.Employment_Details?.start_date);
+  console.log(
+    keepEmployee?.Employment_Details?.start_date
+      ? new Date(keepEmployee?.Employment_Details?.start_date)
+      : new Date()
   );
 
+  const [startDate, setStartDate] = useState<any>(
+    keepEmployee?.Employment_Details?.start_date
+      ? new Date(keepEmployee?.Employment_Details?.start_date)
+      : new Date()
+  );
+  const [salaryMock, setSalaryMock] = useState();
   useEffect(() => {
-    setStartDate(new Date(keepEmployee?.Employment_Details?.start_date));
+    setStartDate(
+      keepEmployee?.Employment_Details?.start_date
+        ? new Date(keepEmployee?.Employment_Details?.start_date)
+        : new Date()
+    );
+    setSalaryMock(
+      keepEmployee?.Employment_Details?.salary
+        ? keepEmployee?.Employment_Details?.salary
+        : 0
+    );
   }, [keepEmployee]);
-  console.log(moment(keepEmployee?.Employment_Details?.start_date));
-  console.log(startDate);
 
   const updateInfo = async () => {
     try {
       if (
         moment(startDate).format("yyyy-MM-DD") ===
-        moment(keepEmployee?.Employment_Details?.start_date).format(
-          "yyyy-MM-DD"
-        )
+          moment(keepEmployee?.Employment_Details?.start_date).format(
+            "yyyy-MM-DD"
+          ) ||
+        keepEmployee?.Employment_Details?.salary !== salaryMock
       ) {
+        console.log("update");
+
+        const updateStartDate = await updateEmployeeStartWork(
+          { start_date: startDate, salary: salaryMock },
+          keepEmployee.id
+        );
+        setStartDate(
+          new Date(updateStartDate?.data.Employment_Details.start_date)
+        );
+        setSalaryMock(updateStartDate?.data.Employment_Details?.salary);
+        const result = await Swal.fire({
+          title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "ตกลง",
+        });
+        setIsEditProfile(false);
+      } else {
+        console.log("same");
         const result = await Swal.fire({
           title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
           icon: "success",
@@ -207,25 +243,13 @@ const employees = () => {
           )
         );
         setIsEditProfile(false);
-      } else {
-        const updateStartDate = await updateEmployeeStartWork(
-          { start_date: startDate },
-          keepEmployee.id
-        );
-        setStartDate(
-          new Date(updateStartDate?.data.Employment_Details.start_date)
-        );
-        const result = await Swal.fire({
-          title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
-          icon: "success",
-          confirmButtonColor: "#3085d6",
-          confirmButtonText: "ตกลง",
-        });
-        setIsEditProfile(false);
       }
     } catch (error) {
+      console.log(error);
+
       const result = await Swal.fire({
-        title: `${error}`,
+        title: `ผิดพลาด`,
+        text: `${error}`,
         icon: "error",
         confirmButtonColor: "#3085d6",
         confirmButtonText: "ตกลง",
@@ -282,8 +306,9 @@ const employees = () => {
                   <span>
                     <span className="font-semibold"> วันเกิด : </span>
 
-                    {moment(keepEmployee.date_of_birth).format("yyyy-MM-DD") ||
-                      "-"}
+                    {keepEmployee.date_of_birth
+                      ? moment(keepEmployee.date_of_birth).format("yyyy-MM-DD")
+                      : "-"}
                   </span>
                   <span>
                     <span className="font-semibold"> อีเมล : </span>
@@ -298,9 +323,21 @@ const employees = () => {
                   </span>
                   <span>
                     <span className="font-semibold"> เงินเดือน : </span>
-                    {keepEmployee?.Employment_Details?.salary
-                      .toString()
-                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+                    {!isEditProfile ? (
+                      keepEmployee?.Employment_Details?.salary ? (
+                        keepEmployee?.Employment_Details?.salary
+                          .toString()
+                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                      ) : (
+                        "-"
+                      )
+                    ) : (
+                      <Input
+                        value={salaryMock}
+                        type="number"
+                        onChange={(e: any) => setSalaryMock(e)}
+                      />
+                    )}
                   </span>
                   <span>
                     <span className="font-semibold"> วันเริ่มงาน : </span>
@@ -467,11 +504,13 @@ const employees = () => {
                     </span>{" "}
                     <span className="font-semibold"> Total Paid : </span>
                   </div>
-                  <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-end min-w-8">
                     <span className="font-medium">
                       {keepEmployee.Employment_Details?.salary
-                        .toString()
-                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || 0}
+                        ? keepEmployee.Employment_Details?.salary
+                            .toString()
+                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                        : "-"}
                     </span>
                     <span>
                       {(events.filter((event: any) => event.ot).length * 750)
@@ -490,21 +529,35 @@ const employees = () => {
                       <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
                         -
                       </div>
-                      {costSSO
-                        .toString()
-                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                      {keepEmployee.Employment_Details?.salary
+                        ? (keepEmployee.Employment_Details?.salary * 0.05 <= 750
+                            ? 750
+                            : keepEmployee.Employment_Details?.salary * 0.05
+                          )
+                            .toString()
+                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                        : "-"}
                     </span>
-                    {keepEmployee?.Employment_Details?.salary === 0}
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
-                      {(
-                        keepEmployee?.Employment_Details?.salary +
-                        events.filter((event: any) => event.ot).length * 750 +
-                        events.filter((event: any) => event.perdiem).length *
-                          250 -
-                        costSSO
-                      )
-                        .toString()
-                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                      {keepEmployee?.Employment_Details?.salary
+                        ? (
+                            Number(keepEmployee?.Employment_Details?.salary) ||
+                            0 +
+                              Number(
+                                events.filter((event: any) => event.ot).length *
+                                  750
+                              ) ||
+                            0 +
+                              Number(
+                                events.filter((event: any) => event.perdiem)
+                                  .length * 250
+                              ) ||
+                            0 - Number(costSSO) ||
+                            0
+                          )
+                            .toString()
+                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                        : "-"}
                     </span>
                   </div>
                 </div>

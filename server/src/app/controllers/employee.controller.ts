@@ -6,6 +6,11 @@ const updateEmployee = async (req: Request, res: Response) => {
   try {
     const employeeId = req.params["id"];
     const payload = req.body;
+    console.log(employeeId);
+
+    console.log(req.body);
+    console.log("update");
+
     const employee = await prisma.employee.update({
       where: { id: employeeId },
       data: {
@@ -14,6 +19,7 @@ const updateEmployee = async (req: Request, res: Response) => {
         nickName: payload.nickName,
         idCard: payload.idCard,
         gender: payload.gender,
+        address: payload.address,
         date_of_birth: payload.date_of_birth,
         phone_number: payload.phone_number,
         email: payload.email,
@@ -27,6 +33,7 @@ const updateEmployee = async (req: Request, res: Response) => {
       },
       include: { Financial_Details: {}, Employment_Details: {} },
     });
+    console.log(employee);
 
     return res.status(200).json(employee);
   } catch (e) {
@@ -38,13 +45,18 @@ const updateEmployeeStartWork = async (req: Request, res: Response) => {
   try {
     const employeeId = req.params["id"];
     const payload = req.body;
+    console.log(payload);
+
     const employee = await prisma.employee.update({
       where: { id: employeeId },
       data: {
-        Employment_Details: { update: { start_date: payload.start_date } },
+        Employment_Details: {
+          update: { start_date: payload.start_date, salary: payload.salary },
+        },
       },
       include: { Financial_Details: {}, Employment_Details: {} },
     });
+    console.log(employee);
 
     return res.status(200).json(employee);
   } catch (e) {
