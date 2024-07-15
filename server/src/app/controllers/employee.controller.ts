@@ -27,7 +27,24 @@ const updateEmployee = async (req: Request, res: Response) => {
       },
       include: { Financial_Details: {}, Employment_Details: {} },
     });
-    console.log(employee);
+
+    return res.status(200).json(employee);
+  } catch (e) {
+    return res.status(500).json({ error: e });
+  }
+};
+
+const updateEmployeeStartWork = async (req: Request, res: Response) => {
+  try {
+    const employeeId = req.params["id"];
+    const payload = req.body;
+    const employee = await prisma.employee.update({
+      where: { id: employeeId },
+      data: {
+        Employment_Details: { update: { start_date: payload.start_date } },
+      },
+      include: { Financial_Details: {}, Employment_Details: {} },
+    });
 
     return res.status(200).json(employee);
   } catch (e) {
@@ -104,4 +121,5 @@ export default {
   getEmployee,
   updateEmployee,
   uploadImage,
+  updateEmployeeStartWork,
 };

@@ -385,9 +385,15 @@ const Profile = () => {
                   <div>{employee.idCard || "-"}</div>
                   {/* <div>{employee.gender || "-"}</div> */}
                   <div>
-                    {moment(employee.date_of_birth).format("yyyy-MM-DD") || "-"}
+                    {employee.date_of_birth
+                      ? moment(employee.date_of_birth).format("yyyy-MM-DD")
+                      : "-"}
                   </div>
-                  <div>{formatPhoneNumber(employee.phone_number) || "-"}</div>
+                  <div>
+                    {employee.phone_number
+                      ? formatPhoneNumber(employee.phone_number)
+                      : "-"}
+                  </div>
                   <div>{employee.email || "-"}</div>
                   <div>{employee.address || "-"}</div>
                 </div>

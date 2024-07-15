@@ -18,6 +18,20 @@ export const updateEmployee = async (payload: any, employeeId: any) => {
     return error.response;
   }
 };
+export const updateEmployeeStartWork = async (
+  payload: any,
+  employeeId: any
+) => {
+  try {
+    const response = await httpClient.put(
+      `/employee/startWork/${employeeId}`,
+      payload
+    );
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
 export const uploadImage = async (payload: any, employeeId: any) => {
   try {
     const response = await httpClient.post(

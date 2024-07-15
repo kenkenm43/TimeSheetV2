@@ -47,8 +47,14 @@ const RegisterPage = () => {
       console.log(employeeData);
 
       setEmployee({ ...employeeData.data });
+
       toast.success(message);
-      navigate("/", { replace: true });
+      const navigation = (await role?.name) === "admin" ? "/employee" : "/";
+      await navigate(navigation, {
+        replace: true,
+        state: { employeeId: employeeData.data.id },
+      });
+      navigate(0);
     }
   };
 

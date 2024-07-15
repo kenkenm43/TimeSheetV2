@@ -5,6 +5,7 @@ import upload from "../middlewares/uploadImage";
 router.get("/", employeeController.getEmployees);
 router.get("/:id", employeeController.getEmployee);
 router.put("/:id", employeeController.updateEmployee);
+router.put("/startWork/:id", employeeController.updateEmployeeStartWork);
 router.post(
   "/uploadImage/:id",
   upload.single("file"),

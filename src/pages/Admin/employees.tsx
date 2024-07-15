@@ -8,6 +8,7 @@ import {
   getLeavesBypost,
   getWorkSchedules,
   getWorkSchedulesByPost,
+  updateEmployeeStartWork,
 } from "../../services/employeeServices";
 import Calendar from "../../components/Admin/Calendar";
 import { FaEdit, FaRegSave } from "react-icons/fa";
@@ -17,6 +18,7 @@ import Loading from "../../components/Loading";
 import ListWorking from "../../components/ListWorking";
 import Note from "../../components/Admin/์Note";
 import { DatePicker, Input } from "rsuite";
+import Swal from "sweetalert2";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -175,7 +177,67 @@ const employees = () => {
 
     return formatted;
   }
-  const [startDate, setStartDate] = useState();
+  const [startDate, setStartDate] = useState<any>(
+    new Date(keepEmployee?.Employment_Details?.start_date)
+  );
+
+  useEffect(() => {
+    setStartDate(new Date(keepEmployee?.Employment_Details?.start_date));
+  }, [keepEmployee]);
+  console.log(moment(keepEmployee?.Employment_Details?.start_date));
+  console.log(startDate);
+
+  const updateInfo = async () => {
+    try {
+      if (
+        moment(startDate).format("yyyy-MM-DD") ===
+        moment(keepEmployee?.Employment_Details?.start_date).format(
+          "yyyy-MM-DD"
+        )
+      ) {
+        const result = await Swal.fire({
+          title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "ตกลง",
+        });
+        setStartDate(
+          moment(keepEmployee?.Employment_Details?.start_date).format(
+            "yyyy-MM-DD"
+          )
+        );
+        setIsEditProfile(false);
+      } else {
+        const updateStartDate = await updateEmployeeStartWork(
+          { start_date: startDate },
+          keepEmployee.id
+        );
+        setStartDate(
+          new Date(updateStartDate?.data.Employment_Details.start_date)
+        );
+        const result = await Swal.fire({
+          title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "ตกลง",
+        });
+        setIsEditProfile(false);
+      }
+    } catch (error) {
+      const result = await Swal.fire({
+        title: `${error}`,
+        icon: "error",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "ตกลง",
+      });
+      console.log(error);
+
+      setIsEditProfile(false);
+    }
+  };
+  const handleChangeDate = (e: any) => {
+    setStartDate(e);
+  };
   return (
     <>
       {keepEmployee ? (
@@ -243,11 +305,12 @@ const employees = () => {
                   <span>
                     <span className="font-semibold"> วันเริ่มงาน : </span>
                     {!isEditProfile ? (
-                      <>{keepEmployee?.Employment_Details?.start_date || "-"}</>
+                      <>{moment(startDate).format("yyyy-MM-DD") || "-"}</>
                     ) : (
                       <DatePicker
-                        value={keepEmployee?.Employment_Details?.start_date}
-                        onChange={(e) => setStartDate(e.target.value)}
+                        value={startDate}
+                        onSelect={handleChangeDate}
+                        onChange={handleChangeDate}
                       />
                     )}
                   </span>
@@ -284,7 +347,7 @@ const employees = () => {
               ) : (
                 <div
                   className="absolute top-0 right-0 cursor-pointer"
-                  onClick={() => setIsEditProfile(false)}
+                  onClick={() => updateInfo()}
                 >
                   <FaRegSave size={30} />
                 </div>

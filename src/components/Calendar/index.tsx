@@ -569,9 +569,7 @@ const index = () => {
     return filter.length;
   };
 
-  const handleSelect = (arg: any) => {
-    console.log("handleSelect", arg);
-  };
+  const handleSelect = (arg: any) => {};
   console.log(employee.id);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -589,7 +587,7 @@ const index = () => {
         ข้อความ
         <ListMessage messages={messages} />
       </div>
-      <div className="flex text-xl ">
+      <div className="flex text-xl bg-red-300 p-2">
         <div className="flex space-x-4 relative">
           <div className="pl-5 absolute top-7 right-[-27px]">+</div>
           <div className="flex flex-col">
@@ -627,9 +625,16 @@ const index = () => {
               <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
                 -
               </div>
-              {costSSO
+              {employee.Employment_Details?.salary &&
+                (employee.Employment_Details?.salary * 0.05 <= 750
+                  ? 750
+                  : employee.Employment_Details?.salary * 0.05
+                )
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+              {/* {costSSO
                 .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")} */}
             </span>
             <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
               {(
