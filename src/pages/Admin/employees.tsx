@@ -208,6 +208,7 @@ const employees = () => {
           "yyyy-MM-DD"
         )
     );
+    console.log(keepEmployee?.Employment_Details?.salary !== salaryMock);
 
     try {
       if (
