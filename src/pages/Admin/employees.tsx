@@ -177,12 +177,6 @@ const employees = () => {
 
     return formatted;
   }
-  console.log("keepEmp", keepEmployee?.Employment_Details?.start_date);
-  console.log(
-    keepEmployee?.Employment_Details?.start_date
-      ? new Date(keepEmployee?.Employment_Details?.start_date)
-      : new Date()
-  );
 
   const [startDate, setStartDate] = useState<any>(
     keepEmployee?.Employment_Details?.start_date
@@ -201,12 +195,23 @@ const employees = () => {
         ? keepEmployee?.Employment_Details?.salary
         : 0
     );
+    setIsEditProfile(false);
   }, [keepEmployee]);
 
   const updateInfo = async () => {
+    console.log(startDate);
+    console.log("keepEmploye", keepEmployee.Employment_Details?.salary);
+    console.log("keepEmploye", keepEmployee.Employment_Details?.salary);
+    console.log(
+      moment(startDate).format("yyyy-MM-DD") !==
+        moment(keepEmployee?.Employment_Details?.start_date).format(
+          "yyyy-MM-DD"
+        )
+    );
+
     try {
       if (
-        moment(startDate).format("yyyy-MM-DD") ===
+        moment(startDate).format("yyyy-MM-DD") !==
           moment(keepEmployee?.Employment_Details?.start_date).format(
             "yyyy-MM-DD"
           ) ||
@@ -218,6 +223,8 @@ const employees = () => {
           { start_date: startDate, salary: salaryMock },
           keepEmployee.id
         );
+        console.log("updateslary", updateStartDate);
+
         setStartDate(
           new Date(updateStartDate?.data.Employment_Details.start_date)
         );
@@ -237,11 +244,8 @@ const employees = () => {
           confirmButtonColor: "#3085d6",
           confirmButtonText: "ตกลง",
         });
-        setStartDate(
-          moment(keepEmployee?.Employment_Details?.start_date).format(
-            "yyyy-MM-DD"
-          )
-        );
+        setStartDate(new Date(keepEmployee?.Employment_Details?.start_date));
+        setSalaryMock(keepEmployee?.Employment_Details?.salary);
         setIsEditProfile(false);
       }
     } catch (error) {
@@ -333,6 +337,7 @@ const employees = () => {
                       )
                     ) : (
                       <Input
+                        name="salary"
                         value={salaryMock}
                         type="number"
                         onChange={(e: any) => setSalaryMock(e)}
@@ -345,6 +350,7 @@ const employees = () => {
                       <>{moment(startDate).format("yyyy-MM-DD") || "-"}</>
                     ) : (
                       <DatePicker
+                        name="startDate"
                         value={startDate}
                         onSelect={handleChangeDate}
                         onChange={handleChangeDate}
