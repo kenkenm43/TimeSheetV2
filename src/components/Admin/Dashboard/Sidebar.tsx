@@ -8,16 +8,19 @@ import { getEmployees } from "../../../services/adminServices";
 import { logout } from "../../../services/authServices";
 import useKeepEmployeeStore from "../../../context/KeepEmployeeProvider";
 import useKeepEmployeesStore from "../../../context/KeepEmployeesProvider";
+import useEmployeeStore from "../../../context/EmployeeProvider";
 const Sidebar = () => {
   const { employees, setEmployees } = useKeepEmployeesStore();
+  const { employee, setEmployee } = useEmployeeStore();
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
-  const getEmployeesData = () => {
-    return getEmployees();
+  const getEmployeesData = (payload: any) => {
+    return getEmployees(payload);
   };
+  console.log("employeeStore", employee);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await getEmployeesData();
+      const { data } = await getEmployeesData({ roleQuery: "user" });
       console.log("update data");
 
       console.log("data", data);

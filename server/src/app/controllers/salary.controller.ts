@@ -44,7 +44,7 @@ const getSalaryById = async (req: Request, res: Response) => {
       console.log("salary: ", salary);
     } else {
       console.log("w");
-      salary = await prisma.salary.findMany({
+      salary = await prisma.salary.findFirst({
         where: {
           employeeId: empId,
           year: year,

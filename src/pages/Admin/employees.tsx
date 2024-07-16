@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import useKeepEmployeeStore from "../../context/KeepEmployeeProvider";
 import {
+  getEmployee,
   getLeaves,
   getLeavesBypost,
   getWorkSchedules,
@@ -27,7 +28,7 @@ enum WorkStatus {
 const employees = () => {
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
-  const [typeButton, setTypeButton] = useState("Note");
+  const [typeButton, setTypeButton] = useState("Calendar");
   const [leave, setLeave] = useState<[]>();
   const [costSSO, setCostSSO] = useState(750);
   const [isLoading, setIsLoading] = useState(false);
@@ -183,9 +184,19 @@ const employees = () => {
       ? new Date(keepEmployee?.Employment_Details?.start_date)
       : new Date()
   );
-  const [salaryMock, setSalaryMock] = useState();
+  const [dateStart, setDateStart] = useState<any>(
+    keepEmployee?.Employment_Details?.start_date
+      ? new Date(keepEmployee?.Employment_Details?.start_date)
+      : new Date()
+  );
+  const [salaryMock, setSalaryMock] = useState<any>();
   useEffect(() => {
     setStartDate(
+      keepEmployee?.Employment_Details?.start_date
+        ? new Date(keepEmployee?.Employment_Details?.start_date)
+        : new Date()
+    );
+    setDateStart(
       keepEmployee?.Employment_Details?.start_date
         ? new Date(keepEmployee?.Employment_Details?.start_date)
         : new Date()
@@ -200,6 +211,7 @@ const employees = () => {
 
   const updateInfo = async () => {
     console.log(startDate);
+    console.log(salaryMock);
     console.log("keepEmploye", keepEmployee.Employment_Details?.salary);
     console.log("keepEmploye", keepEmployee.Employment_Details?.salary);
     console.log(
@@ -213,20 +225,22 @@ const employees = () => {
     try {
       if (
         moment(startDate).format("yyyy-MM-DD") !==
-          moment(keepEmployee?.Employment_Details?.start_date).format(
-            "yyyy-MM-DD"
-          ) ||
+          moment(dateStart).format("yyyy-MM-DD") ||
         keepEmployee?.Employment_Details?.salary !== salaryMock
       ) {
         console.log("update");
-
+        const employeeDetail = await getEmployee(keepEmployee.id);
+        console.log(employeeDetail.data);
         const updateStartDate = await updateEmployeeStartWork(
-          { start_date: startDate, salary: salaryMock },
+          { start_date: dateStart, salary: salaryMock },
           keepEmployee.id
         );
         console.log("updateslary", updateStartDate);
 
         setStartDate(
+          new Date(updateStartDate?.data.Employment_Details.start_date)
+        );
+        setDateStart(
           new Date(updateStartDate?.data.Employment_Details.start_date)
         );
         setSalaryMock(updateStartDate?.data.Employment_Details?.salary);
@@ -246,6 +260,7 @@ const employees = () => {
           confirmButtonText: "ตกลง",
         });
         setStartDate(new Date(keepEmployee?.Employment_Details?.start_date));
+        setDateStart(new Date(keepEmployee?.Employment_Details?.start_date));
         setSalaryMock(keepEmployee?.Employment_Details?.salary);
         setIsEditProfile(false);
       }
@@ -265,7 +280,7 @@ const employees = () => {
     }
   };
   const handleChangeDate = (e: any) => {
-    setStartDate(e);
+    setDateStart(e);
   };
   return (
     <>
@@ -329,8 +344,8 @@ const employees = () => {
                   <span>
                     <span className="font-semibold"> เงินเดือน : </span>
                     {!isEditProfile ? (
-                      keepEmployee?.Employment_Details?.salary ? (
-                        keepEmployee?.Employment_Details?.salary
+                      salaryMock ? (
+                        salaryMock
                           .toString()
                           .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
                       ) : (
@@ -351,8 +366,8 @@ const employees = () => {
                       <>{moment(startDate).format("yyyy-MM-DD") || "-"}</>
                     ) : (
                       <DatePicker
-                        name="startDate"
-                        value={startDate}
+                        name="dateStart"
+                        value={dateStart}
                         onSelect={handleChangeDate}
                         onChange={handleChangeDate}
                       />
@@ -546,21 +561,18 @@ const employees = () => {
                         : "-"}
                     </span>
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
-                      {keepEmployee?.Employment_Details?.salary
+                      {keepEmployee.Employment_Details?.salary
                         ? (
-                            Number(keepEmployee?.Employment_Details?.salary) ||
-                            0 +
-                              Number(
-                                events.filter((event: any) => event.ot).length *
-                                  750
-                              ) ||
-                            0 +
-                              Number(
-                                events.filter((event: any) => event.perdiem)
-                                  .length * 250
-                              ) ||
-                            0 - Number(costSSO) ||
-                            0
+                            keepEmployee?.Employment_Details?.salary +
+                            events.filter((event: any) => event.ot).length *
+                              750 +
+                            events.filter((event: any) => event.perdiem)
+                              .length *
+                              250 -
+                            (keepEmployee.Employment_Details?.salary * 0.05 <=
+                            750
+                              ? 750
+                              : keepEmployee.Employment_Details?.salary * 0.05)
                           )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")

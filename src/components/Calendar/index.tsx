@@ -522,8 +522,11 @@ const index = () => {
         },
         employee.id
       );
+      console.log(salaryData.data);
 
       if (!salaryData.data) {
+        console.log("add salary");
+
         const salary = await addSalary({
           employeeId: employee.id,
           month: moment(values.start).month(),
@@ -537,6 +540,8 @@ const index = () => {
               : employee.Employment_Details?.salary * 0.05,
         });
       } else {
+        console.log("update salary");
+
         const updateSalary = await updateSalaryById({
           id: salaryData.data.id,
           salary: employee.Employment_Details?.salary,
@@ -580,6 +585,8 @@ const index = () => {
     };
     fetchData();
   }, []);
+  console.log(Number(events.filter((event: any) => event.ot).length * 750));
+
   return (
     <div className="w-full ml-20 mb-10 mt-5">
       <div className="absolute top-32 left-5 flex flex-col w-72 justify-center">
@@ -638,20 +645,14 @@ const index = () => {
                 : "-"}
             </span>
             <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
-              {employee?.Employment_Details?.salary
+              {employee.Employment_Details?.salary
                 ? (
-                    Number(employee?.Employment_Details?.salary) ||
-                    0 +
-                      Number(
-                        events.filter((event: any) => event.ot).length * 750
-                      ) ||
-                    0 +
-                      Number(
-                        events.filter((event: any) => event.perdiem).length *
-                          250
-                      ) ||
-                    0 - Number(costSSO) ||
-                    0
+                    employee?.Employment_Details?.salary +
+                    events.filter((event: any) => event.ot).length * 750 +
+                    events.filter((event: any) => event.perdiem).length * 250 -
+                    (employee.Employment_Details?.salary * 0.05 <= 750
+                      ? 750
+                      : employee.Employment_Details?.salary * 0.05)
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")

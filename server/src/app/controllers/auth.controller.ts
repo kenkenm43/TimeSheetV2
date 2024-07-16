@@ -43,6 +43,9 @@ const handleRegister: RequestHandler = async (
         Financial_Details: {
           create: {},
         },
+        Performance: {
+          create: {},
+        },
       },
     });
     console.log("newUser", newUser);

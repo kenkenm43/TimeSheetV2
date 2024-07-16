@@ -65,7 +65,9 @@ const dashBoard = () => {
         return {
           year: dt.year,
           month: dt.month,
-          name: `${dt.employee.firstName} ${dt.employee.lastName} (${dt.employee.nickName})`,
+          name: `${dt.employee.firstName || "-"} ${
+            dt.employee.lastName || "-"
+          } (${dt.employee.nickName || "-"})`,
           salary: `${dt.amount}`,
           ot: `${dt.ot * 750}`,
           perdiem: `${dt.perdiem * 250}`,

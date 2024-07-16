@@ -51,7 +51,10 @@ const updateEmployeeStartWork = async (req: Request, res: Response) => {
       where: { id: employeeId },
       data: {
         Employment_Details: {
-          update: { start_date: payload.start_date, salary: payload.salary },
+          update: {
+            start_date: payload.start_date,
+            salary: Number(payload.salary),
+          },
         },
       },
       include: { Financial_Details: {}, Employment_Details: {} },
@@ -60,6 +63,8 @@ const updateEmployeeStartWork = async (req: Request, res: Response) => {
 
     return res.status(200).json(employee);
   } catch (e) {
+    console.log(e);
+
     return res.status(500).json({ error: e });
   }
 };
@@ -104,7 +109,17 @@ const uploadImage = async (req: Request, res: Response) => {
 };
 const getEmployees = async (req: Request, res: Response) => {
   try {
+    const { roleQuery } = req.query;
+    console.log(req.query);
+
+    console.log(roleQuery);
+
+    console.log(roleQuery === "all" ? {} : { name: roleQuery });
+
     const employees = await prisma.employee.findMany({
+      where: {
+        System_Access: { role: { name: String(roleQuery) } },
+      },
       include: { Employment_Details: true, Financial_Details: true },
     });
 
