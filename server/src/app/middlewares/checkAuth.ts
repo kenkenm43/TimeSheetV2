@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from "express";
 import prisma from "../../config/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import {
   UserLoginPayloadType,
   UserRegisterPayloadType,

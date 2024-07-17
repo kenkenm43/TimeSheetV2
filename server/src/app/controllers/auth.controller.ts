@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Request, RequestHandler, Response } from "express";
 import prisma from "../../config/prisma";
 import { jwtGenerate, jwtRefreshTokenGenerate } from "../../libs/jwt";

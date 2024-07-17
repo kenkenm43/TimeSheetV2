@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import multer from "multer";
 import path from "path";
-
+import * as dotenv from "dotenv";
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Uploads will be stored in 'uploads/' directory
+    cb(null, String(process.env.UPLOADS_DIR) || "uploads/"); // Uploads will be stored in 'uploads/' directory
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname.trim()); // Rename file with timestamp
