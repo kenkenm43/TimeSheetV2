@@ -11,7 +11,9 @@ const Unauthorized = () => {
       <br />
       <p>You do not have access to the requested page.</p>
       <div className="flexGrow">
-        <button onClick={goBack}>Go Back</button>
+        <button className="text-blue-700 hover:text-blue-800 " onClick={goBack}>
+          Go Back
+        </button>
       </div>
     </section>
   );

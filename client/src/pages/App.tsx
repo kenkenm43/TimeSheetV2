@@ -39,9 +39,8 @@ function App() {
         <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
           <Route path="employee" element={<Employee />} />
         </Route>
-
-        <Route path="*" element={<ErrorPage />} />
       </Route>
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }
