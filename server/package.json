@@ -10,6 +10,7 @@
     "start": "npx src/index.ts",
     "dev": "nodemon src/index.ts",
     "db:migrate": "npx prisma migrate dev --name user-entity --create-only && npx prisma generate",
+    "postinstall": "prisma generate",
     "db:push": "npx prisma db push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
