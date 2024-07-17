@@ -1,6 +1,9 @@
-import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const ErrorPage = () => {
+  const navigate = useNavigate();
+  const goBack = () => navigate(-1);
+
   return (
     <section className="w-full mx-auto">
       <h1>ไม่มีหน้านี้</h1>
