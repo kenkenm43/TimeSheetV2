@@ -6,8 +6,10 @@
       "use": "@now/node"
     }
   ],
-  "routes": {
-    "src": "/(.*)",
-    "dest": "src/index.ts"
-  }
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/index.ts"
+    }
+  ]
 }
