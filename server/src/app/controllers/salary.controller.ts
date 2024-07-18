@@ -5,6 +5,8 @@ import prisma from "../../config/prisma";
 const addSalary = async (req: Request, res: Response) => {
   try {
     const { month, year, employeeId, amount, ot, perdiem, sso } = req.body;
+    console.log(req.body);
+
     const users = await prisma.salary.create({
       data: {
         employeeId: employeeId,

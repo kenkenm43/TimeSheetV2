@@ -519,13 +519,14 @@ const index = () => {
         );
         console.log(salaryData.data);
         console.log("employee", employee);
+        console.log("employee salary", employee?.Employment_Details?.salary);
 
         if (!salaryData.data) {
           const salaryDataAdd = await addSalary({
             employeeId: employee.id,
             month: moment(values.start).month(),
             year: moment(values.start).year(),
-            amount: Number(employee?.Employment_Details?.salary),
+            amount: employee?.Employment_Details?.salary,
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
@@ -544,7 +545,7 @@ const index = () => {
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,
-            amount: Number(employee?.Employment_Details?.salary),
+            amount: employee?.Employment_Details?.salary,
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
