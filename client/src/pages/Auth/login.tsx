@@ -16,6 +16,7 @@ import { getEmployee } from "../../services/employeeServices";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
+import Loading from "../../components/Loading";
 const Login = () => {
   // console.log(auth.username);
   const { setAuth }: any = useAuth();
