@@ -23,8 +23,12 @@ async function main() {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(credentials);
   app.use(
+    "*",
     cors({
-      origin: "https://time-sheet-v2.vercel.app",
+      origin: ["http://localhost:5173", "https://time-sheet-v2.vercel.app"],
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allowed methods
+      credentials: true, // Allow cookies to be sent
+      optionsSuccessStatus: 204, // Response for successful OPTIONS requests
     })
   );
   app.use(
