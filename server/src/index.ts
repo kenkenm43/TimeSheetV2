@@ -55,8 +55,10 @@ main()
   })
   .catch(async (e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect(); // Disconnect Prisma client
   });
 
 export default app;
