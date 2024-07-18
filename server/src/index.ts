@@ -27,7 +27,7 @@ async function main() {
     cors({
       origin: ["http://localhost:5173", "https://time-sheet-v2.vercel.app"],
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allowed methods
-      credentials: false, // Allow cookies to be sent
+      credentials: true, // Allow cookies to be sent
       optionsSuccessStatus: 204, // Response for successful OPTIONS requests
     })
   );
