@@ -77,37 +77,26 @@ const index = () => {
   }
 
   const handleMonthChange = async (payload: any) => {
-    if (payload.view.currentStart || payload.view.currentEnd) {
-      setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
-      const work = await getWorkSchedulesByPost(
-        {
-          currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
-          currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
-        },
-        employee.id
-      );
-      setWorks(work.data);
-      setCountCome(
-        work.data.filter((wrk: any) => wrk.work_status == WorkStatus.COME)
-          .length
-      );
-      setCountNotCome(
-        work.data.filter((wrk: any) => wrk.work_status == WorkStatus.NOTCOME)
-          .length
-      );
-      const leave = await getLeavesBypost(
-        {
-          currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
-          currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
-        },
-        employee.id
-      );
-      setLeaves(leave.data);
+    setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
 
-      setCountLeave(leave.data.length);
-      const event = addEvents(work.data, leave.data);
-      setEvents(event);
-    }
+    const work = await getWorkSchedulesByPost(
+      {
+        currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
+        currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
+      },
+      employee.id
+    );
+    const leave = await getLeavesBypost(
+      {
+        currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
+        currentEnd: moment(payload.view.currentEnd).format("YYYY-MM-DD"),
+      },
+      employee.id
+    );
+
+    const eventsData = await addEvents(work.data, leave.data);
+
+    setEvents(eventsData);
   };
 
   const formatDate = (date: any, time?: any, format?: any) => {

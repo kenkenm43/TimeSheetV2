@@ -11,10 +11,12 @@ import {
   updateMessage,
 } from "../../../services/messageServices";
 import Swal from "sweetalert2";
+import Loading from "../../Loading";
 
 const index = () => {
   const { keepEmployee } = useKeepEmployeeStore();
   const { employee } = useEmployeeStore();
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       console.log("employeeId", employee.id);
@@ -36,6 +38,7 @@ const index = () => {
 
   const [messages, setMessages] = useState<any>([]);
   const addMessage = async () => {
+    setIsLoading(true);
     const message: any = await sendMessage({
       topic: formData.topic,
       content: formData.content,
@@ -50,6 +53,7 @@ const index = () => {
       content: "",
       topic: "",
     });
+    setIsLoading(false);
   };
   const handleChange = (e: any) => {
     console.log(e.target);
@@ -74,6 +78,7 @@ const index = () => {
     });
 
     if (result.isConfirmed) {
+      setIsLoading(true);
       Swal.fire({
         title: "ลบข้อความเสร็จสิ้น!",
         text: "ข้อความถูกลบแล้ว",
@@ -86,6 +91,8 @@ const index = () => {
       const updateData = messages.filter((msg: any) => msg.id !== data.id);
 
       setMessages(updateData);
+
+      setIsLoading(false);
     }
   };
   const [editId, setEditId] = useState(null);
@@ -95,6 +102,7 @@ const index = () => {
     setEditedContent(content);
   };
   const saveEdit = async (id: any) => {
+    setIsLoading(true);
     const { data } = await updateMessage({
       messageId: id,
       topic: editedTopic,
@@ -121,6 +129,7 @@ const index = () => {
     setEditedContent("");
     setEditedTopic("");
     setEditId(null);
+    setIsLoading(false);
   };
   const cancel = () => {
     setEditId(null);
@@ -129,6 +138,7 @@ const index = () => {
   const [editedContent, setEditedContent] = useState<any>();
   return (
     <div className="mt-5 grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 ">
+      {isLoading && <Loading />}
       <div className="h-full border flex flex-col items-center text-center">
         <div className="w-full">
           <input

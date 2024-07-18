@@ -25,7 +25,6 @@ enum WorkStatus {
   NOTCOME = "notcome",
   LEAVE = "leave",
 }
-const VITE_PRODUCTION_URL = import.meta.env.VITE_PRODUCTION_URL;
 const employees = () => {
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
@@ -56,8 +55,6 @@ const employees = () => {
     return new Date(year, month, 0).getDate();
   }
   const handleMonthChange = async (payload: any) => {
-    console.log("view payload", payload);
-
     setCurrentStart(payload.view.currentStart);
     setCurrentEnd(payload.view.currentEnd);
     setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
@@ -211,33 +208,18 @@ const employees = () => {
   }, [keepEmployee]);
 
   const updateInfo = async () => {
-    console.log(startDate);
-    console.log(salaryMock);
-    console.log("keepEmploye", keepEmployee.Employment_Details?.salary);
-    console.log("keepEmploye", keepEmployee.Employment_Details?.salary);
-    console.log(
-      moment(startDate).format("yyyy-MM-DD") !==
-        moment(keepEmployee?.Employment_Details?.start_date).format(
-          "yyyy-MM-DD"
-        )
-    );
-    console.log(keepEmployee?.Employment_Details?.salary !== salaryMock);
-
+    setIsLoading(true);
     try {
       if (
         moment(startDate).format("yyyy-MM-DD") !==
           moment(dateStart).format("yyyy-MM-DD") ||
         keepEmployee?.Employment_Details?.salary !== salaryMock
       ) {
-        console.log("update");
         const employeeDetail = await getEmployee(keepEmployee.id);
-        console.log(employeeDetail.data);
         const updateStartDate = await updateEmployeeStartWork(
           { start_date: dateStart, salary: salaryMock },
           keepEmployee.id
         );
-        console.log("updateslary", updateStartDate);
-
         setStartDate(
           new Date(updateStartDate?.data.Employment_Details.start_date)
         );
@@ -266,8 +248,6 @@ const employees = () => {
         setIsEditProfile(false);
       }
     } catch (error) {
-      console.log(error);
-
       const result = await Swal.fire({
         title: `ผิดพลาด`,
         text: `${error}`,
@@ -278,6 +258,8 @@ const employees = () => {
       console.log(error);
 
       setIsEditProfile(false);
+    } finally {
+      setIsLoading(false);
     }
   };
   const handleChangeDate = (e: any) => {
@@ -582,7 +564,6 @@ const employees = () => {
                   </div>
                 </div>
               </div>
-
               <Calendar handleMonthChange={handleMonthChange} events={events} />
             </>
           )}
