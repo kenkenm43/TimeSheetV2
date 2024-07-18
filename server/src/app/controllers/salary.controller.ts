@@ -4,19 +4,18 @@ import prisma from "../../config/prisma";
 
 const addSalary = async (req: Request, res: Response) => {
   try {
-    const { month, year, employeeId, salary, ot, perdiem, sso } = req.body;
+    const { month, year, employeeId, amount, ot, perdiem, sso } = req.body;
     const users = await prisma.salary.create({
       data: {
         employeeId: employeeId,
         month: month,
         year: year,
-        amount: salary,
-        ot: ot,
-        perdiem,
-        sso: sso,
+        amount: Number(amount),
+        ot: Number(ot),
+        perdiem: Number(perdiem),
+        sso: Number(sso),
       },
     });
-    console.log(users);
 
     return res.status(201).json(users);
   } catch (e) {
@@ -63,7 +62,7 @@ const getSalaryById = async (req: Request, res: Response) => {
 
 const updateSalary = async (req: Request, res: Response) => {
   try {
-    const { id, salary, ot, perdiem, employeeId, sso } = req.body;
+    const { id, amount, ot, perdiem, employeeId, sso } = req.body;
     console.log("update", req.body);
     const sly = await prisma.salary.update({
       where: {
@@ -71,7 +70,7 @@ const updateSalary = async (req: Request, res: Response) => {
         employeeId: employeeId,
       },
       data: {
-        amount: Number(salary),
+        amount: Number(amount),
         ot: Number(ot),
         perdiem: Number(perdiem),
         sso: Number(sso),

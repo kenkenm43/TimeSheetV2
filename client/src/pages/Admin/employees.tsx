@@ -208,8 +208,9 @@ const employees = () => {
   }, [keepEmployee]);
 
   const updateInfo = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
+
       if (
         moment(startDate).format("yyyy-MM-DD") !==
           moment(dateStart).format("yyyy-MM-DD") ||
@@ -220,6 +221,8 @@ const employees = () => {
           { start_date: dateStart, salary: salaryMock },
           keepEmployee.id
         );
+        setIsLoading(false);
+
         setStartDate(
           new Date(updateStartDate?.data.Employment_Details.start_date)
         );
@@ -235,7 +238,8 @@ const employees = () => {
         });
         setIsEditProfile(false);
       } else {
-        console.log("same");
+        setIsLoading(false);
+
         const result = await Swal.fire({
           title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
           icon: "success",
@@ -247,6 +251,7 @@ const employees = () => {
         setSalaryMock(keepEmployee?.Employment_Details?.salary);
         setIsEditProfile(false);
       }
+      setIsLoading(false);
     } catch (error) {
       const result = await Swal.fire({
         title: `ผิดพลาด`,
@@ -255,16 +260,15 @@ const employees = () => {
         confirmButtonColor: "#3085d6",
         confirmButtonText: "ตกลง",
       });
-      console.log(error);
+      setIsLoading(false);
 
       setIsEditProfile(false);
-    } finally {
-      setIsLoading(false);
     }
   };
   const handleChangeDate = (e: any) => {
     setDateStart(e);
   };
+
   return (
     <>
       {keepEmployee ? (
@@ -535,7 +539,7 @@ const employees = () => {
                         -
                       </div>
                       {keepEmployee.Employment_Details?.salary
-                        ? (keepEmployee.Employment_Details?.salary * 0.05 <= 750
+                        ? (keepEmployee.Employment_Details?.salary * 0.05 >= 750
                             ? 750
                             : keepEmployee.Employment_Details?.salary * 0.05
                           )
@@ -552,7 +556,7 @@ const employees = () => {
                             events.filter((event: any) => event.perdiem)
                               .length *
                               250 -
-                            (keepEmployee.Employment_Details?.salary * 0.05 <=
+                            (keepEmployee.Employment_Details?.salary * 0.05 >=
                             750
                               ? 750
                               : keepEmployee.Employment_Details?.salary * 0.05)

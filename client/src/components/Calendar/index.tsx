@@ -452,82 +452,116 @@ const index = () => {
 
   const handleOk = async (e: any, formValue: any) => {
     setIsLoading(true);
-    let title = "";
-    let backgroundColor = "";
-    if (workStatus === WorkStatus.COME) {
-      if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) {
-        backgroundColor = "#c026d3 ";
-      } else if (checkBoxed.includes("Perdiem")) {
-        backgroundColor = "#104efa";
-      } else if (checkBoxed.includes("OT")) {
-        backgroundColor = "#38bdf8";
-      } else {
-        backgroundColor = "green";
+    try {
+      let title = "";
+      let backgroundColor = "";
+      if (workStatus === WorkStatus.COME) {
+        if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) {
+          backgroundColor = "#c026d3 ";
+        } else if (checkBoxed.includes("Perdiem")) {
+          backgroundColor = "#104efa";
+        } else if (checkBoxed.includes("OT")) {
+          backgroundColor = "#38bdf8";
+        } else {
+          backgroundColor = "green";
+        }
+        title = WorkStatus.COME;
+      } else if (workStatus === WorkStatus.NOTCOME) {
+        title = WorkStatus.NOTCOME;
+        backgroundColor = "gray";
+      } else if (workStatus === WorkStatus.LEAVE) {
+        title = WorkStatus.LEAVE;
+        backgroundColor = "red";
       }
-      title = WorkStatus.COME;
-    } else if (workStatus === WorkStatus.NOTCOME) {
-      title = WorkStatus.NOTCOME;
-      backgroundColor = "gray";
-    } else if (workStatus === WorkStatus.LEAVE) {
-      title = WorkStatus.LEAVE;
-      backgroundColor = "red";
-    }
 
-    const currentDateValue = dateCurrent(values.start);
-    let updateEvent;
-    if (!dateCurrent(values.start)) {
-      updateEvent = await handleEventCreation(
-        values.start,
-        values.end,
-        title,
-        backgroundColor,
-        leaveCause,
-        formValue.leave_reason,
-        workStatus
-      );
-    } else {
-      updateEvent = await handleEventUpdate(
-        currentDateValue.id,
-        currentDateValue.title,
-        title,
-        backgroundColor,
-        values.start,
-        values.end,
-        leaveCause,
-        workStatus
-      );
-    }
-
-    console.log(updateEvent.length);
-
-    if (updateEvent.length === totalDayInMonth) {
-      console.log(moment(values.start).month());
-      console.log(moment(values.start).year());
-      const salaryData = await getSalaryByEmpId(
-        {
-          month: moment(values.start).month(),
-          year: moment(values.start).year(),
-        },
-        employee.id
-      );
-      console.log(salaryData.data);
-
-      if (!salaryData.data) {
-        console.log("add salary");
+      const currentDateValue = dateCurrent(values.start);
+      let updateEvent;
+      if (!dateCurrent(values.start)) {
+        updateEvent = await handleEventCreation(
+          values.start,
+          values.end,
+          title,
+          backgroundColor,
+          leaveCause,
+          formValue.leave_reason,
+          workStatus
+        );
       } else {
-        console.log("update salary");
+        console.log("update");
+        updateEvent = await handleEventUpdate(
+          currentDateValue.id,
+          currentDateValue.title,
+          title,
+          backgroundColor,
+          values.start,
+          values.end,
+          leaveCause,
+          workStatus
+        );
       }
-    }
 
-    setEditable(false);
-    setValues({ title: "", start: new Date(), end: new Date() });
-    setWorkStatus(WorkStatus.COME);
-    setLeaveType("");
-    setLeaveCause("ลาโดยใช้วันหยุด");
-    setLeaveReason("");
-    setIsLoading(false);
-    title = "";
-    backgroundColor = "";
+      if (updateEvent.length === totalDayInMonth) {
+        console.log(moment(values.start).month());
+        console.log(moment(values.start).year());
+        const salaryData = await getSalaryByEmpId(
+          {
+            month: moment(values.start).month(),
+            year: moment(values.start).year(),
+          },
+          employee.id
+        );
+        console.log(salaryData.data);
+
+        if (!salaryData.data) {
+          const salaryDataAdd = await addSalary({
+            employeeId: employee.id,
+            month: moment(values.start).month(),
+            year: moment(values.start).year(),
+            amount: Number(employee.Employment_Details?.salary),
+            ot: Number(events.filter((event: any) => event.ot).length),
+            perdiem: Number(
+              events.filter((event: any) => event.perdiem).length
+            ),
+            sso: Number(
+              employee?.Employment_Details?.salary +
+                events.filter((event: any) => event.ot).length * 750 +
+                events.filter((event: any) => event.perdiem).length * 250 -
+                (employee.Employment_Details?.salary * 0.05 >= 750
+                  ? 750
+                  : employee.Employment_Details?.salary * 0.05)
+            ),
+          });
+        } else {
+          const updateSalary = await updateSalaryById({
+            id: salaryData.data.id,
+            employeeId: employee.id,
+            amount: Number(employee.Employment_Details?.salary),
+            ot: Number(events.filter((event: any) => event.ot).length),
+            perdiem: Number(
+              events.filter((event: any) => event.perdiem).length
+            ),
+            sso:
+              employee.Employment_Details?.salary * 0.05 >= 750
+                ? 750
+                : employee.Employment_Details?.salary * 0.05,
+          });
+        }
+      }
+
+      setEditable(false);
+      setValues({ title: "", start: new Date(), end: new Date() });
+      setWorkStatus(WorkStatus.COME);
+      setLeaveType("");
+      setLeaveCause("ลาโดยใช้วันหยุด");
+      setLeaveReason("");
+      setIsLoading(false);
+      title = "";
+      backgroundColor = "";
+    } catch (error) {
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -600,7 +634,7 @@ const index = () => {
               </div>
 
               {employee.Employment_Details?.salary
-                ? (employee.Employment_Details?.salary * 0.05 <= 750
+                ? (employee.Employment_Details?.salary * 0.05 >= 750
                     ? 750
                     : employee.Employment_Details?.salary * 0.05
                   )

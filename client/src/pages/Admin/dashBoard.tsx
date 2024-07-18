@@ -33,7 +33,7 @@ const dashBoard = () => {
   const [order, setOrder] = useState<any>("asc");
   const [orderBy, setOrderBy] = useState<any>("name");
   const [datas, setDatas] = useState<any>([]);
-  const [setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,6 +69,7 @@ const dashBoard = () => {
           ot: `${dt.ot * 750}`,
           perdiem: `${dt.perdiem * 250}`,
           sso: `${dt.sso}`,
+          total: `${dt.amount + dt.ot * 750 + dt.perdiem * 250 - dt.sso}`,
         };
       }),
     [datas]
@@ -101,7 +102,6 @@ const dashBoard = () => {
       return matchesName && matchesMonth && matchesYear;
     });
   }, [searchTerm, selectedMonth, selectedYear, data]);
-  console.log("filter", filteredData);
 
   const sortedData = useMemo(() => {
     return filteredData.sort(getComparator(order, orderBy));
