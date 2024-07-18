@@ -59,6 +59,7 @@ const index = () => {
   const { employee } = useEmployeeStore();
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   function getTotalDaysInMonth(monthString: string) {
     // Parse the month string into a Date object
     const date: any = new Date(monthString);
@@ -78,7 +79,7 @@ const index = () => {
 
   const handleMonthChange = async (payload: any) => {
     setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
-
+    setIsLoadingCalendar(true);
     const work = await getWorkSchedulesByPost(
       {
         currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
@@ -95,8 +96,8 @@ const index = () => {
     );
 
     const eventsData = await addEvents(work.data, leave.data);
-
     setEvents(eventsData);
+    setIsLoadingCalendar(false);
   };
 
   const formatDate = (date: any, time?: any, format?: any) => {
@@ -544,12 +545,10 @@ const index = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await employeeReceiveMessage(employee.id);
-
       setMessages(data);
     };
     fetchData();
   }, []);
-  console.log(Number(events.filter((event: any) => event.ot).length * 750));
 
   return (
     <div className="w-full ml-20 mb-10 mt-5">
@@ -703,7 +702,7 @@ const index = () => {
         editable={false}
         height={650}
         events={events}
-        selectable={true}
+        selectable={!isLoadingCalendar}
         eventClick={handleDateClick}
         dateClick={handleDateClick}
         datesSet={handleMonthChange}
