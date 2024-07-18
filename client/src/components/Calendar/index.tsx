@@ -30,6 +30,7 @@ import ListWorking from "../ListWorking";
 import { useLocation } from "react-router-dom";
 import ListMessage from "../ListMessage";
 import { employeeReceiveMessage } from "../../services/messageServices";
+import Loading from "../Loading";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -57,7 +58,7 @@ const index = () => {
   const [setCountLeave] = useState<any>(0);
   const { employee } = useEmployeeStore();
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
-
+  const [isLoading, setIsLoading] = useState(false);
   function getTotalDaysInMonth(monthString: string) {
     // Parse the month string into a Date object
     const date: any = new Date(monthString);
@@ -460,6 +461,7 @@ const index = () => {
   };
 
   const handleOk = async (e: any, formValue: any) => {
+    setIsLoading(true);
     let title = "";
     let backgroundColor = "";
     if (workStatus === WorkStatus.COME) {
@@ -533,6 +535,7 @@ const index = () => {
     setLeaveType("");
     setLeaveCause("ลาโดยใช้วันหยุด");
     setLeaveReason("");
+    setIsLoading(false);
     title = "";
     backgroundColor = "";
   };
@@ -561,6 +564,7 @@ const index = () => {
 
   return (
     <div className="w-full ml-20 mb-10 mt-5">
+      {isLoading && <Loading />}
       <div className="absolute top-32 left-5 flex flex-col w-72 justify-center">
         <ListWorking />
         ข้อความ

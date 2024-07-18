@@ -9,10 +9,12 @@ import { logout } from "../../../services/authServices";
 import useKeepEmployeeStore from "../../../context/KeepEmployeeProvider";
 import useKeepEmployeesStore from "../../../context/KeepEmployeesProvider";
 import useEmployeeStore from "../../../context/EmployeeProvider";
+import Loading from "../../Loading";
 const Sidebar = () => {
   const { employees, setEmployees } = useKeepEmployeesStore();
   const { employee } = useEmployeeStore();
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
+  const [isLoading, setIsLoading] = useState(false);
   const getEmployeesData = (payload: any) => {
     return getEmployees(payload);
   };
@@ -67,6 +69,12 @@ const Sidebar = () => {
     setIsOpenListEmployees(false);
   };
 
+  const handleLogout = async () => {
+    setIsLoading(true);
+    await logout();
+    setIsLoading(false);
+  };
+
   return (
     <aside
       className={`fixed top-0 z-40 ${
@@ -75,6 +83,7 @@ const Sidebar = () => {
        duration-700
       `}
     >
+      {isLoading && <Loading />}
       <div
         className={`transition-all duration-700 translate-x-0 h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800 ${
           isOpenListEmployees ? "w-16" : "w-60"
@@ -116,7 +125,7 @@ const Sidebar = () => {
           </div>
           <button
             className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-            onClick={() => logout()}
+            onClick={handleLogout}
           >
             {logoutItem.icon}
             {!isOpenListEmployees && (
@@ -146,7 +155,7 @@ const Sidebar = () => {
                 {emp.photo ? (
                   <img
                     className="object-cover w-8 h-8 rounded-full"
-                    src={`http://localhost:8081/${emp.photo}`}
+                    src={emp.photo}
                     alt="img"
                   />
                 ) : (

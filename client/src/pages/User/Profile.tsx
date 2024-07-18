@@ -13,6 +13,7 @@ import { Button, DatePicker, Input, Modal } from "rsuite";
 import moment from "moment";
 import { IoMdPerson } from "react-icons/io";
 import Swal from "sweetalert2";
+import Loading from "../../components/Loading";
 const Profile = () => {
   const { employee, setEmployee }: TEmployeeStoreState = useEmployeeStore();
   const [isEditable, setIsEditable] = useState<boolean>();
@@ -20,6 +21,7 @@ const Profile = () => {
   const [isEditName, setIsEditName] = useState<boolean>(false);
   const [isChangeImg, setIsChangeImg] = useState<boolean>(false);
   const [state, setState] = useState("about");
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [formData, setFormData] = useState<any>({
     firstName: employee.firstName,
     lastName: employee.lastName,
@@ -133,6 +135,8 @@ const Profile = () => {
     }
   };
   const handleConfirmUpload = async () => {
+    setIsLoadingImage(true);
+
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
@@ -155,12 +159,16 @@ const Profile = () => {
         confirmButtonText: "Cool",
       });
       setIsChangeImg(false);
+
       setPreviewUrl(null);
+    } finally {
+      setIsLoadingImage(false);
     }
   };
 
   return (
     <div className="flex max-w-7xl w-full mt-10 px-10">
+      {isLoadingImage && <Loading />}
       <div className="flex flex-col items-center md:w-64 md:h-64 h-32 w-32 relative">
         {previewUrl ? (
           <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
@@ -176,7 +184,7 @@ const Profile = () => {
               <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
                 <img
                   className="md:w-64 md:h-64 h-32 w-32 object-cover"
-                  src={`http://localhost:8081/${employee.photo}`}
+                  src={employee.photo}
                   alt="img"
                 />
               </div>

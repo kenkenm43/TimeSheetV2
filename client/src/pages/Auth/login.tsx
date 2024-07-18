@@ -15,11 +15,12 @@ import useEmployeeStore from "../../context/EmployeeProvider";
 import { getEmployee } from "../../services/employeeServices";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 const Login = () => {
   // console.log(auth.username);
   const { setAuth }: any = useAuth();
   const { employee, setEmployee }: any = useEmployeeStore();
-
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const {
     register,
@@ -30,6 +31,7 @@ const Login = () => {
   });
 
   const onsubmit = async (datas: any) => {
+    setIsLoading(true);
     const response: any = await login(datas);
     // console.log("d", data.response);
     const { success, username, message, accessToken, role, employeeId } =
@@ -58,10 +60,12 @@ const Login = () => {
       });
       navigate(0);
     }
+    setIsLoading(false);
   };
 
   return (
     <Form onSubmit={handleSubmit(onsubmit)}>
+      {isLoading && <Loading />}
       <Topic message={i18n.auth.login.name} />
       <div>
         <Link to="/register">{i18n.auth.register.name}</Link>

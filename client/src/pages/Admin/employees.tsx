@@ -25,6 +25,7 @@ enum WorkStatus {
   NOTCOME = "notcome",
   LEAVE = "leave",
 }
+const VITE_PRODUCTION_URL = import.meta.env.VITE_PRODUCTION_URL;
 const employees = () => {
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
   const [workSchedule, setWorkSchedule] = useState<[]>();
@@ -294,7 +295,7 @@ const employees = () => {
                 <>
                   <img
                     className="object-cover md:w-48 md:h-48 h-20 w-20"
-                    src={`http://localhost:8081/${keepEmployee.photo}`}
+                    src={`${VITE_PRODUCTION_URL}/${keepEmployee.photo}`}
                     alt="img"
                   />
                 </>

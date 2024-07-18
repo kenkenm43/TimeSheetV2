@@ -2,6 +2,8 @@
 import { Request, Response } from "express";
 import prisma from "../../config/prisma";
 import fs from "fs";
+import receiveImage from "../middlewares/uploadImage";
+import { uploadImageCloud } from "../../utils/cloudinaryUtil";
 const updateEmployee = async (req: Request, res: Response) => {
   try {
     const employeeId = req.params["id"];
@@ -69,43 +71,59 @@ const updateEmployeeStartWork = async (req: Request, res: Response) => {
   }
 };
 const uploadImage = async (req: Request, res: Response) => {
+  //handling errors from multer
+
   try {
-    const employeeId = req.params["id"];
+    const imageStream: any = req.file?.buffer;
+    const imageName: any = new Date().getTime().toString();
 
-    if (!req.file) {
-      res.status(413).send(`File not uploaded!, Please 
-                            attach jpeg file under 5 MB`);
-      return;
-    }
+    const uploadResult: any = await uploadImage(imageStream, imageName);
 
-    fs.readdir("uploads/", (err, files) => {
-      files.forEach((file) => {
-        if (req.body.oldImage === file) {
-          fs.unlink("uploads/" + req.body.oldImage, (err) => {
-            if (err) {
-              throw err;
-            }
-          });
-        }
-      });
-    });
+    const uploadedUrl = uploadResult.url;
+    console.log("uploadurl", uploadedUrl);
 
-    // console.log(req.body.oldImage);
-
-    await prisma.employee.update({
-      where: { id: employeeId },
-      data: {
-        photo: req.file.filename,
-      },
-    });
-    // successfull completion
-    res.status(201).send({
-      message: "File uploaded successfully",
-      fileUrl: req.file.filename,
-    });
-  } catch (e) {
-    return res.status(500).json({ error: e });
+    return res.json({ url: uploadedUrl });
+  } catch (error) {
+    return res.json({ error: "Failed to upload" });
   }
+
+  // try {
+  //   const employeeId = req.params["id"];
+
+  //   if (!req.file) {
+  //     res.status(413).send(`File not uploaded!, Please
+  //                           attach jpeg file under 5 MB`);
+  //     return;
+  //   }
+
+  //   fs.readdir("uploads/", (err, files) => {
+  //     files.forEach((file) => {
+  //       if (req.body.oldImage === file) {
+  //         fs.unlink("uploads/" + req.body.oldImage, (err) => {
+  //           if (err) {
+  //             throw err;
+  //           }
+  //         });
+  //       }
+  //     });
+  //   });
+
+  //   // console.log(req.body.oldImage);
+
+  //   await prisma.employee.update({
+  //     where: { id: employeeId },
+  //     data: {
+  //       photo: req.file.filename,
+  //     },
+  //   });
+  //   // successfull completion
+  //   res.status(201).send({
+  //     message: "File uploaded successfully",
+  //     fileUrl: req.file.filename,
+  //   });
+  // } catch (e) {
+  //   return res.status(500).json({ error: e });
+  // }
 };
 const getEmployees = async (req: Request, res: Response) => {
   try {

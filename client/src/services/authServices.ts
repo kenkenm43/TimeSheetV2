@@ -25,6 +25,8 @@ export const handleRegister = async (
 };
 
 export const login = async (payload: UserLoginPayloadType) => {
+  console.log("http", httpClient);
+
   try {
     const response = await httpClient.post("/auth/login", payload);
 

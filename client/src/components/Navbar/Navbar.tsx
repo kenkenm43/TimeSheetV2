@@ -58,7 +58,7 @@ const Navbar = () => {
                   {employee.photo ? (
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={`http://localhost:8081/${employee.photo}`}
+                      src={employee.photo}
                     />
                   ) : (
                     <img
