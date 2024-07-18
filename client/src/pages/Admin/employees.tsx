@@ -295,7 +295,7 @@ const employees = () => {
                 <>
                   <img
                     className="object-cover md:w-48 md:h-48 h-20 w-20"
-                    src={`${VITE_PRODUCTION_URL}/${keepEmployee.photo}`}
+                    src={keepEmployee.photo}
                     alt="img"
                   />
                 </>
