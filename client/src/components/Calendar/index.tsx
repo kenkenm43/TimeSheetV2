@@ -17,6 +17,7 @@ import {
   addWorkSchedule,
   deleteLeaveSchedule,
   deleteWorkSchedule,
+  getEmployee,
   getLeavesBypost,
   getWorkSchedulesByPost,
   updateLeave,
@@ -51,12 +52,7 @@ const index = () => {
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const [checkBoxed, setCheckBoxed] = useState<any>([]);
-  const [setLeaves] = useState<any>([]);
-  const [setWorks] = useState<any>([]);
-  const [setCountNotCome] = useState<any>(0);
-  const [setCountCome] = useState<any>(0);
-  const [setCountLeave] = useState<any>(0);
-  const { employee } = useEmployeeStore();
+  const { employee, setEmployee } = useEmployeeStore();
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
@@ -199,6 +195,17 @@ const index = () => {
     }
     setEditable(true);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await employeeReceiveMessage(employee.id);
+      const employ = await getEmployee(employee.id);
+
+      setEmployee(employ.data)
+      setMessages(data);
+    };
+    fetchData();
+  }, []);
 
   const handleEventCreation = async (
     startDate: any,
@@ -531,6 +538,7 @@ const index = () => {
                   : employee?.Employment_Details?.salary * 0.05)
             ),
           });
+          console.log("salaryAdd", salaryDataAdd);
         } else {
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
@@ -545,6 +553,7 @@ const index = () => {
                 ? 750
                 : employee?.Employment_Details?.salary * 0.05,
           });
+          console.log("salaryUpdate", updateSalary);
         }
       }
 
@@ -573,16 +582,7 @@ const index = () => {
     return filter.length;
   };
 
-  const handleSelect = () => {};
-  console.log(employee.id);
   const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await employeeReceiveMessage(employee.id);
-      setMessages(data);
-    };
-    fetchData();
-  }, []);
 
   return (
     <div className="w-full ml-20 mb-10 mt-5">
@@ -745,7 +745,6 @@ const index = () => {
         fixedWeekCount={false}
         showNonCurrentDates={false}
         displayEventTime={true}
-        select={handleSelect}
       />
       <EventModal
         values={values}
