@@ -8,10 +8,6 @@ const updateEmployee = async (req: Request, res: Response) => {
   try {
     const employeeId = req.params["id"];
     const payload = req.body;
-    console.log(employeeId);
-
-    console.log(req.body);
-    console.log("update");
 
     const employee = await prisma.employee.update({
       where: { id: employeeId },
