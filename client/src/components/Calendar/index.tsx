@@ -517,7 +517,7 @@ const index = () => {
             employeeId: employee.id,
             month: moment(values.start).month(),
             year: moment(values.start).year(),
-            amount: Number(employee.Employment_Details?.salary),
+            amount: Number(employee?.Employment_Details?.salary),
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
@@ -526,24 +526,24 @@ const index = () => {
               employee?.Employment_Details?.salary +
                 events.filter((event: any) => event.ot).length * 750 +
                 events.filter((event: any) => event.perdiem).length * 250 -
-                (employee.Employment_Details?.salary * 0.05 >= 750
+                (employee?.Employment_Details?.salary * 0.05 >= 750
                   ? 750
-                  : employee.Employment_Details?.salary * 0.05)
+                  : employee?.Employment_Details?.salary * 0.05)
             ),
           });
         } else {
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,
-            amount: Number(employee.Employment_Details?.salary),
+            amount: Number(employee?.Employment_Details?.salary),
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
             ),
             sso:
-              employee.Employment_Details?.salary * 0.05 >= 750
+              employee?.Employment_Details?.salary * 0.05 >= 750
                 ? 750
-                : employee.Employment_Details?.salary * 0.05,
+                : employee?.Employment_Details?.salary * 0.05,
           });
         }
       }
