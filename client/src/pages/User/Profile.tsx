@@ -60,6 +60,7 @@ const Profile = () => {
     fetchData();
   }, [employee.id]);
   const handleUpdateProfile = async (employeeId: any) => {
+    setIsLoadingImage(true);
     try {
       const employee = await updateEmployee(formData, employeeId);
       console.log(employee);
@@ -82,6 +83,7 @@ const Profile = () => {
       setIsOpenModal(false);
       setIsEditable(false);
       setIsEditName(false);
+      setIsLoadingImage(false);
     }
   };
 

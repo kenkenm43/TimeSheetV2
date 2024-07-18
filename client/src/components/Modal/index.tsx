@@ -91,7 +91,13 @@ const EventModal = (props: any) => {
   console.log("modal leavereason", leaveReason);
 
   return (
-    <Modal open={open} onClose={onClose} backdrop="static" {...rest}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      backdrop="static"
+      {...rest}
+      sx={{ zIndex: 2 }}
+    >
       <Modal.Header>
         <Modal.Title>
           {moment(values.start).format("dddd, YYYY MMMM DD")}
