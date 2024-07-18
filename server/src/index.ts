@@ -34,11 +34,6 @@ async function main() {
   app.use(timestampLoggerMiddleware);
   app.use(routes);
 
-  app.get("/", (req, res) => {
-    res.json({
-      message: "🦄🌈✨👋🌎🌍🌏✨🌈🦄",
-    });
-  });
   //Catch unregistered routes
   // app.all("*", (req: Request, res: Response) => {
   //   res.status(404).json({ error: `Route ${req.originalUrl} not found` });

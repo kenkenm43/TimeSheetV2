@@ -13,6 +13,11 @@ const router = express.Router();
 
 router.use("/api/v1/auth", AuthRoute);
 // router.use("/api/v1/refresh");
+router.get("/", (req, res) => {
+  res.json({
+    message: "🦄🌈✨👋🌎🌍🌏✨🌈🦄",
+  });
+});
 router.use("/api/v1", UserRoute);
 router.use("/api/v1/employee", EmployeeRoute);
 router.use("/api/v1/message", MessageRoute);
