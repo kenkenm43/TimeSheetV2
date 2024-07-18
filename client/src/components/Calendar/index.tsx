@@ -201,7 +201,7 @@ const index = () => {
       const { data } = await employeeReceiveMessage(employee.id);
       const employ = await getEmployee(employee.id);
 
-      setEmployee(employ.data)
+      setEmployee(employ.data);
       setMessages(data);
     };
     fetchData();
@@ -518,6 +518,7 @@ const index = () => {
           employee.id
         );
         console.log(salaryData.data);
+        console.log("employee", employee);
 
         if (!salaryData.data) {
           const salaryDataAdd = await addSalary({
