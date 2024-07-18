@@ -22,7 +22,11 @@ const PORT = process.env.PORT || 7000;
 async function main() {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(credentials);
-  app.use(cors(corsOptions));
+  app.use(
+    cors({
+      origin: "https://time-sheet-v2.vercel.app",
+    })
+  );
   app.use(
     express.urlencoded({
       extended: false,
