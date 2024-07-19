@@ -161,7 +161,7 @@ const index = () => {
 
     const dateSelect = dateStr || arg.event.startStr;
     const startDate = new Date(
-      formatDate(dateSelect, "T07:00:00", "YYYY-MM-DDTHH:mm:ss")
+      formatDate(dateSelect, "T09:00:00", "YYYY-MM-DDTHH:mm:ss")
     );
     const endDate = new Date(
       formatDate(dateSelect, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
