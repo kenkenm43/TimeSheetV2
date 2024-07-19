@@ -594,7 +594,7 @@ const index = () => {
         ข้อความ
         <ListMessage messages={messages} />
       </div>
-      <div className="flex text-xl bg-red-300 p-2">
+      <div className="flex space-x-4 relative  bg-red-300 p-2 w-full">
         <div className="flex space-x-4 relative">
           <div className="pl-5 absolute top-7 right-[-27px]">+</div>
           <div className="flex flex-col w-full">
@@ -644,7 +644,7 @@ const index = () => {
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
                 : "-"}
             </span>
-            <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
+            <span className="font-medium border-double border-b-4 border-black text-right relative">
               {employee.Employment_Details?.salary
                 ? (
                     employee?.Employment_Details?.salary +
