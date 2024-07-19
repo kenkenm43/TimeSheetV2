@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { logout } from "../../services/authServices";
 import useEmployeeStore from "../../context/EmployeeProvider";
+import { useState } from "react";
+import Loading from "../Loading";
 type TNavigation = {
   name: string;
   authorization?: string[];
@@ -30,13 +32,19 @@ const navLists: TNavigation[] = [
     to: "/dashboard",
   },
 ];
-
 const Navbar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const { employee } = useEmployeeStore();
-  console.log(employee.photo);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const handleLogout = async () => {
+    setIsLoading(true);
+    await logout();
+    setIsLoading(false);
+  };
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <nav className="w-full  bg-orange-400  font-bold">
       <div className="flex items-center justify-between px-14 h-14 max-w-7xl mx-auto">
@@ -69,7 +77,7 @@ const Navbar = () => {
                 </div>
               </button>
 
-              <button onClick={() => logout()}>ออกจากระบบ</button>
+              <button onClick={handleLogout}>ออกจากระบบ</button>
             </>
           ) : (
             <>

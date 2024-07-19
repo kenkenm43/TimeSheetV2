@@ -36,7 +36,7 @@ const Profile = () => {
     bank_account_number: employee.Financial_Details?.bank_account_number,
     social_security_number: employee.Financial_Details?.social_security_number,
   });
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleChange = (value: string, e: any) => {
     const { name } = e.target;
     console.log(name, value);
@@ -53,7 +53,6 @@ const Profile = () => {
   useEffect(() => {
     const fetchData = async () => {
       const employeeData = await getEmployee(employee.id);
-      console.log(employeeData.data);
 
       setEmployee(employeeData.data);
     };

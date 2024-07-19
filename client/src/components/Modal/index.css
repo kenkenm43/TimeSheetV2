@@ -1,0 +1,12 @@
+.rs-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rs-modal-content {
+  position: relative;
+  margin: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}

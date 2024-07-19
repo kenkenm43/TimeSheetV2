@@ -198,11 +198,13 @@ const index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       const { data } = await employeeReceiveMessage(employee.id);
       const employ = await getEmployee(employee.id);
 
       setEmployee(employ.data);
       setMessages(data);
+      setIsLoading(false);
     };
     fetchData();
   }, []);
