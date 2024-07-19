@@ -597,7 +597,7 @@ const index = () => {
       <div className="flex text-xl bg-red-300 p-2">
         <div className="flex space-x-4 relative">
           <div className="pl-5 absolute top-7 right-[-27px]">+</div>
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <span className="font-semibold">เงินเดือน :</span>{" "}
             <span>
               OT (750 X {events.filter((event: any) => event.ot).length})
@@ -612,7 +612,7 @@ const index = () => {
             </span>{" "}
             <span className="font-semibold"> Total Paid : </span>
           </div>
-          <div className="flex flex-col items-end min-w-8">
+          <div className="flex flex-col items-end ml-5 min-w-6">
             <span className="font-medium">
               {employee.Employment_Details?.salary
                 ? employee.Employment_Details?.salary
@@ -650,7 +650,7 @@ const index = () => {
                     employee?.Employment_Details?.salary +
                     events.filter((event: any) => event.ot).length * 750 +
                     events.filter((event: any) => event.perdiem).length * 250 -
-                    (employee.Employment_Details?.salary * 0.05 <= 750
+                    (employee.Employment_Details?.salary * 0.05 >= 750
                       ? 750
                       : employee.Employment_Details?.salary * 0.05)
                   )
