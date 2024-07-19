@@ -19,11 +19,7 @@ const index = () => {
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      console.log("employeeId", employee.id);
-      console.log("receivedId", keepEmployee.id);
-
       const { data } = await receiveMessage(employee.id, keepEmployee.id);
-      console.log("message", data);
 
       setMessages(data);
     };

@@ -39,7 +39,6 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const handleChange = (value: string, e: any) => {
     const { name } = e.target;
-    console.log(name, value);
 
     setFormData((prevState: any) => ({ ...prevState, [name]: value }));
   };
@@ -62,7 +61,6 @@ const Profile = () => {
     setIsLoadingImage(true);
     try {
       const employee = await updateEmployee(formData, employeeId);
-      console.log(employee);
 
       setEmployee(employee.data);
       Swal.fire({
@@ -85,8 +83,6 @@ const Profile = () => {
       setIsLoadingImage(false);
     }
   };
-
-  console.log(employee);
 
   const handleClose = async () => {
     setFormData((formData: any) => {
@@ -122,7 +118,6 @@ const Profile = () => {
   const uploadImageDisplay = async (event: any) => {
     if (event.target.files.length > 0) {
       const file = fileUploadRef.current.files[0];
-      console.log("file", file);
 
       setSelectedFile(file);
       // Preview image

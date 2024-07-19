@@ -96,7 +96,6 @@ const employees = () => {
       );
 
       const eventsData = await addEvents(work.data, leave.data);
-      console.log("eventdata", eventsData);
 
       setEvents(eventsData);
     };

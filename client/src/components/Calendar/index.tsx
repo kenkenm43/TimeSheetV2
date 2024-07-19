@@ -155,8 +155,6 @@ const index = () => {
   };
 
   const handleDateClick = (arg: any) => {
-    console.log("arg", arg);
-
     const { dateStr } = arg;
 
     const dateSelect = dateStr || arg.event.startStr;
@@ -496,7 +494,6 @@ const index = () => {
           workStatus
         );
       } else {
-        console.log("update");
         updateEvent = await handleEventUpdate(
           currentDateValue.id,
           currentDateValue.title,
@@ -510,8 +507,6 @@ const index = () => {
       }
 
       if (updateEvent.length === totalDayInMonth) {
-        console.log(moment(values.start).month());
-        console.log(moment(values.start).year());
         const salaryData = await getSalaryByEmpId(
           {
             month: moment(values.start).month(),
@@ -519,9 +514,6 @@ const index = () => {
           },
           employee.id
         );
-        console.log(salaryData.data);
-        console.log("employee", employee);
-        console.log("employee salary", employee?.Employment_Details?.salary);
 
         if (!salaryData.data) {
           const salaryDataAdd = await addSalary({
@@ -542,7 +534,6 @@ const index = () => {
                   : employee?.Employment_Details?.salary * 0.05)
             ),
           });
-          console.log("salaryAdd", salaryDataAdd);
         } else {
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
@@ -557,7 +548,6 @@ const index = () => {
                 ? 750
                 : employee?.Employment_Details?.salary * 0.05,
           });
-          console.log("salaryUpdate", updateSalary);
         }
       }
 

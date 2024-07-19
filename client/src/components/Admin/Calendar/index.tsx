@@ -12,8 +12,6 @@ import moment from "moment";
 const index = ({ handleMonthChange, events }: any): any => {
   const calendarRef = useRef<any>(null);
   const onHandleMonthChange = (payload: any) => {
-    console.log(payload.view.currentStart);
-    console.log(payload.view.currentEnd);
     handleMonthChange(payload);
     // setMonthDate(payload.view.title);
   };
@@ -55,7 +53,6 @@ const index = ({ handleMonthChange, events }: any): any => {
 };
 
 function renderEventContent(eventContent: any) {
-  console.log(eventContent.event.extendedProps);
   return (
     <div className="cursor-pointer">
       {/* <a className="fc-daygrid-event fc-daygrid-block-event fc-h-event fc-event fc-event-draggable fc-event-resizable fc-event-start fc-event-end fc-event-past ticket ticket"> */}

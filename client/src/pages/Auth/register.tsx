@@ -44,7 +44,6 @@ const RegisterPage = () => {
         role: role,
       });
       const employeeData: any = await getEmployee(employeeId);
-      console.log(employeeData);
 
       setEmployee({ ...employeeData.data });
 

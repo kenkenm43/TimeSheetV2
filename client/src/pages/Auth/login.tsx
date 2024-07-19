@@ -18,7 +18,6 @@ import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 import Loading from "../../components/Loading";
 const Login = () => {
-  // console.log(auth.username);
   const { setAuth }: any = useAuth();
   const { employee, setEmployee }: any = useEmployeeStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -34,10 +33,8 @@ const Login = () => {
   const onsubmit = async (datas: any) => {
     setIsLoading(true);
     const response: any = await login(datas);
-    // console.log("d", data.response);
     const { success, username, message, accessToken, role, employeeId } =
       response.data;
-    console.log(response);
 
     if (success) {
       setAuth({
@@ -49,7 +46,6 @@ const Login = () => {
       });
 
       const employeeData: any = await getEmployee(employeeId);
-      console.log(employeeData.data);
 
       setEmployee({ ...employeeData.data });
 

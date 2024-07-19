@@ -5,7 +5,6 @@ import { ROLES } from "../../Enum/Role";
 import Sidebar from "../../components/Admin/Dashboard/Sidebar";
 const PrivateRoute = () => {
   const { auth } = useAuth();
-  console.log(auth.role.name);
 
   if (!auth.id) {
     return <Navigate to="/login" /> || <Navigate to="/register" />;

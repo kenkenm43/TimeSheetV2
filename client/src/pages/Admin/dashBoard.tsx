@@ -33,7 +33,7 @@ const dashBoard = () => {
   const [order, setOrder] = useState<any>("asc");
   const [orderBy, setOrderBy] = useState<any>("name");
   const [datas, setDatas] = useState<any>([]);
-  const [loading, setLoading] = useState(false);
+  const [setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,12 +44,10 @@ const dashBoard = () => {
           },
           "all"
         );
-        console.log("res", response.data);
 
         setDatas(response.data);
         setLoading(false);
       } catch (error) {
-        console.log("Error fetching data: ", error);
         setLoading(false);
       }
     };
@@ -74,7 +72,6 @@ const dashBoard = () => {
       }),
     [datas]
   );
-  console.log(data);
   const headers = [
     "ปี",
     "เดือน",

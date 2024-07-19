@@ -12,7 +12,6 @@ type Props = {
 const Layout = ({ children, onSubmit }: Props) => {
   const navigate = useNavigate();
   const { auth } = useAuth();
-  console.log(auth.id);
 
   useEffect(() => {
     if (auth.id) {
