@@ -74,8 +74,10 @@ const employees = () => {
       },
       keepEmployee.id
     );
+    console.log(work, leave);
 
     const eventsData = await addEvents(work.data, leave.data);
+    console.log("events", eventsData);
 
     setEvents(eventsData);
   };
@@ -210,6 +212,8 @@ const employees = () => {
   const updateInfo = async () => {
     try {
       setIsLoading(true);
+      console.log(keepEmployee?.Employment_Details?.salary);
+      console.log(salaryMock);
 
       if (
         moment(startDate).format("yyyy-MM-DD") !==
@@ -241,7 +245,7 @@ const employees = () => {
         setIsLoading(false);
 
         const result = await Swal.fire({
-          title: "เปลี่ยนแปลงข้อมูลเรียบร้อย",
+          title: "เปลี่ยนแปลงข้อมูลเรียบร้อยTT",
           icon: "success",
           confirmButtonColor: "#3085d6",
           confirmButtonText: "ตกลง",
@@ -271,7 +275,7 @@ const employees = () => {
 
   return (
     <>
-      {keepEmployee ? (
+      {keepEmployee.id !== "" ? (
         <div className="transition-all p-4 ml-8 min-w-[720px] relative">
           {isLoading && <Loading />}
 

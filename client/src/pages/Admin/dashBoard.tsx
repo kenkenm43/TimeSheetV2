@@ -33,7 +33,7 @@ const dashBoard = () => {
   const [order, setOrder] = useState<any>("asc");
   const [orderBy, setOrderBy] = useState<any>("name");
   const [datas, setDatas] = useState<any>([]);
-  const [setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
