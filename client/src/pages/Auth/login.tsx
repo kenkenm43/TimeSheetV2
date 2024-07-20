@@ -50,7 +50,7 @@ const Login = () => {
       setEmployee({ ...employeeData.data });
 
       toast.success(message);
-      const navigation = (await role?.name) === "admin" ? "/employee" : "/";
+      const navigation = (await role?.name) === "admin" ? "/dashboard" : "/";
       await navigate(navigation, {
         replace: true,
         state: { employeeId: employeeData.data.id },
