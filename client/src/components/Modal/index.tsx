@@ -148,9 +148,16 @@ const EventModal = (props: any) => {
                 <Stack spacing={6}>
                   <InputGroup.Addon>เวลามาทำงาน</InputGroup.Addon>
                   <DatePicker
+                    cleanable={false}
                     placeholder="เวลามาทำงาน"
                     format="HH:mm"
                     value={values.start}
+                    onSelect={(date: any) => {
+                      setValues({
+                        ...values,
+                        start: date,
+                      });
+                    }}
                     onChange={(date: any) => {
                       setValues({
                         ...values,
@@ -158,31 +165,44 @@ const EventModal = (props: any) => {
                       });
                     }}
                     hideHours={(hour) =>
-                      hour < 7 || hour > Number(moment(values.end, "HH:mm"))
+                      hour < 7 || hour > moment(values.end, "HH:mm").hour()
                     }
-                    hideMinutes={(min) => min < 0}
+                    hideMinutes={(min) =>
+                      moment(values.start, "HH:mm").hour() ===
+                      moment(values.end, "HH:mm").hour()
+                        ? min >= moment(values.end, "HH:mm").minute()
+                        : min > 59
+                    }
                     name="start_work"
                   />
                   <InputGroup.Addon>เวลาเลิกงาน</InputGroup.Addon>
                   <DatePicker
+                    cleanable={false}
                     name="end"
                     placeholder="เวลาเลิกงาน"
                     format="HH:mm"
                     value={values.end}
+                    onSelect={(date: any) => {
+                      setValues({
+                        ...values,
+                        end: date,
+                      });
+                    }}
                     onChange={(date: any) => {
                       setValues({
                         ...values,
                         end: date,
                       });
                     }}
-                    // hideHours={(hour) =>
-                    //   hour < Number(moment(values.start, "HH:mm").format("H")) ||
-                    //   hour > 23
-                    // }
-                    // hideMinutes={(min) => {
-                    //   min < Number(moment(values.start, "HH:mm").format("m")) ||
-                    //     min > 59;
-                    // }}
+                    hideHours={(hour) =>
+                      hour < moment(values.start, "HH:mm").hour() || hour > 23
+                    }
+                    hideMinutes={(min) =>
+                      moment(values.start, "HH:mm").hour() ===
+                      moment(values.end, "HH:mm").hour()
+                        ? min <= moment(values.start, "HH:mm").minute()
+                        : min < 0
+                    }
                   />
                 </Stack>
 

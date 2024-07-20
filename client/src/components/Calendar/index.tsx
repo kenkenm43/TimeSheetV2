@@ -480,76 +480,80 @@ const index = () => {
         title = WorkStatus.LEAVE;
         backgroundColor = "red";
       }
-
+      console.log("values", values);
       const currentDateValue = dateCurrent(values.start);
       let updateEvent;
-      if (!dateCurrent(values.start)) {
-        updateEvent = await handleEventCreation(
-          values.start,
-          values.end,
-          title,
-          backgroundColor,
-          leaveCause,
-          formValue.leave_reason,
-          workStatus
-        );
-      } else {
-        updateEvent = await handleEventUpdate(
-          currentDateValue.id,
-          currentDateValue.title,
-          title,
-          backgroundColor,
-          values.start,
-          values.end,
-          leaveCause,
-          workStatus
-        );
+      if ((values.start || values.end) === null) {
+        console.log(values.start, values.end);
+        return;
       }
+      //  else if (!dateCurrent(values.start)) {
+      //   updateEvent = await handleEventCreation(
+      //     values.start,
+      //     values.end,
+      //     title,
+      //     backgroundColor,
+      //     leaveCause,
+      //     formValue.leave_reason,
+      //     workStatus
+      //   );
+      // } else {
+      //   updateEvent = await handleEventUpdate(
+      //     currentDateValue.id,
+      //     currentDateValue.title,
+      //     title,
+      //     backgroundColor,
+      //     values.start,
+      //     values.end,
+      //     leaveCause,
+      //     workStatus
+      //   );
+      // }
 
-      if (updateEvent.length === totalDayInMonth) {
-        const salaryData = await getSalaryByEmpId(
-          {
-            month: moment(values.start).month(),
-            year: moment(values.start).year(),
-          },
-          employee.id
-        );
+      // if (updateEvent.length === totalDayInMonth) {
+      //   const salaryData = await getSalaryByEmpId(
+      //     {
+      //       month: moment(values.start).month(),
+      //       year: moment(values.start).year(),
+      //     },
+      //     employee.id
+      //   );
 
-        if (!salaryData.data) {
-          const salaryDataAdd = await addSalary({
-            employeeId: employee.id,
-            month: moment(values.start).month(),
-            year: moment(values.start).year(),
-            amount: employee?.Employment_Details?.salary,
-            ot: Number(events.filter((event: any) => event.ot).length),
-            perdiem: Number(
-              events.filter((event: any) => event.perdiem).length
-            ),
-            sso: Number(
-              employee?.Employment_Details?.salary +
-                events.filter((event: any) => event.ot).length * 750 +
-                events.filter((event: any) => event.perdiem).length * 250 -
-                (employee?.Employment_Details?.salary * 0.05 >= 750
-                  ? 750
-                  : employee?.Employment_Details?.salary * 0.05)
-            ),
-          });
-        } else {
-          const updateSalary = await updateSalaryById({
-            id: salaryData.data.id,
-            employeeId: employee.id,
-            amount: employee?.Employment_Details?.salary,
-            ot: Number(events.filter((event: any) => event.ot).length),
-            perdiem: Number(
-              events.filter((event: any) => event.perdiem).length
-            ),
-            sso:
-              employee?.Employment_Details?.salary * 0.05 >= 750
-                ? 750
-                : employee?.Employment_Details?.salary * 0.05,
-          });
-        }
-      }
+      //   if (!salaryData.data) {
+      //     const salaryDataAdd = await addSalary({
+      //       employeeId: employee.id,
+      //       month: moment(values.start).month(),
+      //       year: moment(values.start).year(),
+      //       amount: employee?.Employment_Details?.salary,
+      //       ot: Number(events.filter((event: any) => event.ot).length),
+      //       perdiem: Number(
+      //         events.filter((event: any) => event.perdiem).length
+      //       ),
+      //       sso: Number(
+      //         employee?.Employment_Details?.salary +
+      //           events.filter((event: any) => event.ot).length * 750 +
+      //           events.filter((event: any) => event.perdiem).length * 250 -
+      //           (employee?.Employment_Details?.salary * 0.05 >= 750
+      //             ? 750
+      //             : employee?.Employment_Details?.salary * 0.05)
+      //       ),
+      //     });
+      //   } else {
+      //     const updateSalary = await updateSalaryById({
+      //       id: salaryData.data.id,
+      //       employeeId: employee.id,
+      //       amount: employee?.Employment_Details?.salary,
+      //       ot: Number(events.filter((event: any) => event.ot).length),
+      //       perdiem: Number(
+      //         events.filter((event: any) => event.perdiem).length
+      //       ),
+      //       sso:
+      //         employee?.Employment_Details?.salary * 0.05 >= 750
+      //           ? 750
+      //           : employee?.Employment_Details?.salary * 0.05,
+      //     });
+      //   }
+      // }
 
       setEditable(false);
       setValues({ title: "", start: new Date(), end: new Date() });
