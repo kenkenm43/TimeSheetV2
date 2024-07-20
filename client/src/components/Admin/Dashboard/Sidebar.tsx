@@ -22,6 +22,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await getEmployeesData({ roleQuery: "user" });
+      console.log(data);
 
       setEmployees(data);
       setIsOpenListEmployees(location.pathname == "/employee" ? true : false);
