@@ -14,6 +14,11 @@ import {
   CheckboxGroup,
   Checkbox,
 } from "rsuite";
+import {
+  deleteLeaveSchedule,
+  deleteWorkSchedule,
+} from "../../services/employeeServices";
+import useEmployeeStore from "../../context/EmployeeProvider";
 
 enum WorkStatus {
   COME = "come",
@@ -50,6 +55,9 @@ const contentStyle = {
 };
 const EventModal = (props: any) => {
   const {
+    handleDelete,
+    type,
+    idCalendar,
     onClose,
     open,
     onAddEvent,
@@ -73,7 +81,7 @@ const EventModal = (props: any) => {
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
   });
-
+  const { employee, setEmployee } = useEmployeeStore();
   const data = ["ลาป่วย", "ลาโดยใช้วันหยุด"].map((item) => ({
     label: item,
     value: item,
@@ -93,10 +101,19 @@ const EventModal = (props: any) => {
     setFormValue({ work_status: WorkStatus.COME });
     setLeaveType("");
   };
-  console.log("modal leavetype", leaveType);
-  console.log("modal leavecause", leaveCause);
-  console.log("modal leavereason", leaveReason);
+  // const handleDelete = async (e: any, formValue: any) => {
+  //   console.log(idCalendar);
+  //   console.log(type);
+  //   console.log(employee.id);
 
+  //   if (type === (WorkStatus.COME || WorkStatus.NOTCOME)) {
+  //     await deleteWorkSchedule(employee.id, idCalendar);
+  //   } else if (type === WorkStatus.LEAVE) {
+  //     const delData = await deleteLeaveSchedule(employee.id, idCalendar);
+  //   }
+  //   console.log("event", e);
+  //   console.log("formValue", formValue);
+  // };
   return (
     <Modal
       open={open}
@@ -232,13 +249,22 @@ const EventModal = (props: any) => {
                 </Form.Group>
               </>
             )}
-            <div className="mt-6">
+            <div className="mt-6 flex w-full justify-between">
               <Button
                 appearance="primary"
                 onClick={(e: any) => handleOk(e, formValue)}
               >
                 บันทึก
               </Button>
+              {idCalendar && (
+                <Button
+                  color="red"
+                  appearance="primary"
+                  onClick={(e: any) => handleDelete(e, formValue)}
+                >
+                  ลบ
+                </Button>
+              )}
             </div>
           </Form>
         </Modal.Body>

@@ -52,10 +52,12 @@ const index = () => {
   const [leaveReason, setLeaveReason] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const [checkBoxed, setCheckBoxed] = useState<any>([]);
+  const [type, setType] = useState<any>();
   const { employee, setEmployee } = useEmployeeStore();
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+  const [idCalendar, setIdCalendar] = useState<any>();
   function getTotalDaysInMonth(monthString: string) {
     // Parse the month string into a Date object
     const date: any = new Date(monthString);
@@ -180,6 +182,9 @@ const index = () => {
       });
       setWorkStatus(WorkStatus.COME);
     } else {
+      console.log("current", currentValueDate);
+      setType(currentValueDate.type);
+      setIdCalendar(currentValueDate.id);
       setValues({
         title: currentValueDate.title,
         start: currentValueDate.start || startDate,
@@ -279,6 +284,24 @@ const index = () => {
 
     await setEvents(() => [...newEvent]);
     return [...newEvent];
+  };
+
+  const handleDelete = async (e: any) => {
+    console.log(e);
+    console.log(idCalendar);
+    console.log(type);
+    console.log(employee.id);
+    setIsLoading(true);
+    let updateEvent;
+    if (type === (WorkStatus.COME || WorkStatus.NOTCOME)) {
+      await deleteWorkSchedule(employee.id, idCalendar);
+    } else if (type === WorkStatus.LEAVE) {
+      await deleteLeaveSchedule(employee.id, idCalendar);
+    }
+    updateEvent = events.filter((event: any) => event.id !== idCalendar);
+    setEvents(() => [...updateEvent]);
+    setEditable(false);
+    setIsLoading(false);
   };
 
   const handleEventUpdate = async (
@@ -555,6 +578,8 @@ const index = () => {
       setValues({ title: "", start: new Date(), end: new Date() });
       setWorkStatus(WorkStatus.COME);
       setLeaveType("");
+      setType("");
+      setIdCalendar(null);
       setLeaveCause("ลาโดยใช้วันหยุด");
       setLeaveReason("");
       setIsLoading(false);
@@ -568,6 +593,8 @@ const index = () => {
   };
 
   const handleClose = () => {
+    setType("");
+    setIdCalendar("");
     setWorkStatus(WorkStatus.COME);
     setEditable(false);
   };
@@ -741,6 +768,9 @@ const index = () => {
         displayEventTime={true}
       />
       <EventModal
+        handleDelete={handleDelete}
+        type={type}
+        idCalendar={idCalendar}
         values={values}
         setValues={setValues}
         workStatus={workStatus}
