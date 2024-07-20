@@ -26,7 +26,12 @@ enum WorkStatus {
   LEAVE = "leave",
 }
 const employees = () => {
+  const { employees, setEvents } = useKeepEmployeesStore();
   const { keepEmployee, setKeepEmployee } = useKeepEmployeeStore();
+  const events =
+    employees.filter((emp: any) => emp.id === keepEmployee.id)[0].events || [];
+  console.log(events);
+
   const [workSchedule, setWorkSchedule] = useState<[]>();
   const [typeButton, setTypeButton] = useState("Calendar");
   const [leave, setLeave] = useState<[]>();
@@ -36,7 +41,6 @@ const employees = () => {
   const [currentStart, setCurrentStart] = useState("");
   const [currentEnd, setCurrentEnd] = useState("");
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
-  const [events, setEvents]: any = useState([]);
   // const [events, setEvents] = useState<any>();
   function getTotalDaysInMonth(monthString: string) {
     // Parse the month string into a Date object
@@ -76,7 +80,7 @@ const employees = () => {
 
     const eventsData = await addEvents(work.data, leave.data);
 
-    setEvents(eventsData);
+    setEvents(keepEmployee.id, eventsData);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -97,7 +101,7 @@ const employees = () => {
 
       const eventsData = await addEvents(work.data, leave.data);
 
-      setEvents(eventsData);
+      setEvents(keepEmployee.id, eventsData);
     };
     if (currentStart && currentEnd) {
       fetchData();
