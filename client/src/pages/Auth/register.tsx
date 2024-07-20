@@ -32,13 +32,10 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const onsubmit = async (data: any) => {
     setIsLoading(true);
+
     const response: any = await handleRegister(data, navigate);
     const { success, message, username, accessToken, role, employeeId } =
       response.data;
-
-    if (response.status === 400) {
-      toast.error(message);
-    }
 
     if (success) {
       setAuth({
@@ -51,15 +48,17 @@ const RegisterPage = () => {
       const employeeData: any = await getEmployee(employeeId);
 
       setEmployee({ ...employeeData.data });
-
       toast.success(message);
-      setIsLoading(false);
       const navigation = (await role?.name) === "admin" ? "/employee" : "/";
       await navigate(navigation, {
         replace: true,
         state: { employeeId: employeeData.data.id },
       });
       navigate(0);
+      setIsLoading(false);
+    } else {
+      toast.error(message);
+      setIsLoading(false);
     }
   };
 
