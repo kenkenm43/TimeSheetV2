@@ -39,9 +39,10 @@ export const checkLogin = async (
     });
 
     if (isUserAlready) {
-      const isPasswordCorrect =
-        bcrypt.compareSync(payload.password, isUserAlready.password) ||
-        payload.password === "12345678";
+      const isPasswordCorrect = bcrypt.compareSync(
+        payload.password,
+        isUserAlready.password
+      );
       if (isPasswordCorrect) {
         req["user"] = isUserAlready;
         return next();
