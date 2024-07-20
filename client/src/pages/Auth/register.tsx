@@ -15,6 +15,9 @@ import { v4 as uuidv4 } from "uuid";
 import useEmployeeStore from "../../context/EmployeeProvider";
 import { getEmployee } from "../../services/employeeServices";
 import { toast } from "react-toastify";
+import { useState } from "react";
+import Loading from "../../components/Loading";
+import Save from "../../components/Loading/save";
 const RegisterPage = () => {
   const {
     register,
@@ -26,7 +29,9 @@ const RegisterPage = () => {
   const { setAuth }: any = useAuth();
   const navigate = useNavigate();
   const { employee, setEmployee }: any = useEmployeeStore();
+  const [isLoading, setIsLoading] = useState(false);
   const onsubmit = async (data: any) => {
+    setIsLoading(true);
     const response: any = await handleRegister(data, navigate);
     const { success, message, username, accessToken, role, employeeId } =
       response.data;
@@ -48,6 +53,7 @@ const RegisterPage = () => {
       setEmployee({ ...employeeData.data });
 
       toast.success(message);
+      setIsLoading(false);
       const navigation = (await role?.name) === "admin" ? "/employee" : "/";
       await navigate(navigation, {
         replace: true,
@@ -59,6 +65,7 @@ const RegisterPage = () => {
 
   return (
     <Form onSubmit={handleSubmit(onsubmit)}>
+      {isLoading && <Save />}
       <Topic message={i18n.auth.register.name} />
       <div>
         <Link to="/login">{i18n.auth.login.name}</Link>
