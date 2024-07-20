@@ -293,10 +293,10 @@ const index = () => {
     console.log(employee.id);
     setIsLoading(true);
     let updateEvent;
-    if (type === (WorkStatus.COME || WorkStatus.NOTCOME)) {
-      await deleteWorkSchedule(employee.id, idCalendar);
-    } else if (type === WorkStatus.LEAVE) {
+    if (type === WorkStatus.LEAVE) {
       await deleteLeaveSchedule(employee.id, idCalendar);
+    } else {
+      await deleteWorkSchedule(employee.id, idCalendar);
     }
     updateEvent = events.filter((event: any) => event.id !== idCalendar);
     setEvents(() => [...updateEvent]);
