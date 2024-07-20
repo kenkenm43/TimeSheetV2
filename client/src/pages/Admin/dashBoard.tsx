@@ -216,6 +216,7 @@ const dashBoard = () => {
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
               <TableCell>
+                {row.perdiem}
                 {row.perdiem
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}

@@ -13,6 +13,7 @@ import "rsuite/dist/rsuite-no-reset.min.css";
 import Employee from "./Admin/employees";
 
 import PrivateRoute from "./Auth/privateRoute";
+import ListEmployee from "./Admin/listEmployee";
 const ROLES = {
   Admin: "admin",
   User: "user",
@@ -35,6 +36,9 @@ function App() {
         </Route>
         <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
           <Route path="/dashboard" element={<DashBoard />} />
+        </Route>
+        <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+          <Route path="/list" element={<ListEmployee />} />
         </Route>
         <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
           <Route path="/employee" element={<Employee />} />

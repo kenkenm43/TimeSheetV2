@@ -5,6 +5,7 @@ import { RxDashboard } from "react-icons/rx";
 import { FaUser } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { getEmployees } from "../../../services/adminServices";
+import { FaTable } from "react-icons/fa";
 import { logout } from "../../../services/authServices";
 import useKeepEmployeeStore from "../../../context/KeepEmployeeProvider";
 import useKeepEmployeesStore from "../../../context/KeepEmployeesProvider";
@@ -46,6 +47,12 @@ const Sidebar = () => {
     },
     {
       id: 2,
+      title: "ตารางพนักงาน",
+      icon: <FaTable />,
+      link: "/list",
+    },
+    {
+      id: 3,
       title: "Employee",
       icon: <FaUser />,
       link: "/employee",
@@ -156,7 +163,7 @@ const Sidebar = () => {
                 ) : (
                   <img
                     className="object-cover w-8 h-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&h=880&q=80"
+                    src="https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
                     alt="img"
                   />
                 )}
@@ -164,6 +171,7 @@ const Sidebar = () => {
                   <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">
                     <div>{emp?.firstName}</div>
                     <div>{emp?.lastName}</div>
+                    <div>{emp?.nickName ? emp?.nickName : ""}</div>
                   </h1>
                 </div>
               </button>

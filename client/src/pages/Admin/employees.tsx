@@ -14,9 +14,7 @@ import {
 import Calendar from "../../components/Admin/Calendar";
 import { FaEdit, FaRegSave } from "react-icons/fa";
 import moment from "moment";
-import useKeepEmployeesStore from "../../context/KeepEmployeesProvider";
 import Loading from "../../components/Loading";
-import ListWorking from "../../components/ListWorking";
 import Note from "../../components/Admin/์Note";
 import { DatePicker, Input } from "rsuite";
 import Swal from "sweetalert2";
@@ -37,6 +35,7 @@ const employees = () => {
   const [currentStart, setCurrentStart] = useState("");
   const [currentEnd, setCurrentEnd] = useState("");
   const [totalDayInMonth, setTotalDayInMonth] = useState<any>();
+  const [defaultSalary, setDefaultSalary] = useState(0);
   // const [events, setEvents] = useState<any>();
   const [events, setEvents] = useState<any>([]);
   function getTotalDaysInMonth(monthString: string) {
@@ -201,6 +200,11 @@ const employees = () => {
         ? new Date(keepEmployee?.Employment_Details?.start_date)
         : new Date()
     );
+    setDefaultSalary(
+      keepEmployee?.Employment_Details?.salary
+        ? keepEmployee?.Employment_Details?.salary
+        : 0
+    );
     setSalaryMock(
       keepEmployee?.Employment_Details?.salary
         ? keepEmployee?.Employment_Details?.salary
@@ -226,7 +230,7 @@ const employees = () => {
           keepEmployee.id
         );
         setIsLoading(false);
-
+        setDefaultSalary(updateStartDate?.data.Employment_Details?.salary);
         setStartDate(
           new Date(updateStartDate?.data.Employment_Details.start_date)
         );
@@ -519,8 +523,8 @@ const employees = () => {
                   </div>
                   <div className="flex flex-col items-end min-w-8">
                     <span className="font-medium">
-                      {keepEmployee.Employment_Details?.salary
-                        ? keepEmployee.Employment_Details?.salary
+                      {defaultSalary
+                        ? defaultSalary
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
                         : "-"}
@@ -542,28 +546,27 @@ const employees = () => {
                       <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
                         -
                       </div>
-                      {keepEmployee.Employment_Details?.salary
-                        ? (keepEmployee.Employment_Details?.salary * 0.05 >= 750
+                      {defaultSalary
+                        ? (defaultSalary * 0.05 >= 750
                             ? 750
-                            : keepEmployee.Employment_Details?.salary * 0.05
+                            : defaultSalary * 0.05
                           )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
                         : "-"}
                     </span>
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
-                      {keepEmployee.Employment_Details?.salary
+                      {defaultSalary
                         ? (
-                            keepEmployee?.Employment_Details?.salary +
+                            defaultSalary +
                             events.filter((event: any) => event.ot).length *
                               750 +
                             events.filter((event: any) => event.perdiem)
                               .length *
                               250 -
-                            (keepEmployee.Employment_Details?.salary * 0.05 >=
-                            750
+                            (defaultSalary * 0.05 >= 750
                               ? 750
-                              : keepEmployee.Employment_Details?.salary * 0.05)
+                              : defaultSalary * 0.05)
                           )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
