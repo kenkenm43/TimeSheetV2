@@ -294,7 +294,7 @@ const index = () => {
     console.log(type);
     console.log(employee.id);
     setIsLoading(true);
-    let updateEvent;
+    let updateEvent = [];
     if (type === WorkStatus.LEAVE) {
       await deleteLeaveSchedule(employee.id, idCalendar);
     } else {
@@ -638,6 +638,7 @@ const index = () => {
   return (
     <div className="w-full ml-20 mb-10 mt-5">
       {isLoading && <Loading />}
+      {isLoadingCalendar && <Loading />}
       <div className="absolute top-32 left-5 flex flex-col w-72 justify-center">
         <ListWorking />
         ข้อความ
