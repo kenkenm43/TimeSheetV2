@@ -32,7 +32,7 @@ const employees = () => {
   const [typeButton, setTypeButton] = useState("Calendar");
   const [leave, setLeave] = useState<[]>();
   const [costSSO, setCostSSO] = useState(750);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingEvent, setIsLoadingEvent] = useState(false);
   const [currentStart, setCurrentStart] = useState("");
   const [currentEnd, setCurrentEnd] = useState("");
@@ -57,6 +57,8 @@ const employees = () => {
     return new Date(year, month, 0).getDate();
   }
   const handleMonthChange = async (payload: any) => {
+    console.log(payload);
+
     setIsLoading(true);
     setCurrentStart(payload.view.currentStart);
     setCurrentEnd(payload.view.currentEnd);
@@ -84,8 +86,11 @@ const employees = () => {
     setEvents(eventsData);
     setIsLoading(false);
   };
+  console.log(isLoading);
+
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       const work = await getWorkSchedulesByPost(
         {
           currentStart: moment(currentStart).format("YYYY-MM-DD"),
@@ -104,11 +109,10 @@ const employees = () => {
       const eventsData = await addEvents(work.data, leave.data);
 
       setEvents(eventsData);
+      setIsLoading(false);
     };
     if (currentStart && currentEnd) {
-      setIsLoading(true);
       fetchData();
-      setIsLoading(false);
     }
   }, [keepEmployee.id, currentStart, currentEnd]);
 
@@ -285,10 +289,9 @@ const employees = () => {
 
   return (
     <>
+      {isLoading && <Loading />}
       {keepEmployee.id !== "" ? (
         <div className="transition-all p-4 ml-8 min-w-[720px] relative">
-          {isLoading && <Loading />}
-
           <div className="p-1 border rounded-lg relative">
             <div className="flex items-center rounded space-x-5 ">
               {keepEmployee?.photo ? (
