@@ -22,6 +22,7 @@ import moment from "moment";
 import * as XLSX from "xlsx";
 import { getSalaryByEmpId } from "../../services/salaryServices";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
+import Loading from "../../components/Loading";
 const getComparator = (order: any, orderBy: any) => {
   return (a: any, b: any) => {
     if (b[orderBy] < a[orderBy]) return order === "asc" ? -1 : 1;
@@ -38,6 +39,7 @@ const dashBoard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await getSalaryByEmpId(
           {
             // month: moment().month(),
@@ -147,6 +149,7 @@ const dashBoard = () => {
   };
   return (
     <TableContainer component={Paper}>
+      {loading && <Loading />}
       <Stack direction="row" justifyItems={"center"} spacing={2}>
         <div>
           <TextField
