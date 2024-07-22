@@ -70,7 +70,7 @@ const dashBoard = () => {
           } (${dt.employee.nickName || "-"})`,
           position: `${
             dt.employee.Employment_Details.position === ROLESEMPLOOYEE.Trainee
-              ? "เด็กฝึกงาน"
+              ? "ฝึกงาน"
               : "พนักงานทั่วไป"
           }`,
           salary: `${dt.amount}`,
@@ -105,9 +105,12 @@ const dashBoard = () => {
       const matchesName = row.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
+      const matchesPosition = row.position
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
       const matchesMonth = !selectedMonth || row.month === selectedMonth;
       const matchesYear = !selectedYear || row.year === selectedYear;
-      return matchesName && matchesMonth && matchesYear;
+      return (matchesName || matchesPosition) && matchesMonth && matchesYear;
     });
   }, [searchTerm, selectedMonth, selectedYear, data]);
 
@@ -153,7 +156,7 @@ const dashBoard = () => {
       <Stack direction="row" justifyItems={"center"} spacing={2}>
         <div>
           <TextField
-            label="Search by name"
+            label='"ค้นหาชื่อ"'
             variant="outlined"
             margin="dense"
             value={searchTerm}
@@ -168,7 +171,7 @@ const dashBoard = () => {
               <Stack direction="row" justifyItems={"center"} spacing={2}>
                 <DatePicker
                   onChange={handleChangeYear}
-                  label={'"year"'}
+                  label={'"ปี"'}
                   views={["year"]}
                   slotProps={{
                     field: { clearable: true, onClear: () => {} },
@@ -176,7 +179,7 @@ const dashBoard = () => {
                 />
                 <DatePicker
                   onChange={handleChangeMonth}
-                  label={'"month"'}
+                  label={'"เดือน"'}
                   views={["month"]}
                   slotProps={{
                     field: { clearable: true, onClear: () => {} },
