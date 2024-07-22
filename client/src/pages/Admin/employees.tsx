@@ -18,6 +18,7 @@ import Loading from "../../components/Loading";
 import Note from "../../components/Admin/์Note";
 import { DatePicker, Input } from "rsuite";
 import Swal from "sweetalert2";
+import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -336,7 +337,7 @@ const employees = () => {
 
                     {formatPhoneNumber(keepEmployee?.phone_number) || "-"}
                   </span>
-                  <span>
+                  <span className="">
                     <span className="font-semibold"> เงินเดือน : </span>
                     {!isEditProfile ? (
                       salaryMock ? (
@@ -383,6 +384,16 @@ const employees = () => {
                     <span className="font-semibold"> บัญชี : </span>
                     {keepEmployee?.Financial_Details?.bank_account_number ||
                       "-"}
+                  </span>
+                  <span>
+                    <span className="font-semibold"> ตำแหน่ง : </span>
+                    {keepEmployee?.Employment_Details?.position ===
+                    ROLESEMPLOOYEE.Trainee
+                      ? "เด็กฝึกงาน"
+                      : keepEmployee?.Employment_Details?.position ===
+                        ROLESEMPLOOYEE.General
+                      ? "พนักงานทั่วไป"
+                      : "-"}
                   </span>
                   {/* <span>
                     <span className="font-semibold"> เลขประกันสังคม : </span>
@@ -517,7 +528,11 @@ const employees = () => {
                       {events.filter((event: any) => event.perdiem).length})
                     </span>
                     <span className="font-semibold">
-                      <u>หัก</u> ประกันสังคม :
+                      <u>หัก</u>
+                      {keepEmployee.Employment_Details?.position ===
+                      ROLESEMPLOOYEE.Trainee
+                        ? "ประกันสังคม"
+                        : "ภาษี ณ ที่จ่าย"}
                     </span>{" "}
                     <span className="font-semibold"> Total Paid : </span>
                   </div>
@@ -547,12 +562,14 @@ const employees = () => {
                         -
                       </div>
                       {defaultSalary
-                        ? (defaultSalary * 0.05 >= 750
+                        ? keepEmployee.Employment_Details?.position
+                          ? keepEmployee.Employment_Details?.position ===
+                            ROLESEMPLOOYEE.Trainee
+                            ? defaultSalary * 0.03
+                            : defaultSalary * 0.05 >= 750
                             ? 750
                             : defaultSalary * 0.05
-                          )
-                            .toString()
-                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                          : "-"
                         : "-"}
                     </span>
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
@@ -564,9 +581,14 @@ const employees = () => {
                             events.filter((event: any) => event.perdiem)
                               .length *
                               250 -
-                            (defaultSalary * 0.05 >= 750
-                              ? 750
-                              : defaultSalary * 0.05)
+                            (keepEmployee.Employment_Details?.position
+                              ? keepEmployee.Employment_Details?.position ===
+                                ROLESEMPLOOYEE.Trainee
+                                ? defaultSalary * 0.03
+                                : defaultSalary * 0.05 >= 750
+                                ? 750
+                                : defaultSalary * 0.05
+                              : 0)
                           )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")

@@ -32,6 +32,7 @@ import { useLocation } from "react-router-dom";
 import ListMessage from "../ListMessage";
 import { employeeReceiveMessage } from "../../services/messageServices";
 import Loading from "../Loading";
+import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -58,6 +59,7 @@ const index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [idCalendar, setIdCalendar] = useState<any>();
+  const [sso, setSSO] = useState();
   function getTotalDaysInMonth(monthString: string) {
     // Parse the month string into a Date object
     const date: any = new Date(monthString);
@@ -204,7 +206,6 @@ const index = () => {
       setIsLoading(true);
       const { data } = await employeeReceiveMessage(employee.id);
       const employ = await getEmployee(employee.id);
-
       setEmployee(employ.data);
       setMessages(data);
       setIsLoading(false);
@@ -549,12 +550,11 @@ const index = () => {
               events.filter((event: any) => event.perdiem).length
             ),
             sso: Number(
-              employee?.Employment_Details?.salary +
-                events.filter((event: any) => event.ot).length * 750 +
-                events.filter((event: any) => event.perdiem).length * 250 -
-                (employee?.Employment_Details?.salary * 0.05 >= 750
-                  ? 750
-                  : employee?.Employment_Details?.salary * 0.05)
+              employee?.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? employee?.Employment_Details?.salary * 0.03
+                : employee?.Employment_Details?.salary * 0.05 >= 750
+                ? 750
+                : employee?.Employment_Details?.salary * 0.05
             ),
           });
         } else {
@@ -567,7 +567,9 @@ const index = () => {
               events.filter((event: any) => event.perdiem).length
             ),
             sso:
-              employee?.Employment_Details?.salary * 0.05 >= 750
+              employee?.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? employee?.Employment_Details?.salary * 0.03
+                : employee?.Employment_Details?.salary * 0.05 >= 750
                 ? 750
                 : employee?.Employment_Details?.salary * 0.05,
           });
@@ -604,7 +606,7 @@ const index = () => {
   };
 
   const [messages, setMessages] = useState([]);
-
+  const [position, setPosition] = useState();
   return (
     <div className="w-full ml-20 mb-10 mt-5">
       {isLoading && <Loading />}
@@ -627,7 +629,10 @@ const index = () => {
               {events.filter((event: any) => event.perdiem).length})
             </span>
             <span className="font-semibold">
-              <u>หัก</u> ประกันสังคม :
+              <u>หัก</u>
+              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? "ประกันสังคม"
+                : "ภาษี ณ ที่จ่าย"}
             </span>{" "}
             <span className="font-semibold"> Total Paid : </span>
           </div>
@@ -653,15 +658,35 @@ const index = () => {
               <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
                 -
               </div>
-
-              {employee.Employment_Details?.salary
+              {employee.Employment_Details?.position ===
+              ROLESEMPLOOYEE.Trainee ? (
+                <>
+                  {employee.Employment_Details?.salary
+                    ? (employee.Employment_Details?.salary * 0.03)
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                    : "-"}
+                </>
+              ) : (
+                <>
+                  {employee.Employment_Details?.salary
+                    ? (employee.Employment_Details?.salary * 0.05 >= 750
+                        ? 750
+                        : employee.Employment_Details?.salary * 0.05
+                      )
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                    : "-"}
+                </>
+              )}
+              {/* {employee.Employment_Details?.salary
                 ? (employee.Employment_Details?.salary * 0.05 >= 750
                     ? 750
                     : employee.Employment_Details?.salary * 0.05
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                : "-"}
+                : "-"} */}
             </span>
             <span className="font-medium border-double border-b-4 border-black text-right relative">
               {employee.Employment_Details?.salary
@@ -669,9 +694,12 @@ const index = () => {
                     employee?.Employment_Details?.salary +
                     events.filter((event: any) => event.ot).length * 750 +
                     events.filter((event: any) => event.perdiem).length * 250 -
-                    (employee.Employment_Details?.salary * 0.05 >= 750
+                    (employee?.Employment_Details?.position ===
+                    ROLESEMPLOOYEE.Trainee
+                      ? employee?.Employment_Details?.salary * 0.03
+                      : employee?.Employment_Details?.salary * 0.05 >= 750
                       ? 750
-                      : employee.Employment_Details?.salary * 0.05)
+                      : employee?.Employment_Details?.salary * 0.05)
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")

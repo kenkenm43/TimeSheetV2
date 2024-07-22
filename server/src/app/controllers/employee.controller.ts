@@ -50,6 +50,7 @@ const updateEmployeeStartWork = async (req: Request, res: Response) => {
       data: {
         Employment_Details: {
           update: {
+            position: payload.position,
             start_date: payload.start_date,
             salary: Number(payload.salary),
           },
