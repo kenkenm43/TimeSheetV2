@@ -19,6 +19,7 @@ import Note from "../../components/Admin/์Note";
 import { DatePicker, Input } from "rsuite";
 import Swal from "sweetalert2";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
+import { calOT, calSSO } from "../../helpers/cal";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -449,7 +450,7 @@ const employees = () => {
               <div className="flex">
                 <div className="flex pt-5 ml-10 space-x-5">
                   <div className="font-semibold">
-                    เดือนนี้ มี {totalDayInMonth} วัน :{" "}
+                    เดือนนี้ มี {totalDayInMonth} วัน{" "}
                   </div>
                   <div className="space-y-1">
                     <div>
@@ -517,10 +518,37 @@ const employees = () => {
                 <div className="flex space-x-4 relative bottom-5 left-10">
                   <div className="pl-5 absolute right-[-27px]">+</div>
                   <div className="flex flex-col">
-                    <span className="font-semibold">เงินเดือน :</span>{" "}
+                    <span className="font-semibold">
+                      เงินเดือน{" "}
+                      {keepEmployee.Employment_Details.position ===
+                      ROLESEMPLOOYEE.Trainee ? (
+                        <>
+                          {" "}
+                          {
+                            events.filter(
+                              (event: any) => event.type === WorkStatus.COME
+                            ).length
+                          }
+                          วัน X 500 :
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                    </span>{" "}
                     <span>
-                      OT (750 X {events.filter((event: any) => event.ot).length}
-                      )
+                      OT (
+                      {keepEmployee.Employment_Details?.position ===
+                      ROLESEMPLOOYEE.Trainee
+                        ? calOT(
+                            events.filter(
+                              (event: any) => event.type === WorkStatus.COME
+                            ).length * 500
+                          )
+                        : keepEmployee.Employment_Details?.position ===
+                          ROLESEMPLOOYEE.General
+                        ? calOT(keepEmployee.Employment_Details.salary)
+                        : 0}
+                      X {events.filter((event: any) => event.ot).length})
                     </span>
                     <span>
                       {" "}
@@ -530,7 +558,7 @@ const employees = () => {
                     <span className="font-semibold">
                       <u>หัก</u>
                       {keepEmployee.Employment_Details?.position ===
-                      ROLESEMPLOOYEE.Trainee
+                      ROLESEMPLOOYEE.General
                         ? "ประกันสังคม"
                         : "ภาษี ณ ที่จ่าย"}
                     </span>{" "}
@@ -538,16 +566,38 @@ const employees = () => {
                   </div>
                   <div className="flex flex-col items-end min-w-8">
                     <span className="font-medium">
-                      {defaultSalary
-                        ? defaultSalary
+                      {keepEmployee.Employment_Details?.position ===
+                      ROLESEMPLOOYEE.Trainee
+                        ? (
+                            events.filter(
+                              (event: any) => event.type === WorkStatus.COME
+                            ).length * 500
+                          )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                        : "-"}
+                        : keepEmployee.Employment_Details?.position ===
+                          ROLESEMPLOOYEE.General
+                        ? defaultSalary
+                          ? defaultSalary
+                              .toString()
+                              .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                          : 0
+                        : 0}
                     </span>
                     <span>
-                      {(events.filter((event: any) => event.ot).length * 750)
+                      {(
+                        events.filter((event: any) => event.ot).length *
+                        calOT(
+                          keepEmployee.Employment_Details?.position ===
+                            ROLESEMPLOOYEE.General
+                            ? keepEmployee.Employment_Details?.salary
+                            : events.filter(
+                                (event: any) => event.type === WorkStatus.COME
+                              ).length * 500
+                        )
+                      )
                         .toString()
-                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || 0}
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
                     </span>
                     <span className="border-b-2 border-black w-full text-right">
                       {(
@@ -561,41 +611,62 @@ const employees = () => {
                       <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
                         -
                       </div>
-                      {defaultSalary
-                        ? (keepEmployee.Employment_Details?.position
-                            ? keepEmployee.Employment_Details?.position ===
-                              ROLESEMPLOOYEE.Trainee
-                              ? defaultSalary * 0.03
-                              : defaultSalary * 0.05 >= 750
-                              ? 750
-                              : defaultSalary * 0.05
-                            : 0
-                          )
-                            .toString()
-                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                        : "-"}
+                      {(keepEmployee.Employment_Details?.position
+                        ? keepEmployee.Employment_Details?.position ===
+                          ROLESEMPLOOYEE.Trainee
+                          ? events.filter(
+                              (event: any) => event.type === WorkStatus.COME
+                            ).length *
+                            500 *
+                            0.03
+                          : keepEmployee.Employment_Details?.salary * 0.05 >=
+                            750
+                          ? 750
+                          : keepEmployee.Employment_Details?.salary * 0.05
+                        : 0
+                      )
+                        .toString()
+                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
                     </span>
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">
-                      {defaultSalary
+                      {keepEmployee.Employment_Details?.position ===
+                      ROLESEMPLOOYEE.Trainee
                         ? (
-                            defaultSalary +
+                            events.filter(
+                              (event: any) => event.type === WorkStatus.COME
+                            ).length *
+                              500 +
                             events.filter((event: any) => event.ot).length *
-                              750 +
+                              calOT(
+                                events.filter(
+                                  (event: any) => event.type === WorkStatus.COME
+                                ).length * 500
+                              ) +
                             events.filter((event: any) => event.perdiem)
                               .length *
                               250 -
-                            (keepEmployee.Employment_Details?.position
-                              ? keepEmployee.Employment_Details?.position ===
-                                ROLESEMPLOOYEE.Trainee
-                                ? defaultSalary * 0.03
-                                : defaultSalary * 0.05 >= 750
-                                ? 750
-                                : defaultSalary * 0.05
-                              : 0)
+                            events.filter(
+                              (event: any) => event.type === WorkStatus.COME
+                            ).length *
+                              500 *
+                              0.03
                           )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                        : "-"}
+                        : keepEmployee.Employment_Details?.position ===
+                          ROLESEMPLOOYEE.General
+                        ? (
+                            defaultSalary +
+                            events.filter((event: any) => event.ot).length *
+                              calOT(keepEmployee.Employment_Details.salary) +
+                            events.filter((event: any) => event.perdiem)
+                              .length *
+                              250 -
+                            calSSO(keepEmployee.Employment_Details.salary)
+                          )
+                            .toString()
+                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                        : 0}
                     </span>
                   </div>
                 </div>

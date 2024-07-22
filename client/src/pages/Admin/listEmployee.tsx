@@ -12,7 +12,6 @@ const listEmployee = () => {
   //     { id: 3, fullname: "Sam Johnson", nickname: "Sammy", idCard: "ID11223" },
   //     // Add more employee data here
   //   ];
-  console.log("employees", employees);
 
   const data: any = useMemo(
     () =>

@@ -33,6 +33,7 @@ import ListMessage from "../ListMessage";
 import { employeeReceiveMessage } from "../../services/messageServices";
 import Loading from "../Loading";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
+import { calOT, calSSO } from "../../helpers/cal";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -544,34 +545,61 @@ const index = () => {
             employeeId: employee.id,
             month: moment(values.start).month(),
             year: moment(values.start).year(),
-            amount: employee?.Employment_Details?.salary,
+            amount:
+              employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? events.filter((event: any) => event.type === WorkStatus.COME)
+                    .length * 500
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? employee?.Employment_Details?.salary
+                : 0,
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
             ),
             sso: Number(
               employee?.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? employee?.Employment_Details?.salary * 0.03
-                : employee?.Employment_Details?.salary * 0.05 >= 750
-                ? 750
-                : employee?.Employment_Details?.salary * 0.05
+                ? events.filter((event: any) => event.type === WorkStatus.COME)
+                    .length *
+                    500 *
+                    0.03
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? employee?.Employment_Details?.salary * 0.05 >= 750
+                  ? 750
+                  : employee?.Employment_Details?.salary * 0.05
+                : 0
             ),
           });
         } else {
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,
-            amount: employee?.Employment_Details?.salary,
+            amount:
+              employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? events.filter((event: any) => event.type === WorkStatus.COME)
+                    .length * 500
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? employee?.Employment_Details?.salary
+                : 0,
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
             ),
-            sso:
+            sso: Number(
               employee?.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? employee?.Employment_Details?.salary * 0.03
-                : employee?.Employment_Details?.salary * 0.05 >= 750
-                ? 750
-                : employee?.Employment_Details?.salary * 0.05,
+                ? events.filter((event: any) => event.type === WorkStatus.COME)
+                    .length *
+                    500 *
+                    0.03
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? employee?.Employment_Details?.salary * 0.05 >= 750
+                  ? 750
+                  : employee?.Employment_Details?.salary * 0.05
+                : 0
+            ),
           });
         }
       }
@@ -619,9 +647,35 @@ const index = () => {
         <div className="flex space-x-4 relative">
           <div className="pl-5 absolute top-7 right-[-27px]">+</div>
           <div className="flex flex-col w-full">
-            <span className="font-semibold">เงินเดือน :</span>{" "}
+            <span className="font-semibold">
+              เงินเดือน{" "}
+              {employee.Employment_Details?.position ===
+              ROLESEMPLOOYEE.Trainee ? (
+                <>
+                  {
+                    events.filter(
+                      (event: any) => event.type === WorkStatus.COME
+                    ).length
+                  }
+                  วัน X 500 :
+                </>
+              ) : (
+                <>:</>
+              )}
+            </span>{" "}
             <span>
-              OT (750 X {events.filter((event: any) => event.ot).length})
+              OT (
+              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? calOT(
+                    events.filter(
+                      (event: any) => event.type === WorkStatus.COME
+                    ).length * 500
+                  )
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? calOT(employee.Employment_Details.salary)
+                : 0}
+              X {events.filter((event: any) => event.ot).length})
             </span>
             <span>
               {" "}
@@ -630,7 +684,7 @@ const index = () => {
             </span>
             <span className="font-semibold">
               <u>หัก</u>
-              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+              {employee.Employment_Details?.position === ROLESEMPLOOYEE.General
                 ? "ประกันสังคม"
                 : "ภาษี ณ ที่จ่าย"}
             </span>{" "}
@@ -638,14 +692,35 @@ const index = () => {
           </div>
           <div className="flex flex-col items-end ml-5 min-w-6">
             <span className="font-medium">
-              {employee.Employment_Details?.salary
-                ? employee.Employment_Details?.salary
+              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+                ? (
+                    events.filter(
+                      (event: any) => event.type === WorkStatus.COME
+                    ).length * 500
+                  )
                     .toString()
-                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                : "-"}
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? employee.Employment_Details.salary
+                  ? employee.Employment_Details.salary
+                      .toString()
+                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                  : ""
+                : 0}
             </span>
             <span>
-              {(events.filter((event: any) => event.ot).length * 750)
+              {(
+                events.filter((event: any) => event.ot).length *
+                calOT(
+                  employee.Employment_Details?.position ===
+                    ROLESEMPLOOYEE.General
+                    ? employee.Employment_Details?.salary
+                    : events.filter(
+                        (event: any) => event.type === WorkStatus.COME
+                      ).length * 500
+                )
+              )
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
             </span>
@@ -661,33 +736,53 @@ const index = () => {
               {(employee.Employment_Details?.position
                 ? employee.Employment_Details?.position ===
                   ROLESEMPLOOYEE.Trainee
-                  ? employee.Employment_Details?.salary * 0.03
-                  : employee.Employment_Details?.salary * 0.05 > 750
+                  ? events.filter(
+                      (event: any) => event.type === WorkStatus.COME
+                    ).length *
+                    500 *
+                    0.03
+                  : employee.Employment_Details?.salary * 0.05 >= 750
                   ? 750
-                  : employee.Employment_Details?.salary * 0.05 * 0.05
+                  : employee.Employment_Details?.salary * 0.05
                 : 0
               )
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
             </span>
-            <span className="font-medium border-double border-b-4 border-black text-right relative">
-              {employee.Employment_Details?.salary
+            <span className="font-medium border-double border-b-4  text-right border-black relative">
+              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
                 ? (
-                    employee?.Employment_Details?.salary +
-                    events.filter((event: any) => event.ot).length * 750 +
+                    events.filter(
+                      (event: any) => event.type === WorkStatus.COME
+                    ).length *
+                      500 +
+                    events.filter((event: any) => event.ot).length *
+                      calOT(
+                        events.filter(
+                          (event: any) => event.type === WorkStatus.COME
+                        ).length * 500
+                      ) +
                     events.filter((event: any) => event.perdiem).length * 250 -
-                    (employee?.Employment_Details?.position
-                      ? employee?.Employment_Details?.position ===
-                        ROLESEMPLOOYEE.Trainee
-                        ? employee?.Employment_Details?.salary * 0.03
-                        : employee?.Employment_Details?.salary * 0.05 >= 750
-                        ? 750
-                        : employee?.Employment_Details?.salary * 0.05
-                      : 0)
+                    events.filter(
+                      (event: any) => event.type === WorkStatus.COME
+                    ).length *
+                      500 *
+                      0.03
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                : "-"}
+                : employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.General
+                ? (
+                    employee.Employment_Details.salary +
+                    events.filter((event: any) => event.ot).length *
+                      calOT(employee.Employment_Details.salary) +
+                    events.filter((event: any) => event.perdiem).length * 250 -
+                    calSSO(employee.Employment_Details.salary)
+                  )
+                    .toString()
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                : 0}
             </span>
           </div>
         </div>

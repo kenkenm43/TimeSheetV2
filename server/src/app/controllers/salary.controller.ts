@@ -5,7 +5,6 @@ import prisma from "../../config/prisma";
 const addSalary = async (req: Request, res: Response) => {
   try {
     const { month, year, employeeId, amount, ot, perdiem, sso } = req.body;
-    console.log(req.body);
 
     const users = await prisma.salary.create({
       data: {
@@ -33,8 +32,6 @@ const getSalaryById = async (req: Request, res: Response) => {
     const year = Number(req.query.year);
     let salary;
     if (empId === "all") {
-      console.log("all");
-
       salary = await prisma.salary.findMany({
         include: {
           employee: {
@@ -47,9 +44,7 @@ const getSalaryById = async (req: Request, res: Response) => {
           },
         },
       });
-      console.log("salary: ", salary);
     } else {
-      console.log("w");
       salary = await prisma.salary.findFirst({
         where: {
           employeeId: empId,
@@ -58,8 +53,6 @@ const getSalaryById = async (req: Request, res: Response) => {
         },
       });
     }
-
-    console.log("salary: ", salary);
 
     return res.status(200).json(salary);
   } catch (e) {
@@ -83,8 +76,6 @@ const updateSalary = async (req: Request, res: Response) => {
         sso: Number(sso),
       },
     });
-    console.log(sly);
-
     return res.status(201).json(sly);
   } catch (e) {
     return res.status(500).json({ error: e });
