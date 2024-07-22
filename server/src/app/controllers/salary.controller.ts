@@ -38,7 +38,12 @@ const getSalaryById = async (req: Request, res: Response) => {
       salary = await prisma.salary.findMany({
         include: {
           employee: {
-            select: { firstName: true, lastName: true, nickName: true },
+            select: {
+              firstName: true,
+              lastName: true,
+              nickName: true,
+              Employment_Details: { select: { position: true } },
+            },
           },
         },
       });

@@ -21,6 +21,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { getSalaryByEmpId } from "../../services/salaryServices";
+import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 const getComparator = (order: any, orderBy: any) => {
   return (a: any, b: any) => {
     if (b[orderBy] < a[orderBy]) return order === "asc" ? -1 : 1;
@@ -57,12 +58,19 @@ const dashBoard = () => {
   const data: any = useMemo(
     () =>
       datas.map((dt: any) => {
+        console.log(dt);
+
         return {
           year: dt.year,
           month: dt.month,
           name: `${dt.employee.firstName || "-"} ${
             dt.employee.lastName || "-"
           } (${dt.employee.nickName || "-"})`,
+          position: `${
+            dt.employee.Employment_Details.position === ROLESEMPLOOYEE.Trainee
+              ? "เด็กฝึกงาน"
+              : "พนักงานทั่วไป"
+          }`,
           salary: `${dt.amount}`,
           ot: `${dt.ot * 750}`,
           perdiem: `${dt.perdiem * 250}`,
@@ -76,6 +84,7 @@ const dashBoard = () => {
     "ปี",
     "เดือน",
     "ชื่อ",
+    "position",
     "salary",
     "ot",
     "perdiem",
@@ -134,7 +143,7 @@ const dashBoard = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Data");
 
     // Export the Excel file
-    XLSX.writeFile(workbook, "List.xlsx");
+    XLSX.writeFile(workbook, `List${moment()}.xlsx`);
   };
   return (
     <TableContainer component={Paper}>
@@ -205,28 +214,28 @@ const dashBoard = () => {
               <TableCell>{row.year}</TableCell>
               <TableCell>{row.month + 1}</TableCell>
               <TableCell>{row.name}</TableCell>
-              <TableCell>
+              <TableCell>{row.position}</TableCell>
+              <TableCell align="center">
                 {row.salary
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
-              <TableCell>
+              <TableCell align="center">
                 {row.ot
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
-              <TableCell>
-                {row.perdiem}
+              <TableCell align="center">
                 {row.perdiem
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
-              <TableCell>
+              <TableCell align="center">
                 {row.sso
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
-              <TableCell>
+              <TableCell align="center">
                 {(
                   Number(row.perdiem) +
                   Number(row.ot) +
@@ -243,28 +252,29 @@ const dashBoard = () => {
           <TableRow>
             <TableCell></TableCell>
             <TableCell></TableCell>
+            <TableCell></TableCell>
             <TableCell>Total</TableCell>
-            <TableCell>
+            <TableCell align="center">
               {totalSalary
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
             </TableCell>
-            <TableCell>
+            <TableCell align="center">
               {totalOT
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
             </TableCell>
-            <TableCell>
+            <TableCell align="center">
               {totalPerdiem
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
             </TableCell>
-            <TableCell>
+            <TableCell align="center">
               {totalSSO
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
             </TableCell>
-            <TableCell>
+            <TableCell align="center">
               {(totalPerdiem + totalOT + totalSalary - totalSSO)
                 .toString()
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}

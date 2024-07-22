@@ -562,14 +562,17 @@ const employees = () => {
                         -
                       </div>
                       {defaultSalary
-                        ? keepEmployee.Employment_Details?.position
-                          ? keepEmployee.Employment_Details?.position ===
-                            ROLESEMPLOOYEE.Trainee
-                            ? defaultSalary * 0.03
-                            : defaultSalary * 0.05 >= 750
-                            ? 750
-                            : defaultSalary * 0.05
-                          : "-"
+                        ? (keepEmployee.Employment_Details?.position
+                            ? keepEmployee.Employment_Details?.position ===
+                              ROLESEMPLOOYEE.Trainee
+                              ? defaultSalary * 0.03
+                              : defaultSalary * 0.05 >= 750
+                              ? 750
+                              : defaultSalary * 0.05
+                            : 0
+                          )
+                            .toString()
+                            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
                         : "-"}
                     </span>
                     <span className="font-medium border-double border-b-4 border-black w-full text-right relative">

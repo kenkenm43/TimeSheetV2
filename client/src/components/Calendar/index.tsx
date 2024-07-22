@@ -658,35 +658,17 @@ const index = () => {
               <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
                 -
               </div>
-              {employee.Employment_Details?.position ===
-              ROLESEMPLOOYEE.Trainee ? (
-                <>
-                  {employee.Employment_Details?.salary
-                    ? (employee.Employment_Details?.salary * 0.03)
-                        .toString()
-                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                    : "-"}
-                </>
-              ) : (
-                <>
-                  {employee.Employment_Details?.salary
-                    ? (employee.Employment_Details?.salary * 0.05 >= 750
-                        ? 750
-                        : employee.Employment_Details?.salary * 0.05
-                      )
-                        .toString()
-                        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                    : "-"}
-                </>
-              )}
-              {/* {employee.Employment_Details?.salary
-                ? (employee.Employment_Details?.salary * 0.05 >= 750
-                    ? 750
-                    : employee.Employment_Details?.salary * 0.05
-                  )
-                    .toString()
-                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                : "-"} */}
+              {(employee.Employment_Details?.position
+                ? employee.Employment_Details?.position ===
+                  ROLESEMPLOOYEE.Trainee
+                  ? employee.Employment_Details?.salary * 0.03
+                  : employee.Employment_Details?.salary * 0.05 > 750
+                  ? 750
+                  : employee.Employment_Details?.salary * 0.05 * 0.05
+                : 0
+              )
+                .toString()
+                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
             </span>
             <span className="font-medium border-double border-b-4 border-black text-right relative">
               {employee.Employment_Details?.salary
@@ -694,12 +676,14 @@ const index = () => {
                     employee?.Employment_Details?.salary +
                     events.filter((event: any) => event.ot).length * 750 +
                     events.filter((event: any) => event.perdiem).length * 250 -
-                    (employee?.Employment_Details?.position ===
-                    ROLESEMPLOOYEE.Trainee
-                      ? employee?.Employment_Details?.salary * 0.03
-                      : employee?.Employment_Details?.salary * 0.05 >= 750
-                      ? 750
-                      : employee?.Employment_Details?.salary * 0.05)
+                    (employee?.Employment_Details?.position
+                      ? employee?.Employment_Details?.position ===
+                        ROLESEMPLOOYEE.Trainee
+                        ? employee?.Employment_Details?.salary * 0.03
+                        : employee?.Employment_Details?.salary * 0.05 >= 750
+                        ? 750
+                        : employee?.Employment_Details?.salary * 0.05
+                      : 0)
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")

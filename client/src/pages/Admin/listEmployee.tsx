@@ -21,9 +21,13 @@ const listEmployee = () => {
           fullname: `${emp.firstName} ${emp.lastName} ${
             emp.nickname ? emp.nickname : ""
           }`,
-          salary: `${emp.Employment_Details.salary
-            .toString()
-            .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}`,
+          salary: `${
+            emp.Employment_Details.salary
+              ? emp.Employment_Details.salary
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+              : "-"
+          }`,
           bank_name: `${emp.Financial_Details.bank_name || "-"}`,
           bank_id: `${emp.Financial_Details.bank_id || "-"}`,
           date_of_birth: `${emp.date_of_birth || "-"}`,
