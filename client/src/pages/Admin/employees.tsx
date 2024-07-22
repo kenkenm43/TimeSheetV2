@@ -57,6 +57,7 @@ const employees = () => {
     return new Date(year, month, 0).getDate();
   }
   const handleMonthChange = async (payload: any) => {
+    setIsLoading(true);
     setCurrentStart(payload.view.currentStart);
     setCurrentEnd(payload.view.currentEnd);
     setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
@@ -81,6 +82,7 @@ const employees = () => {
     console.log("events", eventsData);
 
     setEvents(eventsData);
+    setIsLoading(false);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -104,7 +106,9 @@ const employees = () => {
       setEvents(eventsData);
     };
     if (currentStart && currentEnd) {
+      setIsLoading(true);
       fetchData();
+      setIsLoading(false);
     }
   }, [keepEmployee.id, currentStart, currentEnd]);
 
@@ -390,10 +394,10 @@ const employees = () => {
                     <span className="font-semibold"> ตำแหน่ง : </span>
                     {keepEmployee?.Employment_Details?.position ===
                     ROLESEMPLOOYEE.Trainee
-                      ? "เด็กฝึกงาน"
+                      ? "ฝึกงาน"
                       : keepEmployee?.Employment_Details?.position ===
                         ROLESEMPLOOYEE.General
-                      ? "พนักงานทั่วไป"
+                      ? "พนักงานประจำ"
                       : "-"}
                   </span>
                   {/* <span>
