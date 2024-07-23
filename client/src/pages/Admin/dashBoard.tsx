@@ -23,6 +23,7 @@ import * as XLSX from "xlsx";
 import { getSalaryByEmpId } from "../../services/salaryServices";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 import Loading from "../../components/Loading";
+import { calOT } from "../../helpers/cal";
 const getComparator = (order: any, orderBy: any) => {
   return (a: any, b: any) => {
     if (b[orderBy] < a[orderBy]) return order === "asc" ? -1 : 1;
@@ -74,10 +75,12 @@ const dashBoard = () => {
               : "พนักงานทั่วไป"
           }`,
           salary: `${dt.amount}`,
-          ot: `${dt.ot * 750}`,
+          ot: `${dt.ot * calOT(dt.amount)}`,
           perdiem: `${dt.perdiem * 250}`,
           sso: `${dt.sso}`,
-          total: `${dt.amount + dt.ot * 750 + dt.perdiem * 250 - dt.sso}`,
+          total: `${
+            dt.amount + dt.ot * calOT(dt.amount) + dt.perdiem * 250 - dt.sso
+          }`,
         };
       }),
     [datas]

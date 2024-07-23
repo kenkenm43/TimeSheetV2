@@ -289,10 +289,6 @@ const index = () => {
   };
 
   const handleDelete = async (e: any) => {
-    console.log(e);
-    console.log(idCalendar);
-    console.log(type);
-    console.log(employee.id);
     setIsLoading(true);
     let updateEvent = [];
     if (type === WorkStatus.LEAVE) {
