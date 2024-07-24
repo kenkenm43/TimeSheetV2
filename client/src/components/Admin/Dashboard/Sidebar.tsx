@@ -36,6 +36,7 @@ const Sidebar = () => {
     }
   };
   const [isOpenListEmployees, setIsOpenListEmployees] = useState<boolean>(true);
+  const [currentNavigate, setCurrentNavigate] = useState("");
   const links = [
     {
       id: 1,
@@ -62,10 +63,12 @@ const Sidebar = () => {
     icon: <FiLogOut />,
     link: "/logout",
   };
-  const openListEmployees = () => {
+  const openListEmployees = (title: any) => {
+    setCurrentNavigate(title);
     setIsOpenListEmployees(true);
   };
-  const closeListEmployees = () => {
+  const closeListEmployees = (title: any) => {
+    setCurrentNavigate(title);
     setIsOpenListEmployees(false);
   };
 
@@ -74,6 +77,7 @@ const Sidebar = () => {
     await logout();
     setIsLoading(false);
   };
+  console.log(currentNavigate);
 
   return (
     <>
@@ -98,8 +102,12 @@ const Sidebar = () => {
                     <>
                       <Link
                         to={nav.link}
-                        className={`flex items-center p-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group `}
-                        onClick={openListEmployees}
+                        className={`flex items-center p-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700 group ${
+                          currentNavigate === nav.title
+                            ? "bg-gray-200 dark:bg-gray-800"
+                            : ""
+                        }`}
+                        onClick={() => openListEmployees(nav.title)}
                       >
                         {nav.icon}
                         {!isOpenListEmployees && (
@@ -111,8 +119,12 @@ const Sidebar = () => {
                     <>
                       <Link
                         to={nav.link}
-                        className="flex items-center p-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                        onClick={closeListEmployees}
+                        className={`flex items-center p-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700 group ${
+                          currentNavigate === nav.title
+                            ? "bg-gray-200 dark:bg-gray-800"
+                            : ""
+                        }`}
+                        onClick={() => closeListEmployees(nav.title)}
                       >
                         {nav.icon}
                         {!isOpenListEmployees && (

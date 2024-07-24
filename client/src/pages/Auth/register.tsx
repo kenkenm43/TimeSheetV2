@@ -16,8 +16,8 @@ import useEmployeeStore from "../../context/EmployeeProvider";
 import { getEmployee } from "../../services/employeeServices";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import Loading from "../../components/Loading";
 import Save from "../../components/Loading/save";
+import useRecovery from "../../context/RecoveryProvider";
 const RegisterPage = () => {
   const {
     register,
@@ -26,6 +26,7 @@ const RegisterPage = () => {
   } = useForm({
     resolver: yupResolver(validateRegister),
   });
+  const { setPage } = useRecovery();
   const { setAuth }: any = useAuth();
   const navigate = useNavigate();
   const { employee, setEmployee }: any = useEmployeeStore();
@@ -61,14 +62,15 @@ const RegisterPage = () => {
       setIsLoading(false);
     }
   };
-
+  const goLogin = () => {
+    navigate("/login");
+    setPage("login");
+  };
   return (
     <Form onSubmit={handleSubmit(onsubmit)}>
       {isLoading && <Save />}
       <Topic message={i18n.auth.register.name} />
-      <div>
-        <Link to="/login">{i18n.auth.login.name}</Link>
-      </div>
+      <div></div>
       <Input
         register={register("username")}
         type="text"
@@ -88,6 +90,12 @@ const RegisterPage = () => {
         text="นามสกุล"
       />
       <Input
+        register={register("email")}
+        type="text"
+        errors={errors.email}
+        text="อีเมล"
+      />
+      <Input
         register={register("idCard")}
         type="text"
         errors={errors.idCard}
@@ -105,6 +113,12 @@ const RegisterPage = () => {
         errors={errors.confirmPassword}
         text="ยืนนยันรหัสผ่าน"
       />
+      <div>
+        <button onClick={goLogin} className="text-blue-500 hover:text-blue-700">
+          {i18n.auth.login.name}
+        </button>
+      </div>
+
       <Button text={i18n.auth.register.button} type={"submit"} />
     </Form>
   );

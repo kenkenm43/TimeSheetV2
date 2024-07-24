@@ -11,16 +11,15 @@ import { useState } from "react";
 import { login, resetPassword } from "../../services/authServices";
 import { getEmployee } from "../../services/employeeServices";
 import useAuth from "../../hooks/useAuth";
-import { sendOTPtoEmail } from "../../helpers/validate";
+import { sendOTPtoEmail, validateResetPassword } from "../../helpers/validate";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useEmployeeStore from "../../context/EmployeeProvider";
 import Button from "../../components/Form/Button";
 import useRecovery from "../../context/RecoveryProvider";
 const ForgotPassword = () => {
-  const { employee, setEmployee, setOTP }: any = useEmployeeStore();
   const [isLoading, setIsLoading] = useState(false);
-  const { email, setPage } = useRecovery();
+  const { email, setPage, setOTP, setEmail } = useRecovery();
   const navigate = useNavigate();
   const {
     register,
@@ -29,37 +28,6 @@ const ForgotPassword = () => {
   } = useForm({
     resolver: yupResolver(sendOTPtoEmail),
   });
-
-  // const onsubmit = async (datas: any) => {
-  //   const { setAuth }: any = useAuth();
-  //   setIsLoading(true);
-  //   const response: any = await login(datas);
-  //   const { success, username, message, accessToken, role, employeeId } =
-  //     response.data;
-
-  //   if (success) {
-  //     setAuth({
-  //       id: uuidv4(),
-  //       username: username,
-  //       employeeId: employeeId,
-  //       accessToken: accessToken,
-  //       role: role,
-  //     });
-
-  //     const employeeData: any = await getEmployee(employeeId);
-
-  //     setEmployee({ ...employeeData.data });
-
-  //     toast.success(message);
-  //     const navigation = (await role?.name) === "admin" ? "/dashboard" : "/";
-  //     await navigate(navigation, {
-  //       replace: true,
-  //       state: { employeeId: employeeData.data.id },
-  //     });
-  //     navigate(0);
-  //   }
-  //   setIsLoading(false);
-  // };
 
   const navigateToOtp = async (datas: any) => {
     setIsLoading(true);
@@ -70,6 +38,7 @@ const ForgotPassword = () => {
 
         const OTP = Math.floor(Math.random() * 9000 + 1000);
         setOTP(OTP);
+        setEmail(datas.email);
         await resetPassword({ recipient_email: datas.email, OTP });
         setPage("otp");
       }
@@ -80,7 +49,7 @@ const ForgotPassword = () => {
     }
   };
   return (
-    <Form onSubmit={navigateToOtp(onsubmit)}>
+    <Form onSubmit={handleSubmit(navigateToOtp)}>
       {isLoading && <Loading />}
       <Topic message={i18n.auth["forgot-password"].name} />
       <div></div>

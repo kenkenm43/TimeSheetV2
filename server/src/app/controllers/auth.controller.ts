@@ -9,6 +9,7 @@ import {
   UserRegisterPayloadType,
   UserType,
 } from "../../types/userTypes";
+import { sendEmail } from "../../libs/nodeMailer";
 import { getAuthToken } from "../middlewares/authToken";
 import { ErrorHandler, handleError } from "../../utils/error";
 
@@ -29,6 +30,7 @@ const handleRegister: RequestHandler = async (
       data: {
         firstName: payload.firstName,
         lastName: payload.lastName,
+        email: payload.email,
         idCard: payload.idCard,
         gender: "",
         System_Access: {
@@ -38,7 +40,9 @@ const handleRegister: RequestHandler = async (
           },
         },
         Employment_Details: {
-          create: {},
+          create: {
+            position: "general",
+          },
         },
         Financial_Details: {
           create: {},
@@ -75,6 +79,19 @@ const handleLogin: RequestHandler = async (
     return res.status(401).json({ message: "login fail", error });
   }
 };
+const handleResetPassword: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
+  try {
+    sendEmail(req.body)
+      .then((response: any) => res.send(response.message))
+      .catch((error: any) => res.status(500).send(error.message));
+  } catch (error) {
+    return res.status(401).json({ message: "reset password fail", error });
+  }
+};
 
 const handleLogout: RequestHandler = async (
   req: any,
@@ -107,4 +124,5 @@ export default {
   handleLogin,
   handleRegister,
   handleLogout,
+  handleResetPassword,
 };

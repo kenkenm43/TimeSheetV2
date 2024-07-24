@@ -10,6 +10,14 @@ import { toast } from "react-toastify";
 import { Cookies } from "react-cookie";
 const cookie = new Cookies();
 
+export const resetPassword = async (payload: any) => {
+  try {
+    const response = await httpClient.post("/auth/forgot-password", payload);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
 export const handleRegister = async (
   payload: UserRegisterPayloadType,
   redirectTo: NavigateFunction

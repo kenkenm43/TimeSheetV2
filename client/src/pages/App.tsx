@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Login from "./Auth/login";
+import LoginPage from "./Auth/loginPage";
 import RegisterPage from "./Auth/register";
 import RequireAuth from "./../components/RequireAuth/index";
 import ErrorPage from "./error-page";
@@ -14,6 +14,7 @@ import Employee from "./Admin/employees";
 
 import PrivateRoute from "./Auth/privateRoute";
 import ListEmployee from "./Admin/listEmployee";
+import ForgotPassword from "./Auth/forgot-password";
 const ROLES = {
   Admin: "admin",
   User: "user",
@@ -22,8 +23,9 @@ const ROLES = {
 function App() {
   return (
     <Routes>
-      <Route path="login" element={<Login />} />
+      <Route path="login" element={<LoginPage />} />
       <Route path="register" element={<RegisterPage />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
       <Route path="" element={<PrivateRoute />}>
         <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
           <Route path="/" element={<Home />} />

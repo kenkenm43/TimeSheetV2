@@ -40,6 +40,9 @@ const getSalaryById = async (req: Request, res: Response) => {
               lastName: true,
               nickName: true,
               Employment_Details: { select: { position: true } },
+              Financial_Details: {
+                select: { bank_account_number: true, bank_name: true },
+              },
             },
           },
         },

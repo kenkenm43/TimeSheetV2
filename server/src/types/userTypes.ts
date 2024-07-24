@@ -22,6 +22,7 @@ export type UserRegisterPayloadType = {
   username: string;
   firstName: string;
   lastName: string;
+  email: string;
   idCard: string;
   password: string;
 };

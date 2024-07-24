@@ -48,6 +48,7 @@ const dashBoard = () => {
           },
           "all"
         );
+        console.log(response.data);
 
         setDatas(response.data);
         setLoading(false);
@@ -81,6 +82,12 @@ const dashBoard = () => {
           total: `${
             dt.amount + dt.ot * calOT(dt.amount) + dt.perdiem * 250 - dt.sso
           }`,
+          bank_account_name: `${
+            dt.employee.Financial_Details.bank_name || "-"
+          }`,
+          bank_account_number: `${
+            dt.employee.Financial_Details.bank_account_number || "-"
+          }`,
         };
       }),
     [datas]
@@ -95,6 +102,8 @@ const dashBoard = () => {
     "perdiem",
     "ประกันสังคม",
     "total",
+    "ชื่อบัญชีธนาคาร",
+    "เลขบัญชีธนาคาร",
   ];
   const handleRequestSort = (property: any) => {
     const isAsc = orderBy === property && order === "asc";
@@ -254,6 +263,8 @@ const dashBoard = () => {
                   .toString()
                   .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
               </TableCell>
+              <TableCell align="center">{row.bank_account_name}</TableCell>{" "}
+              <TableCell align="center">{row.bank_account_number}</TableCell>
             </TableRow>
           ))}
         </TableBody>

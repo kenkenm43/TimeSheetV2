@@ -5,3 +5,5 @@ export const RESET_TOKEN_SECRET: any = process.env.RESET_TOKEN_SECRET;
 export const CLOUD_NAME: any = process.env.CLOUD_NAME;
 export const API_KEY: any = process.env.API_KEY;
 export const API_SECRET: any = process.env.API_SECRET;
+export const NODEMAILER_EMAIL = process.env.NODEMAILER_EMAIL;
+export const NODEMAILER_PASSWORD = process.env.NODEMAILER_EMAIL;
