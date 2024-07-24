@@ -93,6 +93,20 @@ export const useKeepEmployeesStore = create<any>()(
         set((state: any) => ({
           employees: value,
         })),
+      setEmployee: (empId: any, value: any) =>
+        set((state: any) => ({
+          employees: state.employees.map((emp: any) =>
+            emp.id === empId
+              ? {
+                  ...emp,
+                  Employment_Details: {
+                    ...emp.Employment_Details,
+                    ...value,
+                  },
+                }
+              : emp
+          ),
+        })),
       setEvents: (empId: any, events: any) =>
         set((state: any) => ({
           employees: state.employees.map((emp: any) =>

@@ -689,12 +689,8 @@ const index = () => {
           </div>
           <div className="flex flex-col items-end ml-5 min-w-6">
             <span className="font-medium">
-              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? (
-                    events.filter(
-                      (event: any) => event.type === WorkStatus.COME
-                    ).length * 500
-                  )
+              {employee.Employment_Details?.position !== ROLESEMPLOOYEE.General
+                ? (employee.Employment_Details?.salary)
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"
                 : employee.Employment_Details?.position ===
@@ -731,13 +727,9 @@ const index = () => {
                 -
               </div>
               {(employee.Employment_Details?.position
-                ? employee.Employment_Details?.position ===
-                  ROLESEMPLOOYEE.Trainee
-                  ? events.filter(
-                      (event: any) => event.type === WorkStatus.COME
-                    ).length *
-                    500 *
-                    0.03
+                ? employee.Employment_Details?.position !==
+                  ROLESEMPLOOYEE.General
+                  ? employee.Employment_Details.salary * 0.03
                   : employee.Employment_Details?.salary * 0.05 >= 750
                   ? 750
                   : employee.Employment_Details?.salary * 0.05
@@ -747,24 +739,13 @@ const index = () => {
                 .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
             </span>
             <span className="font-medium border-double border-b-4  text-right border-black relative">
-              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
+              {employee.Employment_Details?.position !== ROLESEMPLOOYEE.General
                 ? (
-                    events.filter(
-                      (event: any) => event.type === WorkStatus.COME
-                    ).length *
-                      500 +
+                    employee.Employment_Details?.salary +
                     events.filter((event: any) => event.ot).length *
-                      calOT(
-                        events.filter(
-                          (event: any) => event.type === WorkStatus.COME
-                        ).length * 500
-                      ) +
+                      calOT(employee.Employment_Details?.salary) +
                     events.filter((event: any) => event.perdiem).length * 250 -
-                    events.filter(
-                      (event: any) => event.type === WorkStatus.COME
-                    ).length *
-                      500 *
-                      0.03
+                    employee.Employment_Details?.salary * 0.03
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
