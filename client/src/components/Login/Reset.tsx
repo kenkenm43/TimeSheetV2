@@ -11,19 +11,22 @@ import { validateResetPassword } from "../../helpers/validate";
 import Loading from "../Loading";
 import i18n from "../../i18n/auth.json";
 import Swal from "sweetalert2";
+import { useState } from "react";
 
 const Reset = () => {
   const { email, setPage } = useRecovery();
+  const [password, setPassword] = useState<any>();
   const {
     register,
     handleSubmit,
     formState: { errors, isLoading },
   } = useForm({
     resolver: yupResolver(validateResetPassword),
-    defaultValues: async () => changePassword({ email }),
+    defaultValues: async () => await changePassword({ email, password }),
   });
 
   const onsubmit = async (datas: any) => {
+    setPassword(datas.password);
     await changePassword({ email, password: datas.password });
     Swal.fire({
       title: "เปลี่ยนรหัสผ่านเรียบร้อย",

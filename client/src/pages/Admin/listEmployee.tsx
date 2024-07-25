@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import EmployeeTable from "../../components/Admin/Table/ListEmployee";
 import useKeepEmployeesStore from "../../context/KeepEmployeesProvider";
+import moment from "moment";
 
 const listEmployee = () => {
   const { employees, setEmployees } = useKeepEmployeesStore();
@@ -29,7 +30,11 @@ const listEmployee = () => {
           }`,
           bank_name: `${emp.Financial_Details.bank_name || "-"}`,
           bank_id: `${emp.Financial_Details.bank_id || "-"}`,
-          date_of_birth: `${emp.date_of_birth || "-"}`,
+          date_of_birth: `${
+            emp.date_of_birth
+              ? moment(emp.date_of_birth).format("YYYY-MM-DDDD")
+              : "-"
+          }`,
         };
       }),
     [employees]

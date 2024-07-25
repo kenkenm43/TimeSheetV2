@@ -7,17 +7,13 @@ import i18n from "../../i18n/auth.json";
 import Loading from "../../components/Loading";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
-import { login, resetPassword } from "../../services/authServices";
-import { sendOTPtoEmail, validateResetPassword } from "../../helpers/validate";
-import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { resetPassword } from "../../services/authServices";
+import { sendOTPtoEmail } from "../../helpers/validate";
 import Button from "../../components/Form/Button";
 import useRecovery from "../../context/RecoveryProvider";
 import Swal from "sweetalert2";
 const ForgotPassword = () => {
   const { email, otp, setPage, setOTP, setEmail } = useRecovery();
-  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -31,11 +27,7 @@ const ForgotPassword = () => {
 
   const navigateToOtp = async (datas: any) => {
     try {
-      console.log("try");
-
       if (datas.email) {
-        console.log(datas.email);
-
         const OTP = Math.floor(Math.random() * 9000 + 1000);
         setOTP(OTP);
         setEmail(datas.email);
