@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { validateResetPassword } from "../../helpers/validate";
 import Loading from "../Loading";
 import i18n from "../../i18n/auth.json";
+import Swal from "sweetalert2";
 
 const Reset = () => {
   const { email, setPage } = useRecovery();
@@ -23,8 +24,13 @@ const Reset = () => {
   });
 
   const onsubmit = async (datas: any) => {
-    changePassword({ email, password: datas.password });
-    setPage("recovered");
+    await changePassword({ email, password: datas.password });
+    Swal.fire({
+      title: "เปลี่ยนรหัสผ่านเรียบร้อย",
+      text: "กลับไปยังหน้าเข้าสู่ระบบ",
+      icon: "success",
+    });
+    setPage("login");
   };
   return (
     <>

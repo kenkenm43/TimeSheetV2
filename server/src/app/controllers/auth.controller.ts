@@ -87,11 +87,9 @@ const handleResetPassword: RequestHandler = async (
   try {
     sendEmail(req.body)
       .then((response: any) => res.send(response.message))
-      .catch((error: any) => {
-        return handleError(error, res);
-      });
+      .catch((error: any) => res.status(500).send(error.message));
   } catch (error) {
-    return handleError(error, res);
+    return res.status(401).json({ message: "reset password fail", error });
   }
 };
 
@@ -111,6 +109,7 @@ const handleChangePassword: RequestHandler = async (
       where: { employeeId: getEmail?.id },
       data: { password: passwordHash },
     });
+    console.log(changePassword);
 
     return res.status(204).json({ message: "update password success" });
   } catch (error) {

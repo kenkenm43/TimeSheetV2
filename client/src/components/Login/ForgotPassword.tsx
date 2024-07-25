@@ -34,6 +34,8 @@ const ForgotPassword = () => {
       console.log("try");
 
       if (datas.email) {
+        console.log(datas.email);
+
         const OTP = Math.floor(Math.random() * 9000 + 1000);
         setOTP(OTP);
         setEmail(datas.email);
