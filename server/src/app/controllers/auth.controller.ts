@@ -87,9 +87,11 @@ const handleResetPassword: RequestHandler = async (
   try {
     sendEmail(req.body)
       .then((response: any) => res.send(response.message))
-      .catch((error: any) => res.status(500).send(error.message));
+      .catch((error: any) => {
+        return handleError(error, res);
+      });
   } catch (error) {
-    return res.status(401).json({ message: "reset password fail", error });
+    return handleError(error, res);
   }
 };
 

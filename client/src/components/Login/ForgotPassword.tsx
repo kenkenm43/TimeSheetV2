@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Form/Button";
 import useRecovery from "../../context/RecoveryProvider";
+import Swal from "sweetalert2";
 const ForgotPassword = () => {
   const { email, otp, setPage, setOTP, setEmail } = useRecovery();
   const navigate = useNavigate();
@@ -30,15 +31,33 @@ const ForgotPassword = () => {
 
   const navigateToOtp = async (datas: any) => {
     try {
+      console.log("try");
+
       if (datas.email) {
         const OTP = Math.floor(Math.random() * 9000 + 1000);
         setOTP(OTP);
         setEmail(datas.email);
-        await resetPassword({ recipient_email: datas.email, OTP });
-        setPage("otp");
+        const response = await resetPassword({
+          recipient_email: datas.email,
+          OTP,
+        });
+        console.log(response);
+        if (!response) {
+          Swal.fire({
+            title: "ระบบยังไม่พร้อมใช้งาน!",
+            text: "โปรดลองใหม่อีกครั้ง",
+            icon: "error",
+          });
+        } else {
+          setPage("otp");
+        }
       }
     } catch (error) {
-      console.log(error);
+      Swal.fire({
+        title: "ระบบยังไม่พร้อมใช้งาน!",
+        text: "โปรดลองอีกครั้ง",
+        icon: "error",
+      });
     }
   };
   return (
