@@ -34,6 +34,7 @@ import { employeeReceiveMessage } from "../../services/messageServices";
 import Loading from "../Loading";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 import { calOT, calSSO } from "../../helpers/cal";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -623,6 +624,13 @@ const index = () => {
 
   const [messages, setMessages] = useState([]);
   const [position, setPosition] = useState();
+  const [isToggleField, setIsToggleField] = useState({
+    hideSalary: true,
+    hideOT: true,
+    hidePerdiem: true,
+    hideSSO: true,
+    hideTotalPaid: true,
+  });
   return (
     <div className="w-full ml-20 mb-10 mt-5">
       {isLoading && <Loading />}
@@ -633,38 +641,22 @@ const index = () => {
         <ListMessage messages={messages} />
       </div>
       <div className="flex space-x-4 relative  bg-red-300 p-2 w-full">
-        <div className="flex space-x-4 relative">
+        <div className="flex space-x-4 relative mr-20">
           <div className="pl-5 absolute top-7 right-[-27px]">+</div>
           <div className="flex flex-col w-full">
-            <span className="font-semibold">
-              เงินเดือน{" "}
-              {employee.Employment_Details?.position ===
-              ROLESEMPLOOYEE.Trainee ? (
-                <>
-                  {
-                    events.filter(
-                      (event: any) => event.type === WorkStatus.COME
-                    ).length
-                  }
-                  วัน X 500 :
-                </>
-              ) : (
-                <>:</>
-              )}
-            </span>{" "}
+            <span className="font-semibold">เงินเดือน </span>{" "}
             <span>
               OT (
-              {employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? calOT(
-                    events.filter(
-                      (event: any) => event.type === WorkStatus.COME
-                    ).length * 500
-                  )
-                : employee.Employment_Details?.position ===
-                  ROLESEMPLOOYEE.General
-                ? calOT(employee.Employment_Details.salary)
-                : 0}
-              X {events.filter((event: any) => event.ot).length})
+              {isToggleField.hideOT ? (
+                <>X</>
+              ) : (
+                <>
+                  {employee.Employment_Details?.salary
+                    ? calOT(employee.Employment_Details.salary)
+                    : 0}
+                </>
+              )}{" "}
+              x {events.filter((event: any) => event.ot).length})
             </span>
             <span>
               {" "}
@@ -679,74 +671,186 @@ const index = () => {
             </span>{" "}
             <span className="font-semibold"> Total Paid : </span>
           </div>
-          <div className="flex flex-col items-end ml-5 min-w-6">
-            <span className="font-medium">
-              {employee.Employment_Details?.salary
-                ? employee.Employment_Details.salary
-                : 0}
-            </span>
-            <span>
-              {(
-                events.filter((event: any) => event.ot).length *
-                calOT(
-                  employee.Employment_Details?.position ===
-                    ROLESEMPLOOYEE.General
-                    ? employee.Employment_Details?.salary
-                    : employee.Employment_Details?.salary
-                )
-              )
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
-            </span>
-            <span className="border-b-2 border-black w-full text-right">
-              {(events.filter((event: any) => event.perdiem).length * 250)
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
-            </span>
-            <span className="border-b-2 border-black w-full text-right relative">
-              <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
-                -
+          <div className="flex flex-col items-end ml-5 min-w-10">
+            <div className="flex items-center">
+              <span className="font-medium">
+                {isToggleField.hideSalary ? (
+                  <>XXXX</>
+                ) : (
+                  <>
+                    {employee.Employment_Details?.salary
+                      ? employee.Employment_Details.salary
+                          .toString()
+                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                      : 0}
+                  </>
+                )}
+              </span>
+              <div
+                className="absolute -right-16  cursor-pointer"
+                onClick={() =>
+                  setIsToggleField((prev) => {
+                    return {
+                      ...prev,
+                      hideSalary: !prev.hideSalary,
+                    };
+                  })
+                }
+              >
+                {!isToggleField.hideSalary ? <FaEye /> : <FaEyeSlash />}
               </div>
-              {(employee.Employment_Details?.position
-                ? employee.Employment_Details?.position !==
-                  ROLESEMPLOOYEE.General
-                  ? 1125
-                  : employee.Employment_Details?.salary * 0.05 >= 750
-                  ? 750
-                  : employee.Employment_Details?.salary * 0.05
-                : 0
-              )
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
-            </span>
-            <span className="font-medium border-double border-b-4  text-right border-black relative">
-              {employee.Employment_Details?.position !== ROLESEMPLOOYEE.General
-                ? (
-                    employee.Employment_Details?.salary +
-                    events.filter((event: any) => event.ot).length *
-                      calOT(employee.Employment_Details?.salary) +
-                    events.filter((event: any) => event.perdiem).length * 250 -
-                    1125
-                  )
-                    .toString()
-                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                : employee.Employment_Details?.position ===
-                  ROLESEMPLOOYEE.General
-                ? (
-                    employee.Employment_Details.salary +
-                    events.filter((event: any) => event.ot).length *
-                      calOT(employee.Employment_Details.salary) +
-                    events.filter((event: any) => event.perdiem).length * 250 -
-                    calSSO(employee.Employment_Details.salary)
-                  )
-                    .toString()
-                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                : 0}
-            </span>
+            </div>
+            <div className="flex items-center">
+              <span>
+                {isToggleField.hideOT ? (
+                  <>XXXX</>
+                ) : (
+                  <>
+                    {(
+                      events.filter((event: any) => event.ot).length *
+                      calOT(
+                        employee.Employment_Details?.position ===
+                          ROLESEMPLOOYEE.General
+                          ? employee.Employment_Details?.salary
+                          : employee.Employment_Details?.salary
+                      )
+                    )
+                      .toString()
+                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                  </>
+                )}
+              </span>
+              <div
+                className="absolute -right-16  cursor-pointer"
+                onClick={() =>
+                  setIsToggleField((prev) => {
+                    return {
+                      ...prev,
+                      hideOT: !prev.hideOT,
+                    };
+                  })
+                }
+              >
+                {!isToggleField.hideOT ? <FaEye /> : <FaEyeSlash />}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <span className="border-b-2 border-black w-full text-right">
+                {isToggleField.hidePerdiem ? (
+                  <>XXXX</>
+                ) : (
+                  <>
+                    {(events.filter((event: any) => event.perdiem).length * 250)
+                      .toString()
+                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                  </>
+                )}
+              </span>
+              <div
+                className="absolute -right-16  cursor-pointer"
+                onClick={() =>
+                  setIsToggleField((prev) => {
+                    return {
+                      ...prev,
+                      hidePerdiem: !prev.hidePerdiem,
+                    };
+                  })
+                }
+              >
+                {!isToggleField.hidePerdiem ? <FaEye /> : <FaEyeSlash />}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <span className="border-b-2 border-black w-full text-right relative">
+                <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
+                  -
+                </div>
+                {isToggleField.hideSSO ? (
+                  <>XXXX</>
+                ) : (
+                  <>
+                    {(employee.Employment_Details?.position
+                      ? employee.Employment_Details?.position !==
+                        ROLESEMPLOOYEE.General
+                        ? 1125
+                        : employee.Employment_Details?.salary * 0.05 >= 750
+                        ? 750
+                        : employee.Employment_Details?.salary * 0.05
+                      : 0
+                    )
+                      .toString()
+                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
+                  </>
+                )}
+              </span>
+              <div
+                className="absolute -right-16  cursor-pointer"
+                onClick={() =>
+                  setIsToggleField((prev) => {
+                    return {
+                      ...prev,
+                      hideSSO: !prev.hideSSO,
+                    };
+                  })
+                }
+              >
+                {!isToggleField.hideSSO ? <FaEye /> : <FaEyeSlash />}
+              </div>
+            </div>
+
+            <div className="flex items-center">
+              <span className="font-medium border-double border-b-4  text-right border-black relative">
+                {isToggleField.hideTotalPaid ? (
+                  <>XXXX</>
+                ) : (
+                  <>
+                    {employee.Employment_Details?.position !==
+                    ROLESEMPLOOYEE.General
+                      ? (
+                          employee.Employment_Details?.salary +
+                          events.filter((event: any) => event.ot).length *
+                            calOT(employee.Employment_Details?.salary) +
+                          events.filter((event: any) => event.perdiem).length *
+                            250 -
+                          1125
+                        )
+                          .toString()
+                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                      : employee.Employment_Details?.position ===
+                        ROLESEMPLOOYEE.General
+                      ? (
+                          employee.Employment_Details.salary +
+                          events.filter((event: any) => event.ot).length *
+                            calOT(employee.Employment_Details.salary) +
+                          events.filter((event: any) => event.perdiem).length *
+                            250 -
+                          calSSO(employee.Employment_Details.salary)
+                        )
+                          .toString()
+                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                      : 0}
+                  </>
+                )}
+              </span>
+
+              <div
+                className="absolute -right-16  cursor-pointer"
+                onClick={() =>
+                  setIsToggleField((prev) => {
+                    return {
+                      ...prev,
+                      hideTotalPaid: !prev.hideTotalPaid,
+                    };
+                  })
+                }
+              >
+                {!isToggleField.hideTotalPaid ? <FaEye /> : <FaEyeSlash />}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex ml-16 space-x-5">
+        <div className="flex ml-32 space-x-5">
           <div className="font-semibold">
             เดือนนี้ มี {totalDayInMonth} วัน :{" "}
           </div>

@@ -81,7 +81,6 @@ const EventModal = (props: any) => {
   const [formValue, setFormValue] = useState({
     work_status: workStatus,
   });
-  const { employee, setEmployee } = useEmployeeStore();
   const data = ["ลาป่วย", "ลาโดยใช้วันหยุด"].map((item) => ({
     label: item,
     value: item,
@@ -101,19 +100,7 @@ const EventModal = (props: any) => {
     setFormValue({ work_status: WorkStatus.COME });
     setLeaveType("");
   };
-  // const handleDelete = async (e: any, formValue: any) => {
-  //   console.log(idCalendar);
-  //   console.log(type);
-  //   console.log(employee.id);
 
-  //   if (type === (WorkStatus.COME || WorkStatus.NOTCOME)) {
-  //     await deleteWorkSchedule(employee.id, idCalendar);
-  //   } else if (type === WorkStatus.LEAVE) {
-  //     const delData = await deleteLeaveSchedule(employee.id, idCalendar);
-  //   }
-  //   console.log("event", e);
-  //   console.log("formValue", formValue);
-  // };
   return (
     <Modal
       open={open}
@@ -222,11 +209,30 @@ const EventModal = (props: any) => {
                     }
                   />
                 </Stack>
-
+                {/* <Form.Group controlId="leave_reason">
+                  <Form.ControlLabel>เหตุผล</Form.ControlLabel>
+                  <Form.Control
+                    name="leave_reason"
+                    value={leaveReason}
+                    onChange={setLeaveReason}
+                  />
+                </Form.Group> */}
                 {/* <Expense /> */}
               </>
             )}
-            {WorkStatus.NOTCOME == workStatus && <></>}
+            {WorkStatus.NOTCOME == workStatus && (
+              <>
+                {" "}
+                {/* <Form.Group controlId="leave_reason">
+                  <Form.ControlLabel>เหตุผล</Form.ControlLabel>
+                  <Form.Control
+                    name="leave_reason"
+                    value={leaveReason}
+                    onChange={setLeaveReason}
+                  />
+                </Form.Group> */}
+              </>
+            )}
             {WorkStatus.LEAVE == workStatus && (
               <>
                 <Form.Group controlId="leave_cause">
@@ -240,7 +246,7 @@ const EventModal = (props: any) => {
                 </Form.Group>
 
                 <Form.Group controlId="leave_reason">
-                  <Form.ControlLabel>สาเหตุ</Form.ControlLabel>
+                  <Form.ControlLabel>เหตุผล</Form.ControlLabel>
                   <Form.Control
                     name="leave_reason"
                     value={leaveReason}

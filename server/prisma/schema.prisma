@@ -128,6 +128,7 @@ model WorkSchedule {
   work_status  String?
   work_ot      Boolean?  @default(false)
   work_perdium Boolean?  @default(false)
+  work_reason  String?
   employee     Employee  @relation(fields: [employeeId], references: [id])
   employeeId   String
 }
