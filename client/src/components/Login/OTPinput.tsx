@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import useRecovery from "../../context/RecoveryProvider";
 import { resetPassword } from "../../services/authServices";
+import OtpInput from "react-otp-input";
 
 const OTPinput = () => {
-  const { email, otp, setPage } = useRecovery();
+  const { email, otp, setOTP, setPage } = useRecovery();
 
   const [timerCount, setTimer] = React.useState(60);
-  const [OTPinput, setOTPinput] = useState<Array<string>>(["0", "0", "0", "0"]);
+  const [OTPinput, setOTPinput] = useState<string>("");
   const [disable, setDisable] = useState(true);
 
   const resendOTP = async () => {
@@ -19,19 +21,10 @@ const OTPinput = () => {
     } catch (error) {
       console.log(error);
     }
-    // axios
-    //   .post("http://localhost:5000/send_recovery_email", {
-    //     OTP: otp,
-    //     recipient_email: email,
-    //   })
-    //   .then(() => setDisable(true))
-    //   .then(() => alert("A new OTP has succesfully been sent to your email."))
-    //   .then(() => setTimer(60))
-    //   .catch(console.log);
   };
 
   function verfiyOTP() {
-    if (parseInt(OTPinput.join("")) === otp) {
+    if (parseInt(OTPinput) === otp) {
       setPage("reset");
       return;
     }
@@ -53,6 +46,9 @@ const OTPinput = () => {
     //cleanup the interval on complete
     return () => clearInterval(interval);
   }, [disable]);
+  const handleChange = (code: any) => {
+    setOTPinput(code);
+  };
   return (
     <div className="flex justify-center items-center w-screen h-screen bg-gray-50">
       <div className="bg-white px-6 pt-10 pb-9 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
@@ -69,8 +65,8 @@ const OTPinput = () => {
           <div>
             <form>
               <div className="flex flex-col space-y-16">
-                <div className="flex flex-row items-center justify-between mx-auto w-full max-w-xs">
-                  <div className="w-16 h-16 ">
+                <div className="flex flex-row items-center justify-center mx-auto w-full max-w-xs ">
+                  {/* <div className="w-16 h-16 ">
                     <input
                       maxLength="1"
                       className="w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white focus:bg-gray-50 focus:ring-1 ring-blue-700"
@@ -87,57 +83,30 @@ const OTPinput = () => {
                       }
                     ></input>
                   </div>
-                  <div className="w-16 h-16 ">
-                    <input
-                      maxLength="1"
-                      className="w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white focus:bg-gray-50 focus:ring-1 ring-blue-700"
-                      type="text"
-                      name=""
-                      id=""
-                      onChange={(e) =>
-                        setOTPinput([
-                          OTPinput[0],
-                          e.target.value,
-                          OTPinput[2],
-                          OTPinput[3],
-                        ])
-                      }
-                    ></input>
-                  </div>
-                  <div className="w-16 h-16 ">
-                    <input
-                      maxLength="1"
-                      className="w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white focus:bg-gray-50 focus:ring-1 ring-blue-700"
-                      type="text"
-                      name=""
-                      id=""
-                      onChange={(e) =>
-                        setOTPinput([
-                          OTPinput[0],
-                          OTPinput[1],
-                          e.target.value,
-                          OTPinput[3],
-                        ])
-                      }
-                    ></input>
-                  </div>
-                  <div className="w-16 h-16 ">
-                    <input
-                      maxLength="1"
-                      className="w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white focus:bg-gray-50 focus:ring-1 ring-blue-700"
-                      type="text"
-                      name=""
-                      id=""
-                      onChange={(e) =>
-                        setOTPinput([
-                          OTPinput[0],
-                          OTPinput[1],
-                          OTPinput[2],
-                          e.target.value,
-                        ])
-                      }
-                    ></input>
-                  </div>
+*/}
+                  <OtpInput
+                    value={OTPinput}
+                    onChange={handleChange}
+                    numInputs={4}
+                    renderSeparator={<span style={{ width: "8px" }}>-</span>}
+                    shouldAutoFocus={true}
+                    inputStyle={{
+                      border: "1px solid",
+                      borderRadius: "12px",
+                      width: "54px",
+                      height: "54px",
+                      fontSize: "12px",
+                      color: "#000",
+                      fontWeight: "400",
+                      caretColor: "blue",
+                    }}
+                    renderInput={(props) => (
+                      <input
+                        {...props}
+                        className="focus:bg-gray-50 focus:ring-1 ring-blue-700"
+                      />
+                    )}
+                  />
                 </div>
 
                 <div className="flex flex-col space-y-5">

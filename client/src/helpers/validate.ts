@@ -23,17 +23,13 @@ export const sendOTPtoEmail = yup.object({
     .email("รูปแบบอีเมล test@gmail.com"),
 });
 export const validateResetPassword = yup.object({
-  email: yup
-    .string()
-    .required("โปรดกรอกอีเมล")
-    .email("รูปแบบอีเมล test@gmail.com"),
   password: validatePassword,
   confirmPassword: yup
     .string()
     .required("โปรดกรอกรหัสผ่าน")
     .min(8, "โปรดใส่รหัสผ่านให้ครบ 8 หลัก")
     .max(32, "ไม่สามารถใส่ตัวอักษรได้เกิน 32 ตัวอักษร")
-    .oneOf([yup.ref("password")], "รหัสผ่านไม่ต้องถูกต้อง"),
+    .oneOf([yup.ref("password")], "ยืนยันรหัสผ่านไม่ตรงกับรหัสผ่าน"),
 });
 
 export const validateRegister = yup.object({

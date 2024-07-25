@@ -93,6 +93,29 @@ const handleResetPassword: RequestHandler = async (
   }
 };
 
+const handleChangePassword: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
+  try {
+    const { email, password } = req.body;
+
+    const passwordHash = bcrypt.hashSync(password, 10);
+    const getEmail = await prisma.employee.findFirst({
+      where: { email: email },
+    });
+    const changePassword = await prisma.system_Access.update({
+      where: { employeeId: getEmail?.id },
+      data: { password: passwordHash },
+    });
+
+    return res.status(204).json({ message: "update password success" });
+  } catch (error) {
+    return res.status(401).json({ message: "reset password fail", error });
+  }
+};
+
 const handleLogout: RequestHandler = async (
   req: any,
   res: Response,
@@ -125,4 +148,5 @@ export default {
   handleRegister,
   handleLogout,
   handleResetPassword,
+  handleChangePassword,
 };

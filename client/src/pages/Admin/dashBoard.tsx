@@ -71,9 +71,9 @@ const dashBoard = () => {
             dt.employee.lastName || "-"
           } (${dt.employee.nickName || "-"})`,
           position: `${
-            dt.employee.Employment_Details.position === ROLESEMPLOOYEE.Trainee
-              ? "ฝึกงาน"
-              : "พนักงานทั่วไป"
+            dt.employee.Employment_Details.position === ROLESEMPLOOYEE.General
+              ? "พนักงานทั่วไป"
+              : "-"
           }`,
           salary: `${dt.amount}`,
           ot: `${dt.ot * calOT(dt.amount)}`,

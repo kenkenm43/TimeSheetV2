@@ -615,7 +615,7 @@ const employees = () => {
                       {(keepEmployee.Employment_Details?.position
                         ? keepEmployee.Employment_Details?.position !==
                           ROLESEMPLOOYEE.General
-                          ? defaultSalary * 0.03
+                          ? 1125
                           : defaultSalary * 0.05 >= 750
                           ? 750
                           : defaultSalary * 0.05
@@ -634,7 +634,7 @@ const employees = () => {
                             events.filter((event: any) => event.perdiem)
                               .length *
                               250 -
-                            defaultSalary * 0.03
+                            1125
                           )
                             .toString()
                             .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")

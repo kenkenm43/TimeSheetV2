@@ -18,6 +18,14 @@ export const resetPassword = async (payload: any) => {
     return error.response;
   }
 };
+export const changePassword = async (payload: any) => {
+  try {
+    const response = await httpClient.post("/auth/change-password", payload);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
 export const handleRegister = async (
   payload: UserRegisterPayloadType,
   redirectTo: NavigateFunction

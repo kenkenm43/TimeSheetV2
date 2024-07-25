@@ -11,5 +11,6 @@ router.get("/logout", AuthController.handleLogout);
 router.get("/refresh-token", handleRefreshToken);
 router.get("/refresh-tokenV2", handleRefreshTokenV2);
 router.post("/forgot-password", AuthController.handleResetPassword);
+router.post("/change-password", AuthController.handleChangePassword);
 
 export default router;

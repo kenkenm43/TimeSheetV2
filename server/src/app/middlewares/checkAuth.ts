@@ -73,6 +73,19 @@ export const checkRegister = async (
     ) {
       throw new ErrorHandler(500, "โปรดใส่ข้อมูลให้ครบถ้วน");
     }
+    const existingEmail = await prisma.employee.findFirst({
+      where: {
+        email: payload.email,
+      },
+    });
+    if (existingEmail) throw new ErrorHandler(400, "อีเมลนี้ถูกใช้ไปแล้ว");
+    const existingIdCard = await prisma.employee.findFirst({
+      where: {
+        idCard: payload.idCard,
+      },
+    });
+    if (existingIdCard)
+      throw new ErrorHandler(400, "เลขบัตรประชาชนนี้ถูกใช้ไปแล้ว");
 
     const existingEmployee = await prisma.employee.findFirst({
       where: {

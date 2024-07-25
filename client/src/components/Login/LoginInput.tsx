@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "../Form/Button";
 import { validateLogin } from "../../helpers/validate";
-import { login, resetPassword } from "../../services/authServices";
+import { login } from "../../services/authServices";
 import useAuth from "../../hooks/useAuth";
 import useEmployeeStore from "../../context/EmployeeProvider";
 import { getEmployee } from "../../services/employeeServices";
@@ -20,8 +20,8 @@ import Loading from "../Loading";
 import useRecovery from "../../context/RecoveryProvider";
 const Login = () => {
   const { setAuth }: any = useAuth();
-  const { setEmail, setPage, email, setOTP } = useRecovery();
-  const { employee, setEmployee }: any = useEmployeeStore();
+  const { setPage } = useRecovery();
+  const { setEmployee }: any = useEmployeeStore();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const {
@@ -31,19 +31,6 @@ const Login = () => {
   } = useForm({
     resolver: yupResolver(validateLogin),
   });
-
-  const navigateToOtp = async () => {
-    try {
-      if (email) {
-        const OTP = Math.floor(Math.random() * 9000 + 1000);
-        setOTP(OTP);
-        const otpData = await resetPassword({ recipient_email: email, OTP });
-        setPage("otp");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const onsubmit = async (datas: any) => {
     setIsLoading(true);
@@ -75,35 +62,37 @@ const Login = () => {
     setIsLoading(false);
   };
   return (
-    <Form onSubmit={handleSubmit(onsubmit)}>
-      {isLoading && <Loading />}
-      <Topic message={i18n.auth.login.name} />
-      <div></div>
-      <Input
-        register={register("username")}
-        type="text"
-        errors={errors.username}
-        text="ชื่อผู้ใช้งานหรือเลขบัตรประชาชน"
-      />
-      <Input
-        register={register("password")}
-        type="password"
-        errors={errors.password}
-        text="รหัสผ่าน"
-      />
-      <div className="flex justify-between">
-        <Link to="/register" className="text-blue-500 hover:text-blue-700">
-          {i18n.auth.register.name}
-        </Link>
-        <button
-          onClick={() => setPage("forgot-password")}
-          className="text-blue-500 hover:text-blue-700"
-        >
-          {i18n.auth.login["forgot-password"]}
-        </button>
-      </div>
-      <Button text={i18n.auth.login.button} type="submit" />
-    </Form>
+    <>
+      <Form onSubmit={handleSubmit(onsubmit)}>
+        {isLoading && <Loading />}
+        <Topic message={i18n.auth.login.name} />
+        <div></div>
+        <Input
+          register={register("username")}
+          type="text"
+          errors={errors.username}
+          text="ชื่อผู้ใช้งานหรือเลขบัตรประชาชน"
+        />
+        <Input
+          register={register("password")}
+          type="password"
+          errors={errors.password}
+          text="รหัสผ่าน"
+        />
+        <Button text={i18n.auth.login.button} type="submit" />
+        <div className="flex justify-between">
+          <Link to="/register" className="text-blue-500 hover:text-blue-700">
+            {i18n.auth.register.name}
+          </Link>
+          <button
+            onClick={() => setPage("forgot-password")}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            {i18n.auth.login["forgot-password"]}
+          </button>
+        </div>
+      </Form>
+    </>
   );
 };
 

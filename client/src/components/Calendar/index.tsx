@@ -571,24 +571,16 @@ const index = () => {
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,
-            amount:
-              employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? events.filter((event: any) => event.type === WorkStatus.COME)
-                    .length * 500
-                : employee.Employment_Details?.position ===
-                  ROLESEMPLOOYEE.General
-                ? employee?.Employment_Details?.salary
-                : 0,
+            amount: employee.Employment_Details?.salary
+              ? employee.Employment_Details.salary
+              : 0,
             ot: Number(events.filter((event: any) => event.ot).length),
             perdiem: Number(
               events.filter((event: any) => event.perdiem).length
             ),
             sso: Number(
-              employee?.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? events.filter((event: any) => event.type === WorkStatus.COME)
-                    .length *
-                    500 *
-                    0.03
+              employee?.Employment_Details?.position !== ROLESEMPLOOYEE.General
+                ? 1125
                 : employee.Employment_Details?.position ===
                   ROLESEMPLOOYEE.General
                 ? employee?.Employment_Details?.salary * 0.05 >= 750
@@ -689,17 +681,8 @@ const index = () => {
           </div>
           <div className="flex flex-col items-end ml-5 min-w-6">
             <span className="font-medium">
-              {employee.Employment_Details?.position !== ROLESEMPLOOYEE.General
-                ? (employee.Employment_Details?.salary)
-                    .toString()
-                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"
-                : employee.Employment_Details?.position ===
-                  ROLESEMPLOOYEE.General
+              {employee.Employment_Details?.salary
                 ? employee.Employment_Details.salary
-                  ? employee.Employment_Details.salary
-                      .toString()
-                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                  : ""
                 : 0}
             </span>
             <span>
@@ -709,9 +692,7 @@ const index = () => {
                   employee.Employment_Details?.position ===
                     ROLESEMPLOOYEE.General
                     ? employee.Employment_Details?.salary
-                    : events.filter(
-                        (event: any) => event.type === WorkStatus.COME
-                      ).length * 500
+                    : employee.Employment_Details?.salary
                 )
               )
                 .toString()
@@ -729,7 +710,7 @@ const index = () => {
               {(employee.Employment_Details?.position
                 ? employee.Employment_Details?.position !==
                   ROLESEMPLOOYEE.General
-                  ? employee.Employment_Details.salary * 0.03
+                  ? 1125
                   : employee.Employment_Details?.salary * 0.05 >= 750
                   ? 750
                   : employee.Employment_Details?.salary * 0.05
@@ -745,7 +726,7 @@ const index = () => {
                     events.filter((event: any) => event.ot).length *
                       calOT(employee.Employment_Details?.salary) +
                     events.filter((event: any) => event.perdiem).length * 250 -
-                    employee.Employment_Details?.salary * 0.03
+                    1125
                   )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
