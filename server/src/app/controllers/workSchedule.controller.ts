@@ -34,6 +34,7 @@ const workSchedule: RequestHandler = async (
         },
       },
     });
+    console.log(workSchedule);
 
     return res.status(200).json([...workSchedule]);
   } catch (error) {
@@ -88,6 +89,7 @@ const addWorkSchedule: RequestHandler = async (
         work_status: payload.work_status,
         work_ot: payload.work_ot,
         work_perdium: payload.work_perdium,
+        work_reason: payload.work_reason,
       },
     });
 
@@ -113,6 +115,7 @@ const updateWorkSchedule: RequestHandler = async (
         work_status: payload.work_status,
         work_ot: payload.work_ot,
         work_perdium: payload.work_perdium,
+        work_reason: payload.work_reason,
       },
     });
     return res

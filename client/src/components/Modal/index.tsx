@@ -55,6 +55,8 @@ const contentStyle = {
 };
 const EventModal = (props: any) => {
   const {
+    workReason,
+    setWorkReason,
     handleDelete,
     type,
     idCalendar,
@@ -209,28 +211,30 @@ const EventModal = (props: any) => {
                     }
                   />
                 </Stack>
-                {/* <Form.Group controlId="leave_reason">
+                <Form.Group controlId="work_reason">
                   <Form.ControlLabel>เหตุผล</Form.ControlLabel>
                   <Form.Control
-                    name="leave_reason"
-                    value={leaveReason}
-                    onChange={setLeaveReason}
+                    name="work_reason"
+                    value={workReason}
+                    onChange={setWorkReason}
                   />
-                </Form.Group> */}
-                {/* <Expense /> */}
+                </Form.Group>
+                {/* {<Expense /> */}
               </>
             )}
             {WorkStatus.NOTCOME == workStatus && (
               <>
                 {" "}
-                {/* <Form.Group controlId="leave_reason">
-                  <Form.ControlLabel>เหตุผล</Form.ControlLabel>
-                  <Form.Control
-                    name="leave_reason"
-                    value={leaveReason}
-                    onChange={setLeaveReason}
-                  />
-                </Form.Group> */}
+                {
+                  <Form.Group controlId="work_reason">
+                    <Form.ControlLabel>เหตุผล</Form.ControlLabel>
+                    <Form.Control
+                      name="work_reason"
+                      value={workReason}
+                      onChange={setWorkReason}
+                    />
+                  </Form.Group>
+                }
               </>
             )}
             {WorkStatus.LEAVE == workStatus && (

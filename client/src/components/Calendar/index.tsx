@@ -50,6 +50,7 @@ const index = () => {
     end: new Date(),
   });
   const [workStatus, setWorkStatus] = useState(WorkStatus.COME);
+  const [workReason, setWorkReason] = useState("");
   const [events, setEvents]: any = useState([]);
   const [leaveCause, setLeaveCause] = useState("ลาโดยใช้วันหยุด");
   const [leaveReason, setLeaveReason] = useState("");
@@ -96,6 +97,7 @@ const index = () => {
       },
       employee.id
     );
+    console.log(work);
 
     const eventsData = await addEvents(work.data, leave.data);
     setEvents(eventsData);
@@ -133,6 +135,7 @@ const index = () => {
         allDay: true,
         backgroundColor: background,
         type: arr.work_status,
+        workReason: arr.work_reason,
         timeStart: moment(arr.work_start).utcOffset("-07:00")._d,
         timeEnd: moment(arr.work_end).utcOffset("-07:00")._d,
       };
@@ -187,6 +190,7 @@ const index = () => {
       setWorkStatus(WorkStatus.COME);
     } else {
       console.log("current", currentValueDate);
+      setWorkReason(currentValueDate.workReason);
       setType(currentValueDate.type);
       setIdCalendar(currentValueDate.id);
       setValues({
@@ -216,6 +220,7 @@ const index = () => {
   }, []);
 
   const handleEventCreation = async (
+    workReason: any,
     startDate: any,
     endDate: any,
     title: any,
@@ -264,6 +269,7 @@ const index = () => {
             title === WorkStatus.NOTCOME
               ? false
               : checkBoxed.includes("Perdiem"),
+          work_reason: workReason,
         },
         employee.id
       );
@@ -277,6 +283,7 @@ const index = () => {
         ot: data.work_ot,
         perdiem: data.work_perdium,
         reason: leaveReason,
+        workReason: workReason,
         type: title,
         timeStart: startDate,
         timeEnd: endDate,
@@ -304,6 +311,7 @@ const index = () => {
   };
 
   const handleEventUpdate = async (
+    workReason: any,
     idDate: any,
     typeOld: any,
     typeNew: any,
@@ -330,6 +338,7 @@ const index = () => {
               typeNew === WorkStatus.NOTCOME
                 ? false
                 : checkBoxed.includes("Perdiem"),
+            work_reason: workReason,
           },
           employee.id
         );
@@ -344,6 +353,7 @@ const index = () => {
           end: timeEnd,
           allDay: true,
           type: typeNew,
+          workReason: workReason,
           timeStart: timeStart,
           timeEnd: timeEnd,
           backgroundColor: backgroundColor,
@@ -387,6 +397,7 @@ const index = () => {
               typeNew === WorkStatus.NOTCOME
                 ? false
                 : checkBoxed.includes("Perdiem"),
+            work_reason: workReason,
           },
           employee.id,
           idDate
@@ -399,6 +410,7 @@ const index = () => {
           end: timeEnd,
           ot: data.work_ot || false,
           perdiem: data.work_perdium || false,
+          workReason: workReason,
           allDay: true,
           type: typeNew,
           timeStart: timeStart,
@@ -445,6 +457,7 @@ const index = () => {
               typeNew === WorkStatus.NOTCOME
                 ? false
                 : checkBoxed.includes("Perdiem"),
+            work_reason: workReason,
           },
           employee.id,
           idDate
@@ -458,6 +471,7 @@ const index = () => {
           end: timeEnd,
           ot: data.work_ot || false,
           perdiem: data.work_perdium || false,
+          workReason: workReason,
           allDay: true,
           type: typeNew,
           timeStart: timeStart,
@@ -507,6 +521,7 @@ const index = () => {
       let updateEvent;
       if (!dateCurrent(values.start)) {
         updateEvent = await handleEventCreation(
+          workReason,
           values.start,
           values.end,
           title,
@@ -517,6 +532,7 @@ const index = () => {
         );
       } else {
         updateEvent = await handleEventUpdate(
+          workReason,
           currentDateValue.id,
           currentDateValue.title,
           title,
@@ -597,6 +613,7 @@ const index = () => {
       setValues({ title: "", start: new Date(), end: new Date() });
       setWorkStatus(WorkStatus.COME);
       setLeaveType("");
+      setWorkReason("");
       setType("");
       setIdCalendar(null);
       setLeaveCause("ลาโดยใช้วันหยุด");
@@ -938,6 +955,8 @@ const index = () => {
         displayEventTime={true}
       />
       <EventModal
+        workReason={workReason}
+        setWorkReason={setWorkReason}
         handleDelete={handleDelete}
         type={type}
         idCalendar={idCalendar}
@@ -968,10 +987,25 @@ function renderEventContent(eventContent: any) {
       {eventContent.event.extendedProps &&
       eventContent.event.extendedProps.type === "come" ? (
         <div className="fc-event-main cursor-pointer text-sm">
-          <div>เวลาเริ่มงาน</div>
-          {moment(eventContent.event.extendedProps.timeStart).format("HH:mm")}
-          <div>เวลาเลิกงาน</div>
-          {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
+          <div className="flex space-x-1">
+            <span>เวลาเริ่มงาน : </span>
+            <span>
+              {moment(eventContent.event.extendedProps.timeStart).format(
+                "HH:mm"
+              )}
+            </span>
+          </div>
+          <div className="flex space-x-1">
+            <span>เวลาเลิกงาน : </span>
+            <span>
+              {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
+            </span>
+          </div>
+
+          <div>
+            เหตุผล:
+            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
+          </div>
         </div>
       ) : eventContent.event.extendedProps.type === "leave" ? (
         <>
@@ -986,7 +1020,13 @@ function renderEventContent(eventContent: any) {
           </div>
         </>
       ) : (
-        <div>หยุด</div>
+        <div>
+          หยุด
+          <div>
+            เหตุผล:
+            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
+          </div>
+        </div>
       )}
       {/* <div className="fc-event-resizer fc-event-resizer-end"></div> */}
       {/* </a> */}

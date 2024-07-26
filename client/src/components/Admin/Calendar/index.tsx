@@ -59,10 +59,25 @@ function renderEventContent(eventContent: any) {
       {eventContent.event.extendedProps &&
       eventContent.event.extendedProps.type === "come" ? (
         <div className="fc-event-main cursor-pointer text-sm">
-          <div>เวลาเริ่มงาน</div>
-          {moment(eventContent.event.extendedProps.timeStart).format("HH:mm")}
-          <div>เวลาเลิกงาน</div>
-          {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
+          <div className="flex space-x-1">
+            <span>เวลาเริ่มงาน : </span>
+            <span>
+              {moment(eventContent.event.extendedProps.timeStart).format(
+                "HH:mm"
+              )}
+            </span>
+          </div>
+          <div className="flex space-x-1">
+            <span>เวลาเลิกงาน : </span>
+            <span>
+              {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
+            </span>
+          </div>
+
+          <div>
+            เหตุผล:
+            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
+          </div>
         </div>
       ) : eventContent.event.extendedProps.type === "leave" ? (
         <>
@@ -77,7 +92,13 @@ function renderEventContent(eventContent: any) {
           </div>
         </>
       ) : (
-        <div>หยุด</div>
+        <div>
+          หยุด
+          <div>
+            เหตุผล:
+            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
+          </div>
+        </div>
       )}
       {/* <div className="fc-event-resizer fc-event-resizer-end"></div> */}
       {/* </a> */}
