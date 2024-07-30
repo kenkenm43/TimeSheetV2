@@ -19,17 +19,54 @@ import ForgotPassword from "./Auth/forgot-password";
 import useIdleTimer from "../helpers/autologout";
 import useAuth from "../hooks/useAuth";
 import { logout } from "../services/authServices";
+import { useEffect, useState } from "react";
 const ROLES = {
   Admin: "admin",
   User: "user",
 };
 
 function App() {
+  const [isOffline, setIsOffline] = useState(false);
   const handleLogout = async () => {
+    if (navigator.onLine) {
+      try {
+        await logout();
+        console.log("User logged out due to inactivity.");
+      } catch (error) {
+        console.log("Logout request failed:", error);
+      }
+    } else {
+      console.warn(
+        "User is offline, logout will be attempted when back online."
+      );
+      setIsOffline(true);
+    }
+
     // Perform logout logic here, e.g., clear auth tokens, redirect to login page, etc.
-    console.log("User logged out due to inactivity.");
-    await logout();
   };
+
+  const retryLogout = () => {
+    if (navigator.onLine) {
+      handleLogout();
+    } else {
+      console.warn("Still offline, retrying logout when back online.");
+      setTimeout(retryLogout, 5000); // Retry every 5 seconds
+    }
+  };
+
+  useEffect(() => {
+    if (isOffline) {
+      const handleOnline = () => {
+        setIsOffline(false);
+        retryLogout();
+      };
+      window.addEventListener("online", handleOnline);
+
+      return () => {
+        window.removeEventListener("online", handleOnline);
+      };
+    }
+  }, [isOffline]);
   const { auth } = useAuth();
   if (auth.id) {
     useIdleTimer(2 * 60 * 1000, handleLogout); // 10 minutes in milliseconds
