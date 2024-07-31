@@ -165,11 +165,11 @@ const Profile = () => {
   return (
     <div className="flex max-w-7xl w-full mt-10 px-10">
       {isLoadingImage && <Loading />}
-      <div className="flex flex-col items-center md:w-64 md:h-64 h-32 w-32 relative">
+      <div className=" gap-4 flex flex-col items-center md:w-64 md:h-64 h-32 w-32 relative">
         {previewUrl ? (
-          <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
+          <div className="flex flex-col items-center gap-4">
             <img
-              className="md:w-64 md:h-64 h-32 w-32 object-cover"
+              className="max-w-full max-h-72 w-64 border border-gray-300"
               src={previewUrl}
               alt="Preview"
             />
@@ -177,17 +177,17 @@ const Profile = () => {
         ) : (
           <>
             {employee.photo ? (
-              <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
+              <div className="flex flex-col items-center gap-4">
                 <img
-                  className="md:w-64 md:h-64 h-32 w-32 object-cover"
+                  className="max-w-full max-h-72 w-64 border border-gray-300"
                   src={employee.photo}
                   alt="img"
                 />
               </div>
             ) : (
-              <div className="md:w-64 md:h-64 h-32 w-32 flex items-center justify-center border">
+              <div className="flex flex-col items-center gap-4">
                 <img
-                  className="md:w-64 md:h-64 h-32 w-32 object-cover"
+                  className="max-w-full max-h-72 w-64 border border-gray-300"
                   src={
                     "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
                   }

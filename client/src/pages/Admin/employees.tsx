@@ -301,7 +301,7 @@ const employees = () => {
               {keepEmployee?.photo ? (
                 <>
                   <img
-                    className="object-cover md:w-48 md:h-48 h-20 w-20"
+                    className="max-w-full max-h-48 min-w-40 border border-gray-300"
                     src={keepEmployee.photo}
                     alt="img"
                   />
@@ -309,7 +309,7 @@ const employees = () => {
               ) : (
                 <>
                   <img
-                    className="object-cover md:w-48 md:h-48 h-20 w-20"
+                    className="object-fill md:w-48 md:h-48 h-20 w-20"
                     src={
                       "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
                     }

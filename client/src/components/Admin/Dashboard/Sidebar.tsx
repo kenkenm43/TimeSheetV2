@@ -158,7 +158,7 @@ const Sidebar = () => {
           </h2>
           {employees.length !== 0 ? (
             employees?.map((emp: any, idx: any) => (
-              <div className="mt-3 space-y-1" key={idx}>
+              <div className="space-y-1 border-y" key={idx}>
                 <button
                   onClick={() => selectEmployee(emp)}
                   className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none
@@ -167,13 +167,13 @@ const Sidebar = () => {
                 >
                   {emp.photo ? (
                     <img
-                      className="object-cover w-8 h-8 rounded-full"
+                      className="object-fill w-10 h-10 rounded-full"
                       src={emp.photo}
                       alt="img"
                     />
                   ) : (
                     <img
-                      className="object-cover w-8 h-8 rounded-full"
+                      className="object-fill w-10 h-10 rounded-full"
                       src="https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
                       alt="img"
                     />
