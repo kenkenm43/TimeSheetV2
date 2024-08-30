@@ -35,7 +35,7 @@ const getComparator = (order: any, orderBy: any) => {
 const dashBoard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [order, setOrder] = useState<any>("asc");
-  const [orderBy, setOrderBy] = useState<any>("name");
+  const [orderBy, setOrderBy] = useState<any>("month");
   const [datas, setDatas] = useState<any>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
