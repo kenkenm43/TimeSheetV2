@@ -38,7 +38,7 @@ const dashBoard = () => {
   const [orderBy, setOrderBy] = useState<any>("name");
   const [datas, setDatas] = useState<any>([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchData = async () => {
@@ -318,7 +318,7 @@ const dashBoard = () => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[8, 15, 25]}
+        rowsPerPageOptions={[10, 15, 20]}
         component="div"
         count={sortedData.length}
         rowsPerPage={rowsPerPage}
