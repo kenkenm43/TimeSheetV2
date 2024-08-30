@@ -571,16 +571,13 @@ const index = () => {
               events.filter((event: any) => event.perdiem).length
             ),
             sso: Number(
-              employee?.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? events.filter((event: any) => event.type === WorkStatus.COME)
-                    .length *
-                    500 *
-                    0.03
-                : employee.Employment_Details?.position ===
+              employee.Employment_Details?.position
+                ? employee.Employment_Details?.position !==
                   ROLESEMPLOOYEE.General
-                ? employee?.Employment_Details?.salary * 0.05 >= 750
+                  ? 1125
+                  : employee.Employment_Details?.salary * 0.05 >= 750
                   ? 750
-                  : employee?.Employment_Details?.salary * 0.05
+                  : employee.Employment_Details?.salary * 0.05
                 : 0
             ),
           });
@@ -596,13 +593,13 @@ const index = () => {
               events.filter((event: any) => event.perdiem).length
             ),
             sso: Number(
-              employee?.Employment_Details?.position !== ROLESEMPLOOYEE.General
-                ? 1125
-                : employee.Employment_Details?.position ===
+              employee.Employment_Details?.position
+                ? employee.Employment_Details?.position !==
                   ROLESEMPLOOYEE.General
-                ? employee?.Employment_Details?.salary * 0.05 >= 750
+                  ? 1125
+                  : employee.Employment_Details?.salary * 0.05 >= 750
                   ? 750
-                  : employee?.Employment_Details?.salary * 0.05
+                  : employee.Employment_Details?.salary * 0.05
                 : 0
             ),
           });
