@@ -63,6 +63,8 @@ const index = () => {
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [idCalendar, setIdCalendar] = useState<any>();
   const [sso, setSSO] = useState();
+  const [currentMonth, setCurrentMonth] = useState<any>();
+  const [currentYear, setCurrentYear] = useState<any>();
   function getTotalDaysInMonth(monthString: string) {
     // Parse the month string into a Date object
     const date: any = new Date(monthString);
@@ -81,6 +83,8 @@ const index = () => {
   }
 
   const handleMonthChange = async (payload: any) => {
+    setCurrentMonth(moment(payload.view.title).month() + 1);
+    setCurrentYear(moment(payload.view.title).year());
     setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
     setIsLoadingCalendar(true);
     const work = await getWorkSchedulesByPost(
@@ -543,15 +547,19 @@ const index = () => {
           workStatus
         );
       }
+      console.log("updateEvent", updateEvent);
+
+      console.log(totalDayInMonth);
 
       if (updateEvent.length === totalDayInMonth) {
         const salaryData = await getSalaryByEmpId(
           {
-            month: moment(values.start).month(),
-            year: moment(values.start).year(),
+            month: currentMonth,
+            year: currentYear,
           },
           employee.id
         );
+        console.log(salaryData);
 
         if (!salaryData.data) {
           const salaryDataAdd = await addSalary({
@@ -582,15 +590,23 @@ const index = () => {
             ),
           });
         } else {
+          console.log("update");
+          console.log(
+            Number(updateEvent.filter((event: any) => event.ot).length)
+          );
+          console.log(
+            Number(updateEvent.filter((event: any) => event.perdiem).length)
+          );
+
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,
             amount: employee.Employment_Details?.salary
               ? employee.Employment_Details.salary
               : 0,
-            ot: Number(events.filter((event: any) => event.ot).length),
+            ot: Number(updateEvent.filter((event: any) => event.ot).length),
             perdiem: Number(
-              events.filter((event: any) => event.perdiem).length
+              updateEvent.filter((event: any) => event.perdiem).length
             ),
             sso: Number(
               employee.Employment_Details?.position
