@@ -93,9 +93,9 @@ const dashBoard = () => {
     [datas]
   );
   const headers = [
-    "ปี",
-    "เดือน",
-    "ชื่อ",
+    "year",
+    "month",
+    "name",
     "position",
     "salary",
     "ot",
@@ -230,7 +230,7 @@ const dashBoard = () => {
           {sortedData.map((row: any, index: any) => (
             <TableRow key={index}>
               <TableCell>{row.year}</TableCell>
-              <TableCell>{row.month + 1}</TableCell>
+              <TableCell>{row.month}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.position}</TableCell>
               <TableCell align="center">

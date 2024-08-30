@@ -556,7 +556,7 @@ const index = () => {
         if (!salaryData.data) {
           const salaryDataAdd = await addSalary({
             employeeId: employee.id,
-            month: moment(values.start).month(),
+            month: moment(values.start).month() + 1,
             year: moment(values.start).year(),
             amount:
               employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
