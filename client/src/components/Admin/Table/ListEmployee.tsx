@@ -17,7 +17,7 @@ const EmployeeTable = ({ employees }: any) => {
   const [order, setOrder] = useState<any>("asc");
   const [orderBy, setOrderBy] = useState<any>("fullname");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
 
   const handleRequestSort = (property: any) => {
     const isAsc = orderBy === property && order === "asc";

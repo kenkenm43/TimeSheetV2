@@ -12,6 +12,7 @@ import {
   TextField,
   TableSortLabel,
   Stack,
+  TablePagination,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -36,6 +37,8 @@ const dashBoard = () => {
   const [order, setOrder] = useState<any>("asc");
   const [orderBy, setOrderBy] = useState<any>("name");
   const [datas, setDatas] = useState<any>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchData = async () => {
@@ -129,7 +132,10 @@ const dashBoard = () => {
   const sortedData = useMemo(() => {
     return filteredData.sort(getComparator(order, orderBy));
   }, [filteredData, order, orderBy]);
-
+  const paginatedEmployees = sortedData.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
   const totalSalary = filteredData.reduce(
     (sum: any, row: any) => Number(sum) + Number(row.salary),
     0
@@ -146,7 +152,14 @@ const dashBoard = () => {
     (sum: any, row: any) => Number(sum) + Number(row.sso),
     0
   );
+  const handleChangePage = (event: any, newPage: any) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event: any) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const handleChangeMonth = (e: any) => {
     setSelectedMonth(moment(e).month() + 1);
   };
@@ -163,146 +176,157 @@ const dashBoard = () => {
     XLSX.writeFile(workbook, `List${moment()}.xlsx`);
   };
   return (
-    <TableContainer component={Paper}>
-      {loading && <Loading />}
-      <Stack direction="row" justifyItems={"center"} spacing={2}>
-        <div>
-          <TextField
-            label='"ค้นหาชื่อ"'
-            variant="outlined"
-            margin="dense"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div>
-          <LocalizationProvider dateAdapter={AdapterMoment}>
-            <DemoContainer
-              components={["DatePicker", "DatePicker", "DatePicker"]}
-            >
-              <Stack direction="row" justifyItems={"center"} spacing={2}>
-                <DatePicker
-                  onChange={handleChangeYear}
-                  label={'"ปี"'}
-                  views={["year"]}
-                  slotProps={{
-                    field: { clearable: true, onClear: () => {} },
-                  }}
-                />
-                <DatePicker
-                  onChange={handleChangeMonth}
-                  label={'"เดือน"'}
-                  views={["month"]}
-                  slotProps={{
-                    field: { clearable: true, onClear: () => {} },
-                  }}
-                />
-              </Stack>
-            </DemoContainer>
-          </LocalizationProvider>
-        </div>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-          onClick={exportToExcel}
-        >
-          Export to Excel
-        </button>
-      </Stack>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {headers.map((v) => {
-              return (
-                <TableCell sortDirection={orderBy === v ? order : false}>
-                  <TableSortLabel
-                    active={orderBy === v}
-                    direction={orderBy === v ? order : "asc"}
-                    onClick={() => handleRequestSort(v)}
-                  >
-                    {v}
-                  </TableSortLabel>
-                </TableCell>
-              );
-            })}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedData.map((row: any, index: any) => (
-            <TableRow key={index}>
-              <TableCell>{row.year}</TableCell>
-              <TableCell>{row.month}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.position}</TableCell>
-              <TableCell align="center">
-                {row.salary
-                  .toString()
-                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-              </TableCell>
-              <TableCell align="center">
-                {row.ot
-                  .toString()
-                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-              </TableCell>
-              <TableCell align="center">
-                {row.perdiem
-                  .toString()
-                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-              </TableCell>
-              <TableCell align="center">
-                {row.sso
-                  .toString()
-                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-              </TableCell>
-              <TableCell align="center">
-                {(
-                  Number(row.perdiem) +
-                  Number(row.ot) +
-                  Number(row.salary) -
-                  Number(row.sso)
-                )
-                  .toString()
-                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-              </TableCell>
-              <TableCell align="center">{row.bank_account_name}</TableCell>{" "}
-              <TableCell align="center">{row.bank_account_number}</TableCell>
+    <Paper className="p-4">
+      <TableContainer>
+        {loading && <Loading />}
+        <Stack direction="row" justifyItems={"center"} spacing={2}>
+          <div>
+            <TextField
+              label='"ค้นหาชื่อ"'
+              variant="outlined"
+              margin="dense"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+              <DemoContainer
+                components={["DatePicker", "DatePicker", "DatePicker"]}
+              >
+                <Stack direction="row" justifyItems={"center"} spacing={2}>
+                  <DatePicker
+                    onChange={handleChangeYear}
+                    label={'"ปี"'}
+                    views={["year"]}
+                    slotProps={{
+                      field: { clearable: true, onClear: () => {} },
+                    }}
+                  />
+                  <DatePicker
+                    onChange={handleChangeMonth}
+                    label={'"เดือน"'}
+                    views={["month"]}
+                    slotProps={{
+                      field: { clearable: true, onClear: () => {} },
+                    }}
+                  />
+                </Stack>
+              </DemoContainer>
+            </LocalizationProvider>
+          </div>
+          <button
+            className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+            onClick={exportToExcel}
+          >
+            Export to Excel
+          </button>
+        </Stack>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {headers.map((v) => {
+                return (
+                  <TableCell sortDirection={orderBy === v ? order : false}>
+                    <TableSortLabel
+                      active={orderBy === v}
+                      direction={orderBy === v ? order : "asc"}
+                      onClick={() => handleRequestSort(v)}
+                    >
+                      {v}
+                    </TableSortLabel>
+                  </TableCell>
+                );
+              })}
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell>Total</TableCell>
-            <TableCell align="center">
-              {totalSalary
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-            </TableCell>
-            <TableCell align="center">
-              {totalOT
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-            </TableCell>
-            <TableCell align="center">
-              {totalPerdiem
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-            </TableCell>
-            <TableCell align="center">
-              {totalSSO
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-            </TableCell>
-            <TableCell align="center">
-              {(totalPerdiem + totalOT + totalSalary - totalSSO)
-                .toString()
-                .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {paginatedEmployees.map((row: any, index: any) => (
+              <TableRow key={index}>
+                <TableCell>{row.year}</TableCell>
+                <TableCell>{row.month}</TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.position}</TableCell>
+                <TableCell align="center">
+                  {row.salary
+                    .toString()
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+                </TableCell>
+                <TableCell align="center">
+                  {row.ot
+                    .toString()
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+                </TableCell>
+                <TableCell align="center">
+                  {row.perdiem
+                    .toString()
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+                </TableCell>
+                <TableCell align="center">
+                  {row.sso
+                    .toString()
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+                </TableCell>
+                <TableCell align="center">
+                  {(
+                    Number(row.perdiem) +
+                    Number(row.ot) +
+                    Number(row.salary) -
+                    Number(row.sso)
+                  )
+                    .toString()
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+                </TableCell>
+                <TableCell align="center">{row.bank_account_name}</TableCell>{" "}
+                <TableCell align="center">{row.bank_account_number}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell>Total</TableCell>
+              <TableCell align="center">
+                {totalSalary
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell align="center">
+                {totalOT
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell align="center">
+                {totalPerdiem
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell align="center">
+                {totalSSO
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+              <TableCell align="center">
+                {(totalPerdiem + totalOT + totalSalary - totalSSO)
+                  .toString()
+                  .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") || "-"}
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[8, 15, 25]}
+        component="div"
+        count={sortedData.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
 };
 
