@@ -148,7 +148,7 @@ const dashBoard = () => {
   );
 
   const handleChangeMonth = (e: any) => {
-    setSelectedMonth(moment(e).month() - 1);
+    setSelectedMonth(moment(e).month() + 1);
   };
   const handleChangeYear = (e: any) => {
     setSelectedYear(moment(e).year());
