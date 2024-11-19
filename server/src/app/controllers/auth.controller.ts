@@ -21,8 +21,6 @@ const handleRegister: RequestHandler = async (
   try {
     const payload = req.body as UserRegisterPayloadType;
     const passwordHash = bcrypt.hashSync(payload.password, 10);
-    console.log(payload);
-
     const newUser = await prisma.employee.create({
       include: {
         System_Access: { include: { role: true } },
@@ -52,8 +50,6 @@ const handleRegister: RequestHandler = async (
         },
       },
     });
-    console.log("newUser", newUser);
-
     if (!newUser) {
       throw new ErrorHandler(400, "การกรอกข้อมูลไม่ถูกต้อง");
     }
@@ -109,8 +105,6 @@ const handleChangePassword: RequestHandler = async (
       where: { employeeId: getEmail?.id },
       data: { password: passwordHash },
     });
-    console.log(changePassword);
-
     return res.status(204).json({ message: "update password success" });
   } catch (error) {
     return res.status(401).json({ message: "reset password fail", error });
@@ -133,8 +127,6 @@ const handleLogout: RequestHandler = async (
     res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
     return res.status(204).json({ message: "Clear cookie" });
   }
-  console.log(foundUser);
-
   await prisma.system_Access.update({
     where: { access_id: foundUser.access_id },
     data: { refreshToken: "" },

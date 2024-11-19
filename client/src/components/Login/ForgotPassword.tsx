@@ -23,7 +23,6 @@ const ForgotPassword = () => {
     defaultValues: async () =>
       await resetPassword({ recipient_email: email, OTP: otp }),
   });
-  console.log(isLoading);
 
   const navigateToOtp = async (datas: any) => {
     try {
@@ -35,7 +34,6 @@ const ForgotPassword = () => {
           recipient_email: datas.email,
           OTP,
         });
-        console.log(response);
         if (!response) {
           Swal.fire({
             title: "ระบบยังไม่พร้อมใช้งาน!",

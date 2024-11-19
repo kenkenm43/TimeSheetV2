@@ -51,8 +51,6 @@ const dashBoard = () => {
           },
           "all"
         );
-        console.log(response.data);
-
         setDatas(response.data);
         setLoading(false);
       } catch (error) {
@@ -65,8 +63,6 @@ const dashBoard = () => {
   const data: any = useMemo(
     () =>
       datas.map((dt: any) => {
-        console.log(dt);
-
         return {
           year: dt.year,
           month: dt.month,

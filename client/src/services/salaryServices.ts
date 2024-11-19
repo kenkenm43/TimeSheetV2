@@ -3,7 +3,6 @@
 import httpClient from "./httpClient";
 
 export const addSalary = async (payload: any) => {
-  console.log(payload);
   try {
     const response = await httpClient.post(`/salary`, payload);
     return response;
@@ -12,7 +11,6 @@ export const addSalary = async (payload: any) => {
   }
 };
 export const getSalaryByEmpId = async (payload: any, employeeId: any) => {
-
   try {
     const response = await httpClient.get(
       `/salary?empId=${employeeId}&month=${payload.month}&year=${payload.year}`,
@@ -24,8 +22,6 @@ export const getSalaryByEmpId = async (payload: any, employeeId: any) => {
   }
 };
 export const updateSalaryById = async (payload: any) => {
-  console.log(payload);
-  
   try {
     const response = await httpClient.put(`/salary`, payload);
     return response;

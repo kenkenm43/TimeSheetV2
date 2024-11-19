@@ -47,7 +47,7 @@ export const checkLogin = async (
         req["user"] = isUserAlready;
         return next();
       } else {
-        throw new ErrorHandler(400, "รหัสผ่านไม่ถูกต้อง");
+        throw new ErrorHandler(400, `รหัสผ่านไม่ถูกต้อง`);
       }
     } else {
       throw new ErrorHandler(400, "ไม่มีชื่อผู้ใช้อยู่ในระบบ");
@@ -95,11 +95,8 @@ export const checkRegister = async (
         ],
       },
     });
-    console.log(existingEmployee);
 
     if (existingEmployee) {
-      console.log("check");
-
       throw new ErrorHandler(400, "บัญชีผู้ใช้นี้มีอยู่ในระบบแล้ว");
     }
     return next();

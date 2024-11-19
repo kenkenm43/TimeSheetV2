@@ -77,8 +77,6 @@ const Sidebar = () => {
     await logout();
     setIsLoading(false);
   };
-  console.log(currentNavigate);
-
   return (
     <>
       {isLoading && <Loading />}

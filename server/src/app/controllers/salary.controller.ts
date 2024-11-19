@@ -25,8 +25,6 @@ const addSalary = async (req: Request, res: Response) => {
 };
 const getSalaryById = async (req: Request, res: Response) => {
   try {
-    console.log(req.query);
-
     const empId = String(req.query.empId);
     const month = Number(req.query.month);
     const year = Number(req.query.year);
@@ -66,7 +64,6 @@ const getSalaryById = async (req: Request, res: Response) => {
 const updateSalary = async (req: Request, res: Response) => {
   try {
     const { id, amount, ot, perdiem, employeeId, sso } = req.body;
-    console.log("update", req.body);
     const sly = await prisma.salary.update({
       where: {
         id: id,

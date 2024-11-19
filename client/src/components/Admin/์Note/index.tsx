@@ -52,8 +52,6 @@ const index = () => {
     setIsLoading(false);
   };
   const handleChange = (e: any) => {
-    console.log(e.target);
-
     const { name, value } = e.target;
 
     setFormData((prevState: any) => ({
@@ -104,8 +102,6 @@ const index = () => {
       topic: editedTopic,
       content: editedContent,
     });
-    console.log(data);
-
     const updateData = messages.map((msg: any) => {
       if (id === msg.id) {
         return { ...msg, topic: data.topic, content: data.content };

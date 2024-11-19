@@ -1,12 +1,7 @@
 import nodemailer from "nodemailer";
 import { NODEMAILER_EMAIL, NODEMAILER_PASSWORD } from "../utils/environment";
 export const sendEmail = ({ recipient_email, OTP }: any) => {
-  console.log(NODEMAILER_EMAIL);
-  console.log(NODEMAILER_PASSWORD);
-
   return new Promise((resolve, reject) => {
-    console.log(recipient_email);
-
     var transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       service: "gmail",

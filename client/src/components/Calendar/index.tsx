@@ -101,8 +101,6 @@ const index = () => {
       },
       employee.id
     );
-    console.log(work);
-
     const eventsData = await addEvents(work.data, leave.data);
     setEvents(eventsData);
     setIsLoadingCalendar(false);
@@ -193,7 +191,6 @@ const index = () => {
       });
       setWorkStatus(WorkStatus.COME);
     } else {
-      console.log("current", currentValueDate);
       setWorkReason(currentValueDate.workReason);
       setType(currentValueDate.type);
       setIdCalendar(currentValueDate.id);
@@ -520,7 +517,6 @@ const index = () => {
         title = WorkStatus.LEAVE;
         backgroundColor = "red";
       }
-      console.log("values", values);
       const currentDateValue = dateCurrent(values.start);
       let updateEvent;
       if (!dateCurrent(values.start)) {
@@ -547,9 +543,6 @@ const index = () => {
           workStatus
         );
       }
-      console.log("updateEvent", updateEvent);
-
-      console.log(totalDayInMonth);
 
       if (updateEvent.length === totalDayInMonth) {
         const salaryData = await getSalaryByEmpId(
@@ -559,7 +552,6 @@ const index = () => {
           },
           employee.id
         );
-        console.log(salaryData);
 
         if (!salaryData.data) {
           const salaryDataAdd = await addSalary({
@@ -590,14 +582,6 @@ const index = () => {
             ),
           });
         } else {
-          console.log("update");
-          console.log(
-            Number(updateEvent.filter((event: any) => event.ot).length)
-          );
-          console.log(
-            Number(updateEvent.filter((event: any) => event.perdiem).length)
-          );
-
           const updateSalary = await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,

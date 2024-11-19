@@ -16,7 +16,6 @@ const LoginPage = () => {
 
     return <Recovered />;
   };
-  console.log(page);
 
   return (
     <div className="">

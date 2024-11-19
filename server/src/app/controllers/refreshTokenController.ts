@@ -9,8 +9,6 @@ export const handleRefreshTokenV2: RequestHandler = async (
   res: Response
 ) => {
   const cookies = req.cookies;
-  console.log(cookies.jwt);
-
   if (!cookies?.jwt)
     return res.status(401).send({ message: "Invalid refresh token" });
   const refreshToken = cookies.jwt;

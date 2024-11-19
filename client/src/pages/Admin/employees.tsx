@@ -58,8 +58,6 @@ const employees = () => {
     return new Date(year, month, 0).getDate();
   }
   const handleMonthChange = async (payload: any) => {
-    console.log(payload);
-
     setIsLoading(true);
     setCurrentStart(payload.view.currentStart);
     setCurrentEnd(payload.view.currentEnd);
@@ -79,15 +77,12 @@ const employees = () => {
       },
       keepEmployee.id
     );
-    console.log(work, leave);
 
     const eventsData = await addEvents(work.data, leave.data);
-    console.log("events", eventsData);
 
     setEvents(eventsData);
     setIsLoading(false);
   };
-  console.log(isLoading);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,6 +105,7 @@ const employees = () => {
       const eventsData = await addEvents(work.data, leave.data);
 
       setEvents(eventsData);
+
       setIsLoading(false);
     };
     if (currentStart && currentEnd) {
@@ -143,6 +139,7 @@ const employees = () => {
         allDay: true,
         backgroundColor: background,
         type: arr.work_status,
+        workReason: arr.work_reason,
         timeStart: moment(arr.work_start).utcOffset("-07:00")._d,
         timeEnd: moment(arr.work_end).utcOffset("-07:00")._d,
       };
@@ -166,7 +163,6 @@ const employees = () => {
 
       return formatEvent;
     });
-
     return [...formatWorkEvents, ...leaveWorkEvents];
   };
 
@@ -227,8 +223,6 @@ const employees = () => {
   const updateInfo = async () => {
     try {
       setIsLoading(true);
-      console.log(keepEmployee?.Employment_Details?.salary);
-      console.log(salaryMock);
 
       if (
         moment(startDate).format("yyyy-MM-DD") !==

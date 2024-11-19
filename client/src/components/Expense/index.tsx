@@ -152,7 +152,6 @@ const index = () => {
             appearance="primary"
             onClick={() => {
               formRef.current.check();
-              console.log(formValue);
             }}
           >
             Submit

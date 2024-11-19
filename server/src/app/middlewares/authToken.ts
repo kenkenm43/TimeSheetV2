@@ -20,10 +20,8 @@ export const getAuthToken: RequestHandler = async (req: any, res: Response) => {
   try {
     const user = req["user"] as SystemAccess;
 
-    console.log(user as SystemAccess);
     const accessToken = await jwtGenerate(user);
     const refreshToken = await jwtRefreshTokenGenerate(user);
-    console.log(refreshToken);
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       sameSite: "none",

@@ -19,8 +19,6 @@ export const receiveMessage = async (senderId: any, receivedId: any) => {
   }
 };
 export const employeeReceiveMessage = async (receivedId: any) => {
-  console.log("receivedId", receivedId);
-
   try {
     const response = await httpClient.get(`/message/${receivedId}`);
     return response;

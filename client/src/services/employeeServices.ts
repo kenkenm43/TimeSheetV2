@@ -63,6 +63,7 @@ export const getWorkSchedulesByPost = async (payload: any, employeeId: any) => {
       `/work-scheduleByPost/${employeeId}`,
       payload
     );
+
     return response;
   } catch (error: any) {
     return error.response;
@@ -138,8 +139,6 @@ export const updateLeave = async (
   employeeId: any,
   dateId: any
 ) => {
-  console.log("payload", payload);
-
   try {
     const response = await httpClient.patch(
       `/leave/${employeeId}/${dateId}`,

@@ -31,7 +31,6 @@ function App() {
     if (navigator.onLine) {
       try {
         await logout();
-        console.log("User logged out due to inactivity.");
       } catch (error) {
         console.log("Logout request failed:", error);
       }

@@ -13,11 +13,8 @@ router.post(
   (req, res) => {
     upload(req, res, async (err) => {
       //handling errors from multer
-      console.log("upload");
       const employeeId = req.params["id"];
       if (err) {
-        console.log(err);
-
         return res.json({ error: err.message });
       }
 

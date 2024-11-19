@@ -19,7 +19,7 @@ const OTPinput = () => {
       await alert("A new OTP has succesfully been sent to your email.");
       await setTimer(60);
     } catch (error) {
-      console.log(error);
+      return error;
     }
   };
 

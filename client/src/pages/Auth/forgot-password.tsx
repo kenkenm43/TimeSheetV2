@@ -63,11 +63,8 @@ const ForgotPassword = () => {
 
   const navigateToOtp = async (datas: any) => {
     setIsLoading(true);
-    console.log(datas);
     try {
       if (datas.email) {
-        console.log("sed");
-
         const OTP = Math.floor(Math.random() * 9000 + 1000);
         setOTP(OTP);
         await resetPassword({ recipient_email: datas.email, OTP });

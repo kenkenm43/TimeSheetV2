@@ -35,8 +35,6 @@ const getUsers = async (req: Request, res: Response) => {
 const getUser = async (req: any, res: Response) => {
   try {
     const idUser = req.params["id"];
-    console.log(idUser);
-
     const user = await prisma.user.findFirst({
       where: { username: "kenkenm43" },
       select: {

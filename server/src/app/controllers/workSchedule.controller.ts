@@ -34,8 +34,6 @@ const workSchedule: RequestHandler = async (
         },
       },
     });
-    console.log(workSchedule);
-
     return res.status(200).json([...workSchedule]);
   } catch (error) {
     return handleError(error, res);
@@ -159,7 +157,6 @@ const addLeaveSchedule: RequestHandler = async (
     });
     return res.status(200).json({ ...newLeave, message: "บันทึกเรียบร้อย" });
   } catch (error) {
-    console.log(req.path);
     return handleError(error, res);
   }
 };
