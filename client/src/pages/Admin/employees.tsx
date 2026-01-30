@@ -32,7 +32,7 @@ const employees = () => {
   const [workSchedule, setWorkSchedule] = useState<[]>();
   const [typeButton, setTypeButton] = useState("Calendar");
   const [leave, setLeave] = useState<[]>();
-  const [costSSO, setCostSSO] = useState(750);
+  const [costSSO, setCostSSO] = useState(875);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingEvent, setIsLoadingEvent] = useState(false);
   const [currentStart, setCurrentStart] = useState("");
@@ -610,8 +610,8 @@ const employees = () => {
                         ? keepEmployee.Employment_Details?.position !==
                           ROLESEMPLOOYEE.General
                           ? 1125
-                          : defaultSalary * 0.05 >= 750
-                          ? 750
+                          : defaultSalary * 0.05 >= 875
+                          ? 875
                           : defaultSalary * 0.05
                         : 0
                       )

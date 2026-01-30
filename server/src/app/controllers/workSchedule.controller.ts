@@ -160,6 +160,30 @@ const addLeaveSchedule: RequestHandler = async (
     return handleError(error, res);
   }
 };
+const createLeaveBalances: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: any
+) => {
+  try {
+    const employeeId = req.params["id"];
+
+    const payload = req.body;
+
+    const newLeave = await prisma.leave.create({
+      data: {
+        employeeId: employeeId,
+        leave_date: payload.leave_date,
+        leave_reason: payload.leave_reason || "",
+        leave_type: payload.leave_type || "",
+        leave_cause: payload.leave_cause || "",
+      },
+    });
+    return res.status(200).json({ ...newLeave, message: "บันทึกเรียบร้อย" });
+  } catch (error) {
+    return handleError(error, res);
+  }
+};
 const deleteLeaveSchedule: RequestHandler = async (req: any, res: Response) => {
   try {
     const employeeId = req.params["id"];

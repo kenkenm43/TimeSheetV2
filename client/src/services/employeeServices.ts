@@ -128,7 +128,6 @@ export const getLeavesBypost = async (payload: any, employeeId: any) => {
 export const addLeave = async (payload: any, employeeId: any) => {
   try {
     const response = await httpClient.post(`/leave/${employeeId}`, payload);
-
     return response;
   } catch (error: any) {
     return error.response;
