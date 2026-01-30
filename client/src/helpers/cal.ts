@@ -4,6 +4,6 @@ export const calOT = (salary: number) => {
 };
 
 export const calSSO = (salary: number) => {
-  const total = salary * 0.05 >= 750 ? 750 : salary * 0.05;
+  const total = salary * 0.05 >= 875 ? 875 : salary * 0.05;
   return total;
 };

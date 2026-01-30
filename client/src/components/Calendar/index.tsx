@@ -575,8 +575,8 @@ const index = () => {
                 ? employee.Employment_Details?.position !==
                   ROLESEMPLOOYEE.General
                   ? 1125
-                  : employee.Employment_Details?.salary * 0.05 >= 750
-                  ? 750
+                  : employee.Employment_Details?.salary * 0.05 >= 875
+                  ? 875
                   : employee.Employment_Details?.salary * 0.05
                 : 0
             ),
@@ -597,8 +597,8 @@ const index = () => {
                 ? employee.Employment_Details?.position !==
                   ROLESEMPLOOYEE.General
                   ? 1125
-                  : employee.Employment_Details?.salary * 0.05 >= 750
-                  ? 750
+                  : employee.Employment_Details?.salary * 0.05 >= 875
+                  ? 875
                   : employee.Employment_Details?.salary * 0.05
                 : 0
             ),
@@ -787,8 +787,8 @@ const index = () => {
                       ? employee.Employment_Details?.position !==
                         ROLESEMPLOOYEE.General
                         ? 1125
-                        : employee.Employment_Details?.salary * 0.05 >= 750
-                        ? 750
+                        : employee.Employment_Details?.salary * 0.05 >= 875
+                        ? 875
                         : employee.Employment_Details?.salary * 0.05
                       : 0
                     )
