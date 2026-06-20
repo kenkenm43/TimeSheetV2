@@ -35,6 +35,7 @@ import Loading from "../Loading";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 import { calOT, calSSO } from "../../helpers/cal";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 enum WorkStatus {
   COME = "come",
   NOTCOME = "notcome",
@@ -42,7 +43,7 @@ enum WorkStatus {
 }
 
 const index = () => {
-  // ตัวแปรต่างๆ ที่ใช้ใน component
+  // ตัวแปรต่างๆ ที่ใช้ใน component (คงเดิม)
   const [editable, setEditable] = useState(false);
   const calendarRef = useRef<any>(null);
   const [values, setValues] = useState({
@@ -66,23 +67,15 @@ const index = () => {
   const [sso, setSSO] = useState();
   const [currentMonth, setCurrentMonth] = useState<any>();
   const [currentYear, setCurrentYear] = useState<any>();
+
   function getTotalDaysInMonth(monthString: string) {
-    // Parse the month string into a Date object
     const date: any = new Date(monthString);
-
-    // Check if the date is valid
-    if (isNaN(date)) {
-      return -1; // Invalid date
-    }
-
-    // Get the month and year from the Date object
-    const month = date.getMonth() + 1; // Months are zero indexed, so we add 1
+    if (isNaN(date)) return -1;
+    const month = date.getMonth() + 1;
     const year = date.getFullYear();
-
-    // Return the number of days in the month
     return new Date(year, month, 0).getDate();
   }
-  // ฟังก์ชันสำหรับจัดการการเปลี่ยนเดือนในปฏิทิน
+
   const handleMonthChange = async (payload: any) => {
     setCurrentMonth(moment(payload.view.title).month() + 1);
     setCurrentYear(moment(payload.view.title).year());
@@ -106,27 +99,22 @@ const index = () => {
     setEvents(eventsData);
     setIsLoadingCalendar(false);
   };
-  // ฟังก์ชันสำหรับจัดการการแสดงเนื้อหาของเหตุการณ์ในปฏิทิน
+
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
     return dateF;
   };
-  // ฟังก์ชันสำหรับจัดการการเพิ่มเหตุการณ์ในปฏิทิน
+
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
       let background;
       if (arr.work_status === WorkStatus.COME) {
-        if (arr.work_perdium && arr.work_ot) {
-          background = "#e100ff";
-        } else if (arr.work_perdium) {
-          background = "#0044ff";
-        } else if (arr.work_ot) {
-          background = "#38bdf8";
-        } else {
-          background = "green";
-        }
+        if (arr.work_perdium && arr.work_ot) background = "#e100ff";
+        else if (arr.work_perdium) background = "#0044ff";
+        else if (arr.work_ot) background = "#38bdf8";
+        else background = "#16a34a"; // Modern green
       } else if (arr.work_status === WorkStatus.NOTCOME) {
-        background = "gray";
+        background = "#64748b"; // Modern gray
       }
       const formatEvent = {
         id: arr.id,
@@ -137,14 +125,15 @@ const index = () => {
         perdiem: arr.work_perdium,
         allDay: true,
         backgroundColor: background,
+        borderColor: background,
         type: arr.work_status,
         workReason: arr.work_reason,
         timeStart: moment(arr.work_start).utcOffset("-07:00")._d,
         timeEnd: moment(arr.work_end).utcOffset("-07:00")._d,
       };
-
       return formatEvent;
     });
+
     const leaveWorkEvents = leaveArr.map((arr: any) => {
       const formatEvent = {
         ...arr,
@@ -157,39 +146,32 @@ const index = () => {
         type: arr.leave_type,
         allDay: true,
         timeStart: moment(arr.leave_date).utcOffset("-07:00")._d,
-        backgroundColor: "red",
+        backgroundColor: "#ef4444", // Modern red
+        borderColor: "#ef4444",
       };
-
       return formatEvent;
     });
 
     return [...formatWorkEvents, ...leaveWorkEvents];
   };
-  // ฟังก์ชันสำหรับจัดการการคลิกวันที่ในปฏิทิน
+
   const handleDateClick = (arg: any) => {
     const { dateStr } = arg;
-
     const dateSelect = dateStr || arg.event.startStr;
-    const startDate = new Date(
-      formatDate(dateSelect, "T09:00:00", "YYYY-MM-DDTHH:mm:ss")
-    );
-    const endDate = new Date(
-      formatDate(dateSelect, "T18:00:00", "YYYY-MM-DDTHH:mm:ss")
-    );
+    const startDate = new Date(formatDate(dateSelect, "T09:00:00", "YYYY-MM-DDTHH:mm:ss"));
+    const endDate = new Date(formatDate(dateSelect, "T18:00:00", "YYYY-MM-DDTHH:mm:ss"));
     const currentValueDate = events.find((event: any) => {
       const eventDate = formatDate(event.start, "", "YYYY-MM-DD");
       return eventDate === formatDate(dateSelect, "", "YYYY-MM-DD");
     });
+
     setCheckBoxed([
       currentValueDate?.ot ? "OT" : null,
       currentValueDate?.perdiem ? "Perdiem" : null,
     ]);
+
     if (!currentValueDate) {
-      setValues({
-        title: WorkStatus.COME,
-        start: startDate,
-        end: endDate,
-      });
+      setValues({ title: WorkStatus.COME, start: startDate, end: endDate });
       setWorkStatus(WorkStatus.COME);
     } else {
       setWorkReason(currentValueDate.workReason);
@@ -200,7 +182,6 @@ const index = () => {
         start: currentValueDate.start || startDate,
         end: currentValueDate.end || endDate,
       });
-
       setWorkStatus(currentValueDate.title);
       setLeaveCause(currentValueDate.cause || "ลาโดยใช้วันหยุด");
       setLeaveReason(currentValueDate.reason);
@@ -208,7 +189,7 @@ const index = () => {
     }
     setEditable(true);
   };
-  // ฟังก์ชันสำหรับดึงข้อมูลเหตุการณ์จาก API เมื่อ component ถูก mount
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -220,19 +201,12 @@ const index = () => {
     };
     fetchData();
   }, []);
-  // ฟังก์ชันสำหรับจัดการการสร้างเหตุการณ์ใหม่ในปฏิทิน
+
   const handleEventCreation = async (
-    workReason: any,
-    startDate: any,
-    endDate: any,
-    title: any,
-    backgroundColor: any,
-    leaveCause: any,
-    leaveReason: any,
-    leaveType: any
+    workReason: any, startDate: any, endDate: any, title: any,
+    backgroundColor: any, leaveCause: any, leaveReason: any, leaveType: any
   ) => {
     let newEvent: any;
-
     if (title === WorkStatus.LEAVE) {
       const { data } = await addLeave(
         {
@@ -245,16 +219,9 @@ const index = () => {
       );
       newEvent = events.filter((event: any) => event);
       newEvent.push({
-        id: data.id,
-        title: title,
-        start: startDate,
-        end: endDate,
-        reason: leaveReason,
-        cause: leaveCause,
-        type: leaveType,
-        allDay: true,
-
-        backgroundColor: backgroundColor,
+        id: data.id, title: title, start: startDate, end: endDate,
+        reason: leaveReason, cause: leaveCause, type: leaveType, allDay: true,
+        backgroundColor: backgroundColor, borderColor: backgroundColor
       });
       setLeaveReason(leaveReason);
       setLeaveCause(leaveCause);
@@ -265,39 +232,24 @@ const index = () => {
           work_status: title,
           work_start: formatDate(values.start, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
           work_end: formatDate(values.end, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-          work_ot:
-            title === WorkStatus.NOTCOME ? false : checkBoxed.includes("OT"),
-          work_perdium:
-            title === WorkStatus.NOTCOME
-              ? false
-              : checkBoxed.includes("Perdiem"),
+          work_ot: title === WorkStatus.NOTCOME ? false : checkBoxed.includes("OT"),
+          work_perdium: title === WorkStatus.NOTCOME ? false : checkBoxed.includes("Perdiem"),
           work_reason: workReason,
         },
         employee.id
       );
       newEvent = events.filter((event: any) => event);
       newEvent.push({
-        id: data.id,
-        title: title,
-        start: startDate,
-        end: endDate,
-        cause: leaveCause,
-        ot: data.work_ot,
-        perdiem: data.work_perdium,
-        reason: leaveReason,
-        workReason: workReason,
-        type: title,
-        timeStart: startDate,
-        timeEnd: endDate,
-        allDay: true,
-        backgroundColor: backgroundColor,
+        id: data.id, title: title, start: startDate, end: endDate, cause: leaveCause,
+        ot: data.work_ot, perdiem: data.work_perdium, reason: leaveReason,
+        workReason: workReason, type: title, timeStart: startDate, timeEnd: endDate,
+        allDay: true, backgroundColor: backgroundColor, borderColor: backgroundColor
       });
     }
-
     await setEvents(() => [...newEvent]);
     return [...newEvent];
   };
-  // ฟังก์ชันสำหรับจัดการการลบเหตุการณ์ในปฏิทิน
+
   const handleDelete = async (e: any) => {
     setIsLoading(true);
     let updateEvent = [];
@@ -311,17 +263,11 @@ const index = () => {
     setEditable(false);
     setIsLoading(false);
   };
-  // ฟังก์ชันสำหรับจัดการการอัปเดตเหตุการณ์ในปฏิทิน
+
   const handleEventUpdate = async (
-    workReason: any,
-    idDate: any,
-    typeOld: any,
-    typeNew: any,
-    backgroundColor: any,
-    timeStart: any,
-    timeEnd: any,
-    leaveCause: any,
-    leaveType: any
+    workReason: any, idDate: any, typeOld: any, typeNew: any,
+    backgroundColor: any, timeStart: any, timeEnd: any,
+    leaveCause: any, leaveType: any
   ) => {
     let updateEvent: any;
     if (typeOld !== typeNew) {
@@ -332,92 +278,47 @@ const index = () => {
             work_status: typeNew,
             work_start: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             work_end: formatDate(timeEnd, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-            work_ot:
-              typeNew === WorkStatus.NOTCOME
-                ? false
-                : checkBoxed.includes("OT"),
-            work_perdium:
-              typeNew === WorkStatus.NOTCOME
-                ? false
-                : checkBoxed.includes("Perdiem"),
+            work_ot: typeNew === WorkStatus.NOTCOME ? false : checkBoxed.includes("OT"),
+            work_perdium: typeNew === WorkStatus.NOTCOME ? false : checkBoxed.includes("Perdiem"),
             work_reason: workReason,
           },
           employee.id
         );
         updateEvent = events.filter((event: any) => event.id !== idDate);
-
         updateEvent.push({
-          id: data.id,
-          title: typeNew,
-          start: timeStart,
-          ot: data.work_ot || false,
-          perdiem: data.work_perdium || false,
-          end: timeEnd,
-          allDay: true,
-          type: typeNew,
-          workReason: workReason,
-          timeStart: timeStart,
-          timeEnd: timeEnd,
-          backgroundColor: backgroundColor,
+          id: data.id, title: typeNew, start: timeStart, ot: data.work_ot || false,
+          perdiem: data.work_perdium || false, end: timeEnd, allDay: true, type: typeNew,
+          workReason: workReason, timeStart: timeStart, timeEnd: timeEnd, backgroundColor: backgroundColor, borderColor: backgroundColor
         });
       } else if (typeNew === WorkStatus.LEAVE) {
         await deleteWorkSchedule(employee.id, idDate);
-
         const { data } = await addLeave(
           {
             leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-            leave_reason: leaveReason,
-            leave_type: leaveType,
-            leave_cause: leaveCause,
+            leave_reason: leaveReason, leave_type: leaveType, leave_cause: leaveCause,
           },
           employee.id
         );
         updateEvent = events.filter((event: any) => event.id !== idDate);
-
         updateEvent.push({
-          id: data.id,
-          title: WorkStatus.LEAVE,
-          start: timeStart,
-          end: timeEnd,
-          cause: leaveCause,
-          reason: leaveReason,
-          type: leaveType,
-          allDay: true,
-          backgroundColor: "red",
+          id: data.id, title: WorkStatus.LEAVE, start: timeStart, end: timeEnd,
+          cause: leaveCause, reason: leaveReason, type: leaveType, allDay: true, backgroundColor: "#ef4444", borderColor: "#ef4444"
         });
       } else {
         const { data } = await updateWorkSchedule(
           {
-            work_start: timeStart,
-            work_end: timeEnd,
-            work_status: typeNew,
-            work_ot:
-              typeNew === WorkStatus.NOTCOME
-                ? false
-                : checkBoxed.includes("OT"),
-            work_perdium:
-              typeNew === WorkStatus.NOTCOME
-                ? false
-                : checkBoxed.includes("Perdiem"),
+            work_start: timeStart, work_end: timeEnd, work_status: typeNew,
+            work_ot: typeNew === WorkStatus.NOTCOME ? false : checkBoxed.includes("OT"),
+            work_perdium: typeNew === WorkStatus.NOTCOME ? false : checkBoxed.includes("Perdiem"),
             work_reason: workReason,
           },
-          employee.id,
-          idDate
+          employee.id, idDate
         );
         updateEvent = events.filter((event: any) => event.id !== idDate);
         updateEvent.push({
-          id: idDate,
-          title: typeNew,
-          start: timeStart,
-          end: timeEnd,
-          ot: data.work_ot || false,
-          perdiem: data.work_perdium || false,
-          workReason: workReason,
-          allDay: true,
-          type: typeNew,
-          timeStart: timeStart,
-          timeEnd: timeEnd,
-          backgroundColor: backgroundColor,
+          id: idDate, title: typeNew, start: timeStart, end: timeEnd,
+          ot: data.work_ot || false, perdiem: data.work_perdium || false, workReason: workReason,
+          allDay: true, type: typeNew, timeStart: timeStart, timeEnd: timeEnd, backgroundColor: backgroundColor, borderColor: backgroundColor
         });
       }
     } else {
@@ -425,25 +326,14 @@ const index = () => {
         await updateLeave(
           {
             leave_date: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
-            leave_reason: leaveReason,
-            leave_type: leaveType,
-            leave_cause: leaveCause,
+            leave_reason: leaveReason, leave_type: leaveType, leave_cause: leaveCause,
           },
-          employee.id,
-          idDate
+          employee.id, idDate
         );
         updateEvent = events.filter((event: any) => event.id !== idDate);
-
         updateEvent.push({
-          id: idDate,
-          title: WorkStatus.LEAVE,
-          start: timeStart,
-          end: timeEnd,
-          reason: leaveReason,
-          cause: leaveCause,
-          type: leaveType,
-          allDay: true,
-          backgroundColor: "red",
+          id: idDate, title: WorkStatus.LEAVE, start: timeStart, end: timeEnd,
+          reason: leaveReason, cause: leaveCause, type: leaveType, allDay: true, backgroundColor: "#ef4444", borderColor: "#ef4444"
         });
       } else if (typeOld === typeNew) {
         const { data } = await updateWorkSchedule(
@@ -451,48 +341,28 @@ const index = () => {
             work_start: formatDate(timeStart, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             work_end: formatDate(timeEnd, "", "YYYY-MM-DDTHH:mm:ss[Z]"),
             work_status: typeNew,
-            work_ot:
-              typeNew === WorkStatus.NOTCOME
-                ? false
-                : checkBoxed.includes("OT"),
-            work_perdium:
-              typeNew === WorkStatus.NOTCOME
-                ? false
-                : checkBoxed.includes("Perdiem"),
+            work_ot: typeNew === WorkStatus.NOTCOME ? false : checkBoxed.includes("OT"),
+            work_perdium: typeNew === WorkStatus.NOTCOME ? false : checkBoxed.includes("Perdiem"),
             work_reason: workReason,
           },
-          employee.id,
-          idDate
+          employee.id, idDate
         );
         updateEvent = events.filter((event: any) => event.id !== idDate);
-
         updateEvent.push({
-          id: idDate,
-          title: typeNew,
-          start: timeStart,
-          end: timeEnd,
-          ot: data.work_ot || false,
-          perdiem: data.work_perdium || false,
-          workReason: workReason,
-          allDay: true,
-          type: typeNew,
-          timeStart: timeStart,
-          timeEnd: timeEnd,
-          backgroundColor: backgroundColor,
+          id: idDate, title: typeNew, start: timeStart, end: timeEnd,
+          ot: data.work_ot || false, perdiem: data.work_perdium || false, workReason: workReason,
+          allDay: true, type: typeNew, timeStart: timeStart, timeEnd: timeEnd, backgroundColor: backgroundColor, borderColor: backgroundColor
         });
       }
     }
-
     setEvents(() => [...updateEvent]);
     return [...updateEvent];
   };
 
   const dateCurrent = (date: any) => {
-    const existingEvent = events.find((event: any) => {
-      const eventDateStr = formatDate(event.start, "", "YYYY-MM-DD");
-      return eventDateStr === formatDate(date, "", "YYYY-MM-DD");
+    return events.find((event: any) => {
+      return formatDate(event.start, "", "YYYY-MM-DD") === formatDate(date, "", "YYYY-MM-DD");
     });
-    return existingEvent;
   };
 
   const handleOk = async (e: any, formValue: any) => {
@@ -501,108 +371,58 @@ const index = () => {
       let title = "";
       let backgroundColor = "";
       if (workStatus === WorkStatus.COME) {
-        if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) {
-          backgroundColor = "#c026d3 ";
-        } else if (checkBoxed.includes("Perdiem")) {
-          backgroundColor = "#104efa";
-        } else if (checkBoxed.includes("OT")) {
-          backgroundColor = "#38bdf8";
-        } else {
-          backgroundColor = "green";
-        }
+        if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) backgroundColor = "#c026d3"; // fuchsia
+        else if (checkBoxed.includes("Perdiem")) backgroundColor = "#0044ff"; // blue
+        else if (checkBoxed.includes("OT")) backgroundColor = "#38bdf8"; // sky blue
+        else backgroundColor = "#16a34a"; // green
         title = WorkStatus.COME;
       } else if (workStatus === WorkStatus.NOTCOME) {
         title = WorkStatus.NOTCOME;
-        backgroundColor = "gray";
+        backgroundColor = "#64748b"; // gray
       } else if (workStatus === WorkStatus.LEAVE) {
         title = WorkStatus.LEAVE;
-        backgroundColor = "red";
+        backgroundColor = "#ef4444"; // red
       }
+
       const currentDateValue = dateCurrent(values.start);
       let updateEvent;
       if (!dateCurrent(values.start)) {
-        updateEvent = await handleEventCreation(
-          workReason,
-          values.start,
-          values.end,
-          title,
-          backgroundColor,
-          leaveCause,
-          formValue.leave_reason,
-          workStatus
-        );
+        updateEvent = await handleEventCreation(workReason, values.start, values.end, title, backgroundColor, leaveCause, formValue.leave_reason, workStatus);
       } else {
-        updateEvent = await handleEventUpdate(
-          workReason,
-          currentDateValue.id,
-          currentDateValue.title,
-          title,
-          backgroundColor,
-          values.start,
-          values.end,
-          leaveCause,
-          workStatus
-        );
+        updateEvent = await handleEventUpdate(workReason, currentDateValue.id, currentDateValue.title, title, backgroundColor, values.start, values.end, leaveCause, workStatus);
       }
 
       if (updateEvent.length === totalDayInMonth) {
-        const salaryData = await getSalaryByEmpId(
-          {
-            month: currentMonth,
-            year: currentYear,
-          },
-          employee.id
-        );
+        const salaryData = await getSalaryByEmpId({ month: currentMonth, year: currentYear }, employee.id);
+        const position = employee.Employment_Details?.position;
+        const salary = employee.Employment_Details?.salary || 0;
+        const otCount = events.filter((e: any) => e.ot).length;
+        const perdiemCount = events.filter((e: any) => e.perdiem).length;
+        
+        const ssoCalc = position 
+            ? position !== ROLESEMPLOOYEE.General ? 1125 : (salary * 0.05 >= 875 ? 875 : salary * 0.05)
+            : 0;
 
         if (!salaryData.data) {
-          const salaryDataAdd = await addSalary({
+          await addSalary({
             employeeId: employee.id,
             month: moment(values.start).month() + 1,
             year: moment(values.start).year(),
-            amount:
-              employee.Employment_Details?.position === ROLESEMPLOOYEE.Trainee
-                ? events.filter((event: any) => event.type === WorkStatus.COME)
-                    .length * 500
-                : employee.Employment_Details?.position ===
-                  ROLESEMPLOOYEE.General
-                ? employee?.Employment_Details?.salary
-                : 0,
-            ot: Number(events.filter((event: any) => event.ot).length),
-            perdiem: Number(
-              events.filter((event: any) => event.perdiem).length
-            ),
-            sso: Number(
-              employee.Employment_Details?.position
-                ? employee.Employment_Details?.position !==
-                  ROLESEMPLOOYEE.General
-                  ? 1125
-                  : employee.Employment_Details?.salary * 0.05 >= 875
-                  ? 875
-                  : employee.Employment_Details?.salary * 0.05
-                : 0
-            ),
+            amount: position === ROLESEMPLOOYEE.Trainee 
+                ? events.filter((e: any) => e.type === WorkStatus.COME).length * 500 
+                : position === ROLESEMPLOOYEE.General ? salary : 0,
+            ot: otCount,
+            perdiem: perdiemCount,
+            sso: Number(ssoCalc),
           });
         } else {
-          const updateSalary = await updateSalaryById({
+          await updateSalaryById({
             id: salaryData.data.id,
             employeeId: employee.id,
-            amount: employee.Employment_Details?.salary
-              ? employee.Employment_Details.salary
-              : 0,
-            ot: Number(updateEvent.filter((event: any) => event.ot).length),
-            perdiem: Number(
-              updateEvent.filter((event: any) => event.perdiem).length
-            ),
-            sso: Number(
-              employee.Employment_Details?.position
-                ? employee.Employment_Details?.position !==
-                  ROLESEMPLOOYEE.General
-                  ? 1125
-                  : employee.Employment_Details?.salary * 0.05 >= 875
-                  ? 875
-                  : employee.Employment_Details?.salary * 0.05
-                : 0
-            ),
+            amount: salary,
+            ot: Number(updateEvent.filter((e: any) => e.ot).length),
+            perdiem: Number(updateEvent.filter((e: any) => e.perdiem).length),
+            sso: Number(ssoCalc),
           });
         }
       }
@@ -616,11 +436,8 @@ const index = () => {
       setIdCalendar(null);
       setLeaveCause("ลาโดยใช้วันหยุด");
       setLeaveReason("");
-      setIsLoading(false);
-      title = "";
-      backgroundColor = "";
     } catch (error) {
-      setIsLoading(false);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -632,326 +449,174 @@ const index = () => {
     setWorkStatus(WorkStatus.COME);
     setEditable(false);
   };
-  const filterWorkStatus = (text: any) => {
-    const filter = events.filter((event: any) => event.title === text);
-    return filter.length;
-  };
+
+  const filterWorkStatus = (text: any) => events.filter((event: any) => event.title === text).length;
 
   const [messages, setMessages] = useState([]);
-  const [position, setPosition] = useState();
   const [isToggleField, setIsToggleField] = useState({
-    hideSalary: true,
-    hideOT: true,
-    hidePerdiem: true,
-    hideSSO: true,
-    hideTotalPaid: true,
+    hideSalary: true, hideOT: true, hidePerdiem: true, hideSSO: true, hideTotalPaid: true,
   });
+
   return (
-    <div className="w-full ml-20 mb-10 mt-5">
+    // เปลี่ยนจาก Absolute & Margin แข็งๆ เป็น Flex Container ที่รองรับ Responsive
+    <div className="flex flex-col lg:flex-row gap-6 p-4 md:p-8 bg-slate-50 min-h-screen text-slate-800 font-sans w-full">
       {isLoading && <Loading />}
       {isLoadingCalendar && <Loading />}
-      <div className="absolute top-32 left-5 flex flex-col w-72 justify-center">
-        <ListWorking />
-        ข้อความ
-        <ListMessage messages={messages} />
-      </div>
-      <div className="flex space-x-4 relative  bg-red-300 p-2 w-full">
-        <div className="flex space-x-4 relative mr-20">
-          <div className="pl-5 absolute top-7 right-[-27px]">+</div>
-          <div className="flex flex-col w-full">
-            <span className="font-semibold">เงินเดือน </span>{" "}
-            <span>
-              OT (
-              {isToggleField.hideOT ? (
-                <>X</>
-              ) : (
-                <>
-                  {employee.Employment_Details?.salary
-                    ? calOT(employee.Employment_Details.salary)
-                    : 0}
-                </>
-              )}{" "}
-              x {events.filter((event: any) => event.ot).length})
-            </span>
-            <span>
-              {" "}
-              Perdiem (250 X{" "}
-              {events.filter((event: any) => event.perdiem).length})
-            </span>
-            <span className="font-semibold">
-              <u>หัก</u>
-              {employee.Employment_Details?.position === ROLESEMPLOOYEE.General
-                ? "ประกันสังคม"
-                : "ภาษี ณ ที่จ่าย"}
-            </span>{" "}
-            <span className="font-semibold"> Total Paid : </span>
-          </div>
-          <div className="flex flex-col items-end ml-5 min-w-10">
-            <div className="flex items-center">
-              <span className="font-medium">
-                {isToggleField.hideSalary ? (
-                  <>XXXX</>
-                ) : (
-                  <>
-                    {employee.Employment_Details?.salary
-                      ? employee.Employment_Details.salary
-                          .toString()
-                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                      : 0}
-                  </>
-                )}
+
+      {/* Sidebar: สัดส่วนซ้าย */}
+      <aside className="w-full lg:w-80 flex flex-col gap-6 shrink-0">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+          <ListWorking />
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex-1">
+          <h3 className="font-semibold text-lg text-slate-800 border-b border-slate-100 pb-3 mb-4">ข้อความ</h3>
+          <ListMessage messages={messages} />
+        </div>
+      </aside>
+
+      {/* Main Content: สัดส่วนขวา */}
+      <main className="flex-1 flex flex-col gap-6 min-w-0">
+        
+        {/* --- ส่วน Dashboard Cards สรุปการเงิน --- */}
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+          
+          {/* Card: เงินเดือน */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
+            <span className="text-sm font-medium text-slate-500">เงินเดือน</span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xl font-bold text-slate-800">
+                {isToggleField.hideSalary ? "****" : (employee.Employment_Details?.salary ? employee.Employment_Details.salary.toLocaleString() : 0)}
               </span>
-              <div
-                className="absolute -right-16  cursor-pointer"
-                onClick={() =>
-                  setIsToggleField((prev) => {
-                    return {
-                      ...prev,
-                      hideSalary: !prev.hideSalary,
-                    };
-                  })
-                }
-              >
+              <button onClick={() => setIsToggleField(p => ({ ...p, hideSalary: !p.hideSalary }))} className="text-slate-400 hover:text-slate-600 transition-colors">
                 {!isToggleField.hideSalary ? <FaEye /> : <FaEyeSlash />}
-              </div>
+              </button>
             </div>
-            <div className="flex items-center">
-              <span>
-                {isToggleField.hideOT ? (
-                  <>XXXX</>
-                ) : (
-                  <>
-                    {(
-                      events.filter((event: any) => event.ot).length *
-                      calOT(
-                        employee.Employment_Details?.position ===
-                          ROLESEMPLOOYEE.General
-                          ? employee.Employment_Details?.salary
-                          : employee.Employment_Details?.salary
-                      )
-                    )
-                      .toString()
-                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
-                  </>
-                )}
-              </span>
-              <div
-                className="absolute -right-16  cursor-pointer"
-                onClick={() =>
-                  setIsToggleField((prev) => {
-                    return {
-                      ...prev,
-                      hideOT: !prev.hideOT,
-                    };
-                  })
+          </div>
+
+          {/* Card: OT */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
+            <span className="text-sm font-medium text-slate-500">
+              OT ({isToggleField.hideOT ? "X" : (employee.Employment_Details?.salary ? calOT(employee.Employment_Details.salary) : 0)} x {events.filter((e: any) => e.ot).length})
+            </span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xl font-bold text-sky-600">
+                {isToggleField.hideOT ? "****" : 
+                  (events.filter((e: any) => e.ot).length * calOT(employee.Employment_Details?.salary)).toLocaleString()
                 }
-              >
+              </span>
+              <button onClick={() => setIsToggleField(p => ({ ...p, hideOT: !p.hideOT }))} className="text-slate-400 hover:text-slate-600 transition-colors">
                 {!isToggleField.hideOT ? <FaEye /> : <FaEyeSlash />}
-              </div>
+              </button>
             </div>
-            <div className="flex items-center">
-              <span className="border-b-2 border-black w-full text-right">
-                {isToggleField.hidePerdiem ? (
-                  <>XXXX</>
-                ) : (
-                  <>
-                    {(events.filter((event: any) => event.perdiem).length * 250)
-                      .toString()
-                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
-                  </>
-                )}
+          </div>
+
+          {/* Card: Perdiem */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
+            <span className="text-sm font-medium text-slate-500">
+              Perdiem (250 x {events.filter((e: any) => e.perdiem).length})
+            </span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xl font-bold text-blue-600">
+                {isToggleField.hidePerdiem ? "****" : (events.filter((e: any) => e.perdiem).length * 250).toLocaleString()}
               </span>
-              <div
-                className="absolute -right-16  cursor-pointer"
-                onClick={() =>
-                  setIsToggleField((prev) => {
-                    return {
-                      ...prev,
-                      hidePerdiem: !prev.hidePerdiem,
-                    };
-                  })
-                }
-              >
+              <button onClick={() => setIsToggleField(p => ({ ...p, hidePerdiem: !p.hidePerdiem }))} className="text-slate-400 hover:text-slate-600 transition-colors">
                 {!isToggleField.hidePerdiem ? <FaEye /> : <FaEyeSlash />}
-              </div>
+              </button>
             </div>
-            <div className="flex items-center">
-              <span className="border-b-2 border-black w-full text-right relative">
-                <div className="pl-5 absolute bottom-[1px] right-[-25px] text-2xl">
-                  -
-                </div>
-                {isToggleField.hideSSO ? (
-                  <>XXXX</>
-                ) : (
-                  <>
-                    {(employee.Employment_Details?.position
-                      ? employee.Employment_Details?.position !==
-                        ROLESEMPLOOYEE.General
-                        ? 1125
-                        : employee.Employment_Details?.salary * 0.05 >= 875
-                        ? 875
-                        : employee.Employment_Details?.salary * 0.05
-                      : 0
-                    )
-                      .toString()
-                      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
-                  </>
-                )}
-              </span>
-              <div
-                className="absolute -right-16  cursor-pointer"
-                onClick={() =>
-                  setIsToggleField((prev) => {
-                    return {
-                      ...prev,
-                      hideSSO: !prev.hideSSO,
-                    };
-                  })
+          </div>
+
+          {/* Card: หักภาษี/ประกันสังคม */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
+            <span className="text-sm font-medium text-slate-500">
+              หัก {employee.Employment_Details?.position === ROLESEMPLOOYEE.General ? "ประกันสังคม" : "ภาษี ณ ที่จ่าย"}
+            </span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xl font-bold text-red-500">
+                {isToggleField.hideSSO ? "****" : 
+                  (employee.Employment_Details?.position 
+                    ? employee.Employment_Details?.position !== ROLESEMPLOOYEE.General ? 1125 
+                      : (employee.Employment_Details?.salary * 0.05 >= 875 ? 875 : employee.Employment_Details?.salary * 0.05)
+                    : 0).toLocaleString()
                 }
-              >
+              </span>
+              <button onClick={() => setIsToggleField(p => ({ ...p, hideSSO: !p.hideSSO }))} className="text-slate-400 hover:text-slate-600 transition-colors">
                 {!isToggleField.hideSSO ? <FaEye /> : <FaEyeSlash />}
-              </div>
+              </button>
             </div>
+          </div>
 
-            <div className="flex items-center">
-              <span className="font-medium border-double border-b-4  text-right border-black relative">
-                {isToggleField.hideTotalPaid ? (
-                  <>XXXX</>
-                ) : (
-                  <>
-                    {employee.Employment_Details?.position !==
-                    ROLESEMPLOOYEE.General
-                      ? (
-                          employee.Employment_Details?.salary +
-                          events.filter((event: any) => event.ot).length *
-                            calOT(employee.Employment_Details?.salary) +
-                          events.filter((event: any) => event.perdiem).length *
-                            250 -
-                          1125
-                        )
-                          .toString()
-                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                      : employee.Employment_Details?.position ===
-                        ROLESEMPLOOYEE.General
-                      ? (
-                          employee.Employment_Details.salary +
-                          events.filter((event: any) => event.ot).length *
-                            calOT(employee.Employment_Details.salary) +
-                          events.filter((event: any) => event.perdiem).length *
-                            250 -
-                          calSSO(employee.Employment_Details.salary)
-                        )
-                          .toString()
-                          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                      : 0}
-                  </>
-                )}
-              </span>
-
-              <div
-                className="absolute -right-16  cursor-pointer"
-                onClick={() =>
-                  setIsToggleField((prev) => {
-                    return {
-                      ...prev,
-                      hideTotalPaid: !prev.hideTotalPaid,
-                    };
-                  })
+          {/* Card: Total Paid (ไฮไลท์) */}
+          <div className="bg-slate-800 text-white rounded-xl p-4 shadow-md flex flex-col gap-1 relative">
+            <span className="text-sm font-medium text-slate-300">Total Paid</span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-2xl font-bold text-white">
+                {isToggleField.hideTotalPaid ? "****" : 
+                  (employee.Employment_Details?.position !== ROLESEMPLOOYEE.General
+                    ? (
+                        employee.Employment_Details?.salary +
+                        events.filter((e: any) => e.ot).length * calOT(employee.Employment_Details?.salary) +
+                        events.filter((e: any) => e.perdiem).length * 250 - 1125
+                      ).toLocaleString()
+                    : employee.Employment_Details?.position === ROLESEMPLOOYEE.General
+                    ? (
+                        employee.Employment_Details.salary +
+                        events.filter((e: any) => e.ot).length * calOT(employee.Employment_Details.salary) +
+                        events.filter((e: any) => e.perdiem).length * 250 - calSSO(employee.Employment_Details.salary)
+                      ).toLocaleString()
+                    : 0)
                 }
-              >
+              </span>
+              <button onClick={() => setIsToggleField(p => ({ ...p, hideTotalPaid: !p.hideTotalPaid }))} className="text-slate-400 hover:text-white transition-colors">
                 {!isToggleField.hideTotalPaid ? <FaEye /> : <FaEyeSlash />}
-              </div>
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="flex ml-32 space-x-5">
-          <div className="font-semibold">
-            เดือนนี้ มี {totalDayInMonth} วัน :{" "}
+        {/* --- สรุปสถิติวันเข้างาน (Legend) --- */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-wrap items-center gap-6 text-sm">
+          <div className="font-semibold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg">
+            เดือนนี้มี {totalDayInMonth} วัน
           </div>
-          <div className="space-y-1">
-            <div>
-              {" "}
-              <div className="flex items-center space-x-2 ">
-                <div
-                  className={`w-[30px] h-[30px] bg-[#008000] border-2 border-black`}
-                ></div>
-                <span>มา: {filterWorkStatus(WorkStatus.COME)} วัน</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2 ">
-              <div
-                className={`w-[30px] h-[30px] bg-[#FF0000] border-2 border-black`}
-              ></div>
-              <span> ลา: {filterWorkStatus(WorkStatus.LEAVE)} วัน</span>
-            </div>
-            <div className="flex items-center space-x-2 ">
-              <div
-                className={`w-[30px] h-[30px] bg-[#808080] border-2 border-black`}
-              ></div>
-              <span>หยุด: {filterWorkStatus(WorkStatus.NOTCOME)} วัน</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-600"></div> มา: {filterWorkStatus(WorkStatus.COME)}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div> ลา: {filterWorkStatus(WorkStatus.LEAVE)}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-slate-500"></div> หยุด: {filterWorkStatus(WorkStatus.NOTCOME)}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-sky-400"></div> OT: {events.filter((e: any) => e.ot).length}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-600"></div> Perdiem: {events.filter((e: any) => e.perdiem).length}</span>
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2 ">
-              <div
-                className={`w-[30px] h-[30px] bg-[#38BDF8] border-2 border-black`}
-              ></div>
-              <span>
-                OT: {events.filter((event: any) => event.ot).length} วัน
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 ">
-              <div
-                className={`w-[30px] h-[30px] bg-[#0044FF] border-2 border-black`}
-              ></div>
-              <span>
-                {" "}
-                Perdiem: {
-                  events.filter((event: any) => event.perdiem).length
-                }{" "}
-                วัน
-              </span>
-            </div>
-          </div>
-          <div>
-            กรอกไปแล้ว{" "}
-            {filterWorkStatus(WorkStatus.COME) +
-              filterWorkStatus(WorkStatus.LEAVE) +
-              filterWorkStatus(WorkStatus.NOTCOME)}{" "}
-            วัน
+          <div className="ml-auto text-slate-500 italic">
+            กรอกไปแล้ว {filterWorkStatus(WorkStatus.COME) + filterWorkStatus(WorkStatus.LEAVE) + filterWorkStatus(WorkStatus.NOTCOME)} วัน
           </div>
         </div>
-      </div>
-      <FullCalendar
-        ref={calendarRef}
-        plugins={[
-          dayGridPlugin,
-          timeGridPlugin,
-          interactionPlugin,
-          multiMonthPlugin,
-        ]}
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "",
-        }}
-        businessHours={{
-          daysOfWeek: [1, 2, 3, 4, 5],
-        }}
-        editable={false}
-        height={650}
-        events={events}
-        selectable={!isLoadingCalendar}
-        eventClick={handleDateClick}
-        dateClick={handleDateClick}
-        datesSet={handleMonthChange}
-        eventContent={renderEventContent}
-        initialView="dayGridMonth"
-        fixedWeekCount={false}
-        showNonCurrentDates={false}
-        displayEventTime={true}
-      />
+
+        {/* --- ส่วนปฏิทิน --- */}
+        <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-100 relative z-0 overflow-hidden">
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, multiMonthPlugin]}
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth",
+            }}
+            businessHours={{ daysOfWeek: [1, 2, 3, 4, 5] }}
+            editable={false}
+            height={700}
+            events={events}
+            selectable={!isLoadingCalendar}
+            eventClick={handleDateClick}
+            dateClick={handleDateClick}
+            datesSet={handleMonthChange}
+            eventContent={renderEventContent}
+            initialView="dayGridMonth"
+            fixedWeekCount={false}
+            showNonCurrentDates={false}
+            displayEventTime={true}
+          />
+        </div>
+      </main>
+
       <EventModal
         workReason={workReason}
         setWorkReason={setWorkReason}
@@ -978,57 +643,31 @@ const index = () => {
   );
 };
 
+// ปรับรูปแบบ Event ที่แสดงบนปฏิทินให้ดูสะอาดขึ้น
 function renderEventContent(eventContent: any) {
+  const data = eventContent.event.extendedProps;
   return (
-    <div className="cursor-pointer">
-      {/* <a className="fc-daygrid-event fc-daygrid-block-event fc-h-event fc-event fc-event-draggable fc-event-resizable fc-event-start fc-event-end fc-event-past ticket ticket"> */}
-      {eventContent.event.extendedProps &&
-      eventContent.event.extendedProps.type === "come" ? (
-        <div className="fc-event-main cursor-pointer text-sm">
-          <div className="flex space-x-1">
-            <span>เวลาเริ่มงาน : </span>
-            <span>
-              {moment(eventContent.event.extendedProps.timeStart).format(
-                "HH:mm"
-              )}
-            </span>
+    <div className="cursor-pointer p-1 overflow-hidden">
+      {data.type === "come" ? (
+        <div className="flex flex-col gap-0.5 text-xs text-white">
+          <div className="flex items-center gap-1 font-medium">
+            <span>{moment(data.timeStart).format("HH:mm")}</span>
+            <span>-</span>
+            <span>{moment(data.timeEnd).format("HH:mm")}</span>
           </div>
-          <div className="flex space-x-1">
-            <span>เวลาเลิกงาน : </span>
-            <span>
-              {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
-            </span>
-          </div>
-
-          <div>
-            เหตุผล:
-            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
-          </div>
+          {data.workReason && <div className="truncate opacity-90">{data.workReason}</div>}
         </div>
-      ) : eventContent.event.extendedProps.type === "leave" ? (
-        <>
-          <div>
-            <span>
-              {eventContent.event.extendedProps.cause || "ลาโดยใช้วันหยุด"}
-            </span>
-          </div>
-          <div>
-            เหตุผล:
-            <span>{eventContent.event.extendedProps.reason || " - "}</span>
-          </div>
-        </>
+      ) : data.type === "leave" ? (
+        <div className="flex flex-col gap-0.5 text-xs text-white">
+          <div className="font-medium truncate">{data.cause || "ลา"}</div>
+          {data.reason && <div className="truncate opacity-90">{data.reason}</div>}
+        </div>
       ) : (
-        <div>
-          หยุด
-          <div>
-            เหตุผล:
-            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
-          </div>
+        <div className="flex flex-col gap-0.5 text-xs text-white">
+          <div className="font-medium">หยุด</div>
+          {data.workReason && <div className="truncate opacity-90">{data.workReason}</div>}
         </div>
       )}
-      {/* <div className="fc-event-resizer fc-event-resizer-end"></div> */}
-      {/* </a> */}
-      {/* <div className="fc-event-title">{event.title}</div> */}
     </div>
   );
 }
