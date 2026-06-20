@@ -41,7 +41,7 @@ const filteredEmployees = useMemo(() => {
           bank_id: `${emp.Financial_Details.bank_id || "-"}`,
           date_of_birth: `${
             emp.date_of_birth
-              ? moment(emp.date_of_birth).format("YYYY-MM-DDDD")
+              ? moment(emp.date_of_birth).format("YYYY-MMM-DD")
               : "-"
           }`,
           end_date: `${emp.Employment_Details.end_date ? moment(emp.Employment_Details.end_date).format("YYYY-MM-DDDD") : "-"}`
