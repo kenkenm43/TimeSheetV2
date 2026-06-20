@@ -195,6 +195,15 @@ const employees = () => {
       ? new Date(keepEmployee?.Employment_Details?.start_date)
       : new Date()
   );
+  const [endDate, setEndDate] = useState<any>(
+    keepEmployee?.Employment_Details?.end_date
+      ? new Date(keepEmployee?.Employment_Details?.end_date)
+      : null
+  );
+   const [dateEnd, setDateEnd] = useState<any>(
+    keepEmployee?.Employment_Details?.end_date
+      ? new Date(keepEmployee?.Employment_Details?.end_date): null
+  );
   const [salaryMock, setSalaryMock] = useState<any>();
   useEffect(() => {
     setStartDate(
@@ -202,6 +211,16 @@ const employees = () => {
         ? new Date(keepEmployee?.Employment_Details?.start_date)
         : new Date()
     );
+    setEndDate(
+    keepEmployee?.Employment_Details?.end_date
+      ? new Date(keepEmployee?.Employment_Details?.end_date)
+      : null
+  );
+  setDateEnd(
+    keepEmployee?.Employment_Details?.end_date
+      ? new Date(keepEmployee?.Employment_Details?.end_date)
+      : null
+  );
     setDateStart(
       keepEmployee?.Employment_Details?.start_date
         ? new Date(keepEmployee?.Employment_Details?.start_date)
@@ -227,11 +246,13 @@ const employees = () => {
       if (
         moment(startDate).format("yyyy-MM-DD") !==
           moment(dateStart).format("yyyy-MM-DD") ||
-        keepEmployee?.Employment_Details?.salary !== salaryMock
+        keepEmployee?.Employment_Details?.salary !== salaryMock ||
+         moment(endDate).format("yyyy-MM-DD") !==
+          moment(dateEnd).format("yyyy-MM-DD") 
       ) {
         const employeeDetail = await getEmployee(keepEmployee.id);
         const updateStartDate = await updateEmployeeStartWork(
-          { start_date: dateStart, salary: salaryMock },
+          { start_date: dateStart, end_date: endDate, salary: salaryMock},
           keepEmployee.id
         );
         setIsLoading(false);
@@ -241,6 +262,12 @@ const employees = () => {
         );
         setDateStart(
           new Date(updateStartDate?.data.Employment_Details.start_date)
+        );
+         setEndDate(
+          new Date(updateStartDate?.data.Employment_Details.end_date)
+        );
+        setDateEnd(
+          new Date(updateStartDate?.data.Employment_Details.end_date)
         );
         setSalaryMock(updateStartDate?.data.Employment_Details?.salary);
         const result = await Swal.fire({
@@ -264,6 +291,8 @@ const employees = () => {
         });
         setStartDate(new Date(keepEmployee?.Employment_Details?.start_date));
         setDateStart(new Date(keepEmployee?.Employment_Details?.start_date));
+        setEndDate(new Date(keepEmployee?.Employment_Details?.end_date));
+        setDateEnd(new Date(keepEmployee?.Employment_Details?.end_date));
         setSalaryMock(keepEmployee?.Employment_Details?.salary);
         setIsEditProfile(false);
       }
@@ -283,6 +312,9 @@ const employees = () => {
   };
   const handleChangeDate = (e: any) => {
     setDateStart(e);
+  };
+  const handleChangeEndDate = (e: any) => {
+    setEndDate(e);
   };
 
   return (
@@ -400,6 +432,19 @@ const employees = () => {
                         ROLESEMPLOOYEE.General
                       ? "พนักงานประจำ"
                       : "-"}
+                  </span>
+                  <span>
+                    <span className="font-semibold"> วันที่ลาออก : </span>
+                    {!isEditProfile ? (
+                    <>{endDate ? moment(endDate).format("yyyy-MM-DD") : "-"}</>
+                     ) : (
+                      <DatePicker
+                        name="dateEnd"
+                        value={endDate}
+                        onSelect={handleChangeEndDate}
+                        onChange={handleChangeEndDate}
+                      />
+                    )}
                   </span>
                   {/* <span>
                     <span className="font-semibold"> เลขประกันสังคม : </span>

@@ -42,6 +42,7 @@ enum WorkStatus {
 }
 
 const index = () => {
+  // ตัวแปรต่างๆ ที่ใช้ใน component
   const [editable, setEditable] = useState(false);
   const calendarRef = useRef<any>(null);
   const [values, setValues] = useState({
@@ -81,7 +82,7 @@ const index = () => {
     // Return the number of days in the month
     return new Date(year, month, 0).getDate();
   }
-
+  // ฟังก์ชันสำหรับจัดการการเปลี่ยนเดือนในปฏิทิน
   const handleMonthChange = async (payload: any) => {
     setCurrentMonth(moment(payload.view.title).month() + 1);
     setCurrentYear(moment(payload.view.title).year());
@@ -105,12 +106,12 @@ const index = () => {
     setEvents(eventsData);
     setIsLoadingCalendar(false);
   };
-
+  // ฟังก์ชันสำหรับจัดการการแสดงเนื้อหาของเหตุการณ์ในปฏิทิน
   const formatDate = (date: any, time?: any, format?: any) => {
     const dateF = moment(date + time).format(format);
     return dateF;
   };
-
+  // ฟังก์ชันสำหรับจัดการการเพิ่มเหตุการณ์ในปฏิทิน
   const addEvents = (workArr: any, leaveArr: any) => {
     const formatWorkEvents = workArr.map((arr: any) => {
       let background;
@@ -164,7 +165,7 @@ const index = () => {
 
     return [...formatWorkEvents, ...leaveWorkEvents];
   };
-
+  // ฟังก์ชันสำหรับจัดการการคลิกวันที่ในปฏิทิน
   const handleDateClick = (arg: any) => {
     const { dateStr } = arg;
 
@@ -207,7 +208,7 @@ const index = () => {
     }
     setEditable(true);
   };
-
+  // ฟังก์ชันสำหรับดึงข้อมูลเหตุการณ์จาก API เมื่อ component ถูก mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -219,7 +220,7 @@ const index = () => {
     };
     fetchData();
   }, []);
-
+  // ฟังก์ชันสำหรับจัดการการสร้างเหตุการณ์ใหม่ในปฏิทิน
   const handleEventCreation = async (
     workReason: any,
     startDate: any,
@@ -296,7 +297,7 @@ const index = () => {
     await setEvents(() => [...newEvent]);
     return [...newEvent];
   };
-
+  // ฟังก์ชันสำหรับจัดการการลบเหตุการณ์ในปฏิทิน
   const handleDelete = async (e: any) => {
     setIsLoading(true);
     let updateEvent = [];
@@ -310,7 +311,7 @@ const index = () => {
     setEditable(false);
     setIsLoading(false);
   };
-
+  // ฟังก์ชันสำหรับจัดการการอัปเดตเหตุการณ์ในปฏิทิน
   const handleEventUpdate = async (
     workReason: any,
     idDate: any,

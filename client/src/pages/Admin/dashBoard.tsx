@@ -25,8 +25,28 @@ import { getSalaryByEmpId } from "../../services/salaryServices";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 import Loading from "../../components/Loading";
 import { calOT } from "../../helpers/cal";
+// const getComparator = (order: any, orderBy: any) => {
+//   return (a: any, b: any) => {
+//     if (b[orderBy] < a[orderBy]) return order === "asc" ? -1 : 1;
+//     if (b[orderBy] > a[orderBy]) return order === "asc" ? 1 : -1;
+//     return 0;
+//   };
+// };
 const getComparator = (order: any, orderBy: any) => {
   return (a: any, b: any) => {
+    // เรียงตามปีก่อน
+    if (a.year !== b.year) {
+      if (b.year < a.year) return order === "asc" ? -1 : 1;
+      if (b.year > a.year) return order === "asc" ? 1 : -1;
+    }
+    
+    // ถ้าปีเท่ากัน ให้เรียงตามเดือน
+    if (a.month !== b.month) {
+      if (b.month < a.month) return order === "asc" ? -1 : 1;
+      if (b.month > a.month) return order === "asc" ? 1 : -1;
+    }
+    
+    // ถ้าปีและเดือนเท่ากัน ให้เรียงตามคอลัมน์ที่เลือก
     if (b[orderBy] < a[orderBy]) return order === "asc" ? -1 : 1;
     if (b[orderBy] > a[orderBy]) return order === "asc" ? 1 : -1;
     return 0;
@@ -35,7 +55,7 @@ const getComparator = (order: any, orderBy: any) => {
 const dashBoard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [order, setOrder] = useState<any>("asc");
-  const [orderBy, setOrderBy] = useState<any>("month");
+  const [orderBy, setOrderBy] = useState<any>("year");
   const [datas, setDatas] = useState<any>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -52,6 +72,8 @@ const dashBoard = () => {
           "all"
         );
         setDatas(response.data);
+        setSelectedYear(moment().year());
+        setSelectedMonth(moment().month() + 1);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -194,6 +216,7 @@ const dashBoard = () => {
                   <DatePicker
                     onChange={handleChangeYear}
                     label={'"ปี"'}
+                    value={selectedYear ? moment().year(selectedYear) : null}
                     views={["year"]}
                     slotProps={{
                       field: { clearable: true, onClear: () => {} },
@@ -202,6 +225,7 @@ const dashBoard = () => {
                   <DatePicker
                     onChange={handleChangeMonth}
                     label={'"เดือน"'}
+                    value={selectedMonth ? moment().month(selectedMonth - 1) : null}
                     views={["month"]}
                     slotProps={{
                       field: { clearable: true, onClear: () => {} },

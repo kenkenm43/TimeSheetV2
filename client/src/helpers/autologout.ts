@@ -20,7 +20,7 @@ const useIdleTimer = async (timeout, onTimeout) => {
       if (Date.now() - lastActivity >= timeout) {
         await onTimeout();
       }
-    }, 1000);
+    }, 60000);
 
     return () => {
       events.forEach((event) =>

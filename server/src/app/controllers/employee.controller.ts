@@ -52,6 +52,7 @@ const updateEmployeeStartWork = async (req: Request, res: Response) => {
           update: {
             position: payload.position,
             start_date: payload.start_date,
+            end_date: payload.end_date,
             salary: Number(payload.salary),
           },
         },
