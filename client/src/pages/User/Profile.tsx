@@ -8,16 +8,17 @@ import {
   updateEmployee,
   uploadImage,
 } from "../../services/employeeServices";
-import { FaRegEdit, FaEdit, FaRegSave, FaInfoCircle } from "react-icons/fa";
+import { FaRegEdit, FaEdit, FaRegSave, FaInfoCircle, FaCamera } from "react-icons/fa";
 import { Button, DatePicker, Input, Modal } from "rsuite";
 import moment from "moment";
 import { IoMdPerson } from "react-icons/io";
 import Swal from "sweetalert2";
 import Loading from "../../components/Loading";
+
 const Profile = () => {
   const { employee, setEmployee }: TEmployeeStoreState = useEmployeeStore();
-  const [isEditable, setIsEditable] = useState<boolean>();
-  const [isOpenModal, setIsOpenModal] = useState<boolean>();
+  const [isEditable, setIsEditable] = useState<boolean>(false);
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEditName, setIsEditName] = useState<boolean>(false);
   const [isChangeImg, setIsChangeImg] = useState<boolean>(false);
   const [state, setState] = useState("about");
@@ -36,12 +37,12 @@ const Profile = () => {
     bank_account_number: employee.Financial_Details?.bank_account_number,
     social_security_number: employee.Financial_Details?.social_security_number,
   });
-  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (value: string, e: any) => {
     const { name } = e.target;
-
     setFormData((prevState: any) => ({ ...prevState, [name]: value }));
   };
+
   const handleDateChange = (date: any) => {
     setFormData((prevState: any) => ({
       ...prevState,
@@ -52,17 +53,16 @@ const Profile = () => {
   useEffect(() => {
     const fetchData = async () => {
       const employeeData = await getEmployee(employee.id);
-
       setEmployee(employeeData.data);
     };
     fetchData();
-  }, [employee.id]);
+  }, [employee.id, setEmployee]);
+
   const handleUpdateProfile = async (employeeId: any) => {
     setIsLoadingImage(true);
     try {
-      const employee = await updateEmployee(formData, employeeId);
-
-      setEmployee(employee.data);
+      const updatedEmployee = await updateEmployee(formData, employeeId);
+      setEmployee(updatedEmployee.data);
       Swal.fire({
         title: "Success!",
         text: "อัพเดตข้อมูลเสร็จสิ้น",
@@ -85,8 +85,20 @@ const Profile = () => {
   };
 
   const handleClose = async () => {
-    setFormData((formData: any) => {
-      formData;
+    // Reset formData to original employee data when cancelled
+    setFormData({
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      nickName: employee.nickName,
+      idCard: employee.idCard,
+      gender: employee.gender,
+      address: employee.address,
+      date_of_birth: employee.date_of_birth,
+      phone_number: employee.phone_number,
+      email: employee.email,
+      bank_name: employee.Financial_Details?.bank_name,
+      bank_account_number: employee.Financial_Details?.bank_account_number,
+      social_security_number: employee.Financial_Details?.social_security_number,
     });
     setIsOpenModal(false);
     setIsEditable(false);
@@ -96,43 +108,38 @@ const Profile = () => {
   const handleEditName = () => {
     setIsEditName(true);
   };
-  function formatPhoneNumber(phoneNumberString: any) {
-    // Add dashes to the phone number
-    const formatted = phoneNumberString.replace(
-      /(\d{3})(\d{3})(\d{4})/,
-      "$1-$2-$3"
-    );
 
-    return formatted;
+  function formatPhoneNumber(phoneNumberString: any) {
+    if (!phoneNumberString) return "-";
+    return phoneNumberString.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
   }
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const fileUploadRef: any = useRef(null);
+
   const handleImageUpload = (event: any) => {
     event.preventDefault();
     setIsChangeImg(true);
-
     fileUploadRef.current.click();
   };
+
   const uploadImageDisplay = async (event: any) => {
     if (event.target.files.length > 0) {
       const file = fileUploadRef.current.files[0];
-
       setSelectedFile(file);
-      // Preview image
       const reader: any = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result);
       };
       reader.readAsDataURL(file);
     } else {
-      console.log("File selection canceled.");
+      setIsChangeImg(false);
     }
   };
+
   const handleConfirmUpload = async () => {
     setIsLoadingImage(true);
-
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
@@ -146,16 +153,15 @@ const Profile = () => {
       });
       setPreviewUrl(null);
       setIsChangeImg(false);
-      setEmployee({ employee, photo: response.data.fileUrl });
+      setEmployee({ ...employee, photo: response.data.fileUrl });
     } catch (error: any) {
       Swal?.fire({
         title: "Error!",
         text: error,
         icon: "error",
-        confirmButtonText: "Cool",
+        confirmButtonText: "OK",
       });
       setIsChangeImg(false);
-
       setPreviewUrl(null);
     } finally {
       setIsLoadingImage(false);
@@ -163,323 +169,309 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex max-w-7xl w-full mt-10 px-10">
+    <div className="flex justify-center w-full min-h-screen bg-gray-50 py-10 px-4 sm:px-10 font-sans">
       {isLoadingImage && <Loading />}
-      <div className=" gap-4 flex flex-col items-center md:w-64 md:h-64 h-32 w-32 relative">
-        {previewUrl ? (
-          <div className="flex flex-col items-center gap-4">
-            <img
-              className="max-w-full max-h-72 w-64 border border-gray-300"
-              src={previewUrl}
-              alt="Preview"
-            />
-          </div>
-        ) : (
-          <>
-            {employee.photo ? (
-              <div className="flex flex-col items-center gap-4">
-                <img
-                  className="max-w-full max-h-72 w-64 border border-gray-300"
-                  src={employee.photo}
-                  alt="img"
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-4">
-                <img
-                  className="max-w-full max-h-72 w-64 border border-gray-300"
-                  src={
-                    "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
-                  }
-                  alt="img"
-                />
+
+      <div className="max-w-5xl w-full bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden h-fit">
+        {/* Profile Header Background */}
+        <div className="h-32 bg-gradient-to-r from-blue-500 to-indigo-600 w-full"></div>
+
+        <div className="px-8 pb-8 flex flex-col md:flex-row gap-8 relative -mt-16">
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center shrink-0">
+            <div className="relative">
+              <img
+                className="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow-md object-cover bg-white"
+                src={
+                  previewUrl ||
+                  employee.photo ||
+                  "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
+                }
+                alt="Profile Avatar"
+              />
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                hidden
+                ref={fileUploadRef}
+                onChange={uploadImageDisplay}
+              />
+              <button
+                className="absolute bottom-2 right-2 bg-gray-800 hover:bg-gray-900 text-white p-2.5 rounded-full shadow-lg transition-transform hover:scale-105"
+                onClick={handleImageUpload}
+                title="เปลี่ยนรูปโปรไฟล์"
+              >
+                <FaCamera size={18} />
+              </button>
+            </div>
+
+            {isChangeImg && (
+              <div className="mt-4 flex gap-2 w-full justify-center">
+                <button
+                  onClick={handleConfirmUpload}
+                  className="bg-green-500 text-white text-sm font-medium py-1.5 px-4 rounded-lg hover:bg-green-600 transition"
+                >
+                  บันทึก
+                </button>
+                <button
+                  onClick={() => {
+                    setIsChangeImg(false);
+                    setPreviewUrl(null);
+                  }}
+                  className="bg-red-500 text-white text-sm font-medium py-1.5 px-4 rounded-lg hover:bg-red-600 transition"
+                >
+                  ยกเลิก
+                </button>
               </div>
             )}
-          </>
-        )}
-        {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          แก้ไขรูปภาพ
-          </button> */}
-        <input
-          type="file"
-          accept="image/png, image/jpeg"
-          hidden
-          ref={fileUploadRef}
-          onChange={uploadImageDisplay}
-        />
-        <div
-          className="absolute right-0 opacity-70 hover:opacity-100 cursor-pointer"
-          onClick={handleImageUpload}
-        >
-          <FaEdit size={30} />
-        </div>
-
-        {/* <div className="flex space-x-5" onClick={handleImageUpload}>
-          <FaEdit
-            size={25}
-            style={{ stroke: "black", strokeWidth: 2, color: "white" }}
-          />
-        </div> */}
-        <div></div>
-        {isChangeImg && (
-          <div className="flex space-x-5">
-            <button
-              onClick={() => handleConfirmUpload()}
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition ease-in-out duration-300"
-            >
-              บันทึก
-            </button>
-            <button
-              onClick={() => {
-                setIsChangeImg(false);
-                setPreviewUrl(null);
-              }}
-              className="bg-red-500 text-white font-bold py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition ease-in-out duration-300"
-            >
-              ยกเลิก
-            </button>
           </div>
-        )}
+
+          {/* Details Section */}
+          <div className="flex-1 pt-20 md:pt-16">
+            {/* Name Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              {!isEditName ? (
+                <div className="group flex items-center gap-3">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight capitalize">
+                    {employee.firstName || "-"} {employee.lastName || "-"}{" "}
+                    <span className="text-gray-500 font-medium text-xl">
+                      ({employee.nickName || "-"})
+                    </span>
+                  </h1>
+                  <button
+                    className="text-gray-400 hover:text-blue-600 transition-colors p-2 opacity-0 group-hover:opacity-100"
+                    onClick={handleEditName}
+                  >
+                    <FaRegEdit size={22} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <Input
+                    placeholder="ชื่อจริง"
+                    className="w-full sm:w-48"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    placeholder="นามสกุล"
+                    className="w-full sm:w-48"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                  />
+                  <Input
+                    placeholder="ชื่อเล่น"
+                    className="w-full sm:w-32"
+                    name="nickName"
+                    value={formData.nickName}
+                    onChange={handleChange}
+                  />
+                  <div className="flex gap-2 ml-auto">
+                    <button
+                      onClick={() => setIsOpenModal(true)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2"
+                    >
+                      <FaRegSave /> บันทึก
+                    </button>
+                    <button
+                      onClick={handleClose}
+                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition"
+                    >
+                      ยกเลิก
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Tabs */}
+            <div className="flex space-x-2 bg-gray-100 p-1 rounded-xl w-max mb-6">
+              <button
+                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  state === "about"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+                onClick={() => setState("about")}
+              >
+                <IoMdPerson size={18} /> <span>ข้อมูลส่วนตัว</span>
+              </button>
+              <button
+                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  state === "general"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+                onClick={() => setState("general")}
+              >
+                <FaInfoCircle size={18} /> <span>ข้อมูลทางการเงิน</span>
+              </button>
+            </div>
+
+            {/* Data Form / View Area */}
+            <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100 relative">
+              {/* Edit Toggle Button */}
+              <div className="absolute top-6 right-6">
+                {!isEditable ? (
+                  <button
+                    className="text-gray-400 hover:text-blue-600 transition flex items-center gap-2 text-sm font-medium"
+                    onClick={() => setIsEditable(true)}
+                  >
+                    <FaEdit size={18} /> แก้ไขข้อมูล
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2"
+                      onClick={() => setIsOpenModal(true)}
+                    >
+                      <FaRegSave /> บันทึก
+                    </button>
+                    <button
+                      className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-300 transition"
+                      onClick={handleClose}
+                    >
+                      ยกเลิก
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {state === "about" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 mt-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">เลขบัตรประชาชน</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">{employee.idCard || "-"}</p>
+                    ) : (
+                      <Input name="idCard" value={formData.idCard} onChange={handleChange} />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">วันเกิด</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">
+                        {employee.date_of_birth
+                          ? moment(employee.date_of_birth).format("DD/MM/YYYY")
+                          : "-"}
+                      </p>
+                    ) : (
+                      <DatePicker
+                        name="dob"
+                        value={
+                          formData.date_of_birth
+                            ? new Date(moment(formData.date_of_birth).format("YYYY-MM-DD"))
+                            : null
+                        }
+                        format="yyyy-MM-dd"
+                        onChange={handleDateChange}
+                        className="w-full"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">เบอร์โทรศัพท์</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">
+                        {formatPhoneNumber(employee.phone_number)}
+                      </p>
+                    ) : (
+                      <Input name="phone_number" value={formData.phone_number} onChange={handleChange} />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">อีเมล</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">{employee.email || "-"}</p>
+                    ) : (
+                      <Input name="email" value={formData.email} onChange={handleChange} />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <label className="text-sm font-semibold text-gray-500">ที่อยู่</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">{employee.address || "-"}</p>
+                    ) : (
+                      <Input
+                        as="textarea"
+                        rows={3}
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 mt-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">ธนาคาร</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">
+                        {employee.Financial_Details?.bank_name || "-"}
+                      </p>
+                    ) : (
+                      <Input name="bank_name" value={formData.bank_name} onChange={handleChange} />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">เลขที่บัญชี</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">
+                        {employee.Financial_Details?.bank_account_number || "-"}
+                      </p>
+                    ) : (
+                      <Input
+                        name="bank_account_number"
+                        value={formData.bank_account_number}
+                        onChange={handleChange}
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-500">เลขประกันสังคม</label>
+                    {!isEditable ? (
+                      <p className="text-gray-900 font-medium">
+                        {employee.Financial_Details?.social_security_number || "-"}
+                      </p>
+                    ) : (
+                      <Input
+                        name="social_security_number"
+                        value={formData.social_security_number}
+                        onChange={handleChange}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-      <Modal
-        className="pt-64"
-        open={isOpenModal}
-        onClose={() => handleClose()}
-        backdrop="static"
-        keyboard={false}
-        size="sm"
-      >
+
+      {/* Confirmation Modal */}
+      <Modal open={isOpenModal} onClose={handleClose} backdrop="static" keyboard={false} size="xs">
         <Modal.Header>
-          <Modal.Title>ต้องการแก้ข้อมูลใช่หรือไม่</Modal.Title>
+          <Modal.Title className="text-lg font-bold">ยืนยันการแก้ไขข้อมูล</Modal.Title>
         </Modal.Header>
+        <Modal.Body>คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลนี้ใช่หรือไม่?</Modal.Body>
         <Modal.Footer>
-          <Button
-            onClick={() => handleUpdateProfile(employee.id)}
-            appearance="primary"
-          >
-            Ok
+          <Button onClick={() => handleUpdateProfile(employee.id)} appearance="primary" color="blue">
+            ตกลง
           </Button>
-          <Button onClick={() => handleClose()} appearance="subtle">
-            Cancel
+          <Button onClick={handleClose} appearance="subtle">
+            ยกเลิก
           </Button>
         </Modal.Footer>
       </Modal>
-      <div className="mx-14 w-full">
-        <div className="flex items-center text-2xl font-bold relative h-16">
-          {!isEditName ? (
-            <>
-              <div className="first-letter:uppercase">
-                {employee.firstName || "-"}
-              </div>{" "}
-              <div className="ml-5 first-letter:uppercase">
-                {employee.lastName || "-"}
-              </div>
-              <div className="ml-5 first-letter:uppercase">
-                ({employee.nickName || "-"})
-              </div>
-              <div
-                className="absolute right-0 opacity-30 hover:opacity-75 cursor-pointer"
-                onClick={handleEditName}
-              >
-                <FaRegEdit />
-              </div>
-            </>
-          ) : (
-            <div className="flex space-x-4">
-              <Input
-                placeholder="ชื่อจริง"
-                // style={inputStyle}
-                classPrefix="input"
-                className="min-w-56 max-w-56"
-                name="firstName"
-                defaultValue={employee.firstName}
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-              <Input
-                placeholder="นามสกุล"
-                className="min-w-56 max-w-56"
-                name="lastName"
-                defaultValue={employee.lastName}
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-              <Input
-                placeholder="ชื่อเล่น"
-                name="nickName"
-                className="min-w-56 max-w-56"
-                defaultValue={employee.nickName}
-                value={formData.nickName}
-                onChange={handleChange}
-              />
-
-              <div
-                className="absolute right-0 opacity-30 hover:opacity-75 cursor-pointer"
-                onClick={() => setIsOpenModal(true)}
-              >
-                <FaRegSave size={30} />
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="relative flex space-x-3 text-xl font-semibold mt-9 border-b-2 w-full ">
-          <div
-            className={`flex items-center w-32 p-1  transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
-              state === "about" ? "border-b-4 border-blue-600 " : ""
-            }`}
-            onClick={() => setState("about")}
-          >
-            <IoMdPerson /> <span className="ml-2">เกี่ยวกับ</span>
-          </div>
-          <div
-            className={`flex items-center w-32 p-1 transition-all  duration-300 ease-in-out cursor-pointer hover:transition-all hover:bg-slate-200 ${
-              state === "general" ? "border-b-4 border-blue-600" : ""
-            }`}
-            onClick={() => setState("general")}
-          >
-            <FaInfoCircle /> <span className="ml-2">ข้อมูล</span>
-          </div>
-        </div>
-        {/* <div className="mt-9 text-xl font-semibold">ข้อมูลทั่วไป / ติดต่อ</div> */}
-        <form className="relative mt-9">
-          {state === "general" ? (
-            <div className="flex">
-              <div className=" space-y-5 font-bold">
-                <div>ธนาคาร:</div>
-                {/* <div>เพศ:</div> */}
-                <div>เลขที่บัญชี:</div>
-                <div>เลขประกันสังคม:</div>
-                {/* <div>:</div>
-                <div>ที่อยู่:</div> */}
-                {/* <div>เริ่มทำงาน: </div>
-            <div>เงินเดือน: </div> */}
-              </div>
-              {!isEditable ? (
-                <div className="w-96 pl-5 space-y-5">
-                  <div>{employee.Financial_Details?.bank_name || "-"}</div>
-                  {/* <div>{employee.gender || "-"}</div> */}
-                  <div>
-                    <div>
-                      {employee.Financial_Details?.bank_account_number || "-"}
-                    </div>
-                  </div>
-                  <div>
-                    {employee.Financial_Details?.social_security_number || "-"}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col w-96 ml-2 space-y-2">
-                  <Input
-                    name="bank_name"
-                    value={formData.bank_name}
-                    onChange={handleChange}
-                  />
-                  <Input
-                    name="bank_account_number"
-                    value={formData.bank_account_number}
-                    onChange={handleChange}
-                  />
-                  <Input
-                    name="social_security_number"
-                    value={formData.social_security_number}
-                    onChange={handleChange}
-                  />
-                </div>
-              )}
-            </div>
-          ) : state === "about" ? (
-            <div className="flex">
-              <div className=" space-y-5 font-bold">
-                <div>เลขบัตรประชาชน:</div>
-                {/* <div>เพศ:</div> */}
-                <div>วันเกิด:</div>
-                <div>เบอร์โทรศัพท์:</div>
-                <div>อีเมล:</div>
-                <div>ที่อยู่:</div>
-                {/* <div>เริ่มทำงาน: </div>
-        <div>เงินเดือน: </div> */}
-              </div>
-              {!isEditable ? (
-                <div className="w-96 pl-5 space-y-5">
-                  <div>{employee.idCard || "-"}</div>
-                  {/* <div>{employee.gender || "-"}</div> */}
-                  <div>
-                    {employee.date_of_birth
-                      ? moment(employee.date_of_birth).format("yyyy-MM-DD")
-                      : "-"}
-                  </div>
-                  <div>
-                    {employee.phone_number
-                      ? formatPhoneNumber(employee.phone_number)
-                      : "-"}
-                  </div>
-                  <div>{employee.email || "-"}</div>
-                  <div>{employee.address || "-"}</div>
-                </div>
-              ) : (
-                <div className="flex flex-col w-96 ml-2 space-y-2">
-                  <Input
-                    name="idCard"
-                    value={formData.idCard}
-                    onChange={handleChange}
-                  />
-                  {/* <input
-          className="border-b-2 border-black"
-          name="gender"
-          value={formData.gender}
-          onChange={handleChange}
-        /> */}
-                  <DatePicker
-                    name="dob"
-                    value={
-                      new Date(
-                        moment(formData.date_of_birth).format("YYYY-MM-DD")
-                      )
-                    }
-                    format="yyyy-MM-dd"
-                    onChange={handleDateChange}
-                  />
-                  <Input
-                    name="phone_number"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                  />
-                  <Input
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                  <Input
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            <></>
-          )}
-
-          {!isEditable ? (
-            <div
-              className="absolute top-[-10px] right-0 opacity-30 hover:opacity-75 cursor-pointer"
-              onClick={() => setIsEditable(true)}
-            >
-              <FaEdit size={25} />
-            </div>
-          ) : (
-            <div
-              className="absolute top-[-10px] right-0 opacity-30 hover:opacity-75 cursor-pointer"
-              onClick={() => {
-                setIsOpenModal(true);
-              }}
-            >
-              <FaRegSave size={30} />
-            </div>
-          )}
-        </form>
-      </div>
     </div>
   );
 };
