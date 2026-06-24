@@ -27,7 +27,7 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: function (req, file, cb) {
-    const fileRegex = new RegExp(".(jpg|jpeg|png)$");
+    const fileRegex = new RegExp(".(jpg|jpeg|png|jfif)$");
     const fileName = file.originalname;
 
     if (!fileName.match(fileRegex)) {
