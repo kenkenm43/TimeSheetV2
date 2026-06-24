@@ -191,7 +191,7 @@ const Profile = () => {
               />
               <input
                 type="file"
-                accept="image/png, image/jpeg"
+                accept="image/png, image/jpeg, image/jfif"
                 hidden
                 ref={fileUploadRef}
                 onChange={uploadImageDisplay}
