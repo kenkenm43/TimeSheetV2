@@ -34,7 +34,7 @@ import { employeeReceiveMessage } from "../../services/messageServices";
 import Loading from "../Loading";
 import { ROLESEMPLOOYEE } from "../../Enum/RoleEmployee";
 import { calOT, calSSO } from "../../helpers/cal";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
 
 enum WorkStatus {
   COME = "come",
@@ -43,7 +43,6 @@ enum WorkStatus {
 }
 
 const index = () => {
-  // ตัวแปรต่างๆ ที่ใช้ใน component (คงเดิม)
   const [editable, setEditable] = useState(false);
   const calendarRef = useRef<any>(null);
   const [values, setValues] = useState({
@@ -67,6 +66,12 @@ const index = () => {
   const [sso, setSSO] = useState();
   const [currentMonth, setCurrentMonth] = useState<any>();
   const [currentYear, setCurrentYear] = useState<any>();
+  
+  // --- States สำหรับระบบสรุปวันลาประจำปี ---
+  const initialBaseYear = moment().month() + 1 >= 7 ? moment().year() : moment().year() - 1;
+  const [leaveCycleYear, setLeaveCycleYear] = useState<number>(initialBaseYear);
+  const [annualLeaves, setAnnualLeaves] = useState<any[]>([]);
+  const [isLoadingAnnual, setIsLoadingAnnual] = useState(false);
 
   function getTotalDaysInMonth(monthString: string) {
     const date: any = new Date(monthString);
@@ -76,11 +81,47 @@ const index = () => {
     return new Date(year, month, 0).getDate();
   }
 
+  // ฟังก์ชันแยกต่างหากสำหรับดึงข้อมูลวันลาตามปีที่กำหนด (ก.ค. - มิ.ย.)
+  const fetchAnnualLeavesData = async (targetYear: number) => {
+    setIsLoadingAnnual(true);
+    const cycleStart = `${targetYear}-07-01`;
+    const cycleEnd = `${targetYear + 1}-06-30`;
+    try {
+      const annualLeaveData = await getLeavesBypost(
+        { currentStart: cycleStart, currentEnd: cycleEnd },
+        employee.id
+      );
+      if (annualLeaveData?.data) {
+        setAnnualLeaves(annualLeaveData.data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingAnnual(false);
+    }
+  };
+
+  const handlePrevLeaveYear = () => {
+    const newYear = leaveCycleYear - 1;
+    setLeaveCycleYear(newYear);
+    fetchAnnualLeavesData(newYear);
+  };
+
+  const handleNextLeaveYear = () => {
+    const newYear = leaveCycleYear + 1;
+    setLeaveCycleYear(newYear);
+    fetchAnnualLeavesData(newYear);
+  };
+
   const handleMonthChange = async (payload: any) => {
-    setCurrentMonth(moment(payload.view.title).month() + 1);
-    setCurrentYear(moment(payload.view.title).year());
+    const viewMonth = moment(payload.view.title).month() + 1;
+    const viewYear = moment(payload.view.title).year();
+
+    setCurrentMonth(viewMonth);
+    setCurrentYear(viewYear);
     setTotalDayInMonth(getTotalDaysInMonth(payload.view.title));
     setIsLoadingCalendar(true);
+
     const work = await getWorkSchedulesByPost(
       {
         currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
@@ -88,6 +129,7 @@ const index = () => {
       },
       employee.id
     );
+
     const leave = await getLeavesBypost(
       {
         currentStart: moment(payload.view.currentStart).format("YYYY-MM-DD"),
@@ -95,6 +137,16 @@ const index = () => {
       },
       employee.id
     );
+
+    // เช็คว่าปฏิทินถูกเลื่อนไปปีรอบอื่นหรือไม่ ถ้าใช่ให้โหลดข้อมูล Sidebar ตามปฏิทิน
+    let baseYear = viewMonth >= 7 ? viewYear : viewYear - 1;
+    if (leaveCycleYear !== baseYear) {
+      setLeaveCycleYear(baseYear);
+      fetchAnnualLeavesData(baseYear);
+    } else if (annualLeaves.length === 0) {
+      fetchAnnualLeavesData(baseYear); // โหลดครั้งแรก
+    }
+
     const eventsData = await addEvents(work.data, leave.data);
     setEvents(eventsData);
     setIsLoadingCalendar(false);
@@ -112,9 +164,9 @@ const index = () => {
         if (arr.work_perdium && arr.work_ot) background = "#e100ff";
         else if (arr.work_perdium) background = "#0044ff";
         else if (arr.work_ot) background = "#38bdf8";
-        else background = "#16a34a"; // Modern green
+        else background = "#16a34a";
       } else if (arr.work_status === WorkStatus.NOTCOME) {
-        background = "#64748b"; // Modern gray
+        background = "#64748b";
       }
       const formatEvent = {
         id: arr.id,
@@ -146,7 +198,7 @@ const index = () => {
         type: arr.leave_type,
         allDay: true,
         timeStart: moment(arr.leave_date).utcOffset("-07:00")._d,
-        backgroundColor: "#ef4444", // Modern red
+        backgroundColor: "#ef4444",
         borderColor: "#ef4444",
       };
       return formatEvent;
@@ -247,6 +299,7 @@ const index = () => {
       });
     }
     await setEvents(() => [...newEvent]);
+    fetchAnnualLeavesData(leaveCycleYear); // รีเฟรช Sidebar หลังเพิ่มเสร็จ
     return [...newEvent];
   };
 
@@ -262,6 +315,7 @@ const index = () => {
     setEvents(() => [...updateEvent]);
     setEditable(false);
     setIsLoading(false);
+    fetchAnnualLeavesData(leaveCycleYear); // รีเฟรช Sidebar หลังลบเสร็จ
   };
 
   const handleEventUpdate = async (
@@ -356,6 +410,7 @@ const index = () => {
       }
     }
     setEvents(() => [...updateEvent]);
+    fetchAnnualLeavesData(leaveCycleYear); // รีเฟรช Sidebar หลังอัปเดตเสร็จ
     return [...updateEvent];
   };
 
@@ -371,17 +426,17 @@ const index = () => {
       let title = "";
       let backgroundColor = "";
       if (workStatus === WorkStatus.COME) {
-        if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) backgroundColor = "#c026d3"; // fuchsia
-        else if (checkBoxed.includes("Perdiem")) backgroundColor = "#0044ff"; // blue
-        else if (checkBoxed.includes("OT")) backgroundColor = "#38bdf8"; // sky blue
-        else backgroundColor = "#16a34a"; // green
+        if (checkBoxed.includes("Perdiem") && checkBoxed.includes("OT")) backgroundColor = "#c026d3"; 
+        else if (checkBoxed.includes("Perdiem")) backgroundColor = "#0044ff"; 
+        else if (checkBoxed.includes("OT")) backgroundColor = "#38bdf8"; 
+        else backgroundColor = "#16a34a"; 
         title = WorkStatus.COME;
       } else if (workStatus === WorkStatus.NOTCOME) {
         title = WorkStatus.NOTCOME;
-        backgroundColor = "#64748b"; // gray
+        backgroundColor = "#64748b"; 
       } else if (workStatus === WorkStatus.LEAVE) {
         title = WorkStatus.LEAVE;
-        backgroundColor = "#ef4444"; // red
+        backgroundColor = "#ef4444"; 
       }
 
       const currentDateValue = dateCurrent(values.start);
@@ -442,7 +497,15 @@ const index = () => {
       setIsLoading(false);
     }
   };
-
+// ฟังก์ชันสำหรับสั่งให้ปฏิทินกระโดดไปยังวันที่กำหนด
+  const handleGotoDate = (targetDate: any) => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      // ใช้ moment แปลงวันที่ให้เป็นรูปแบบที่ FullCalendar เข้าใจ
+      const formattedDate = moment(targetDate).format("YYYY-MM-DD");
+      calendarApi.gotoDate(formattedDate);
+    }
+  };
   const handleClose = () => {
     setType("");
     setIdCalendar("");
@@ -458,16 +521,138 @@ const index = () => {
   });
 
   return (
-    // เปลี่ยนจาก Absolute & Margin แข็งๆ เป็น Flex Container ที่รองรับ Responsive
     <div className="flex flex-col lg:flex-row gap-6 p-4 md:p-8 bg-slate-50 min-h-screen text-slate-800 font-sans w-full">
       {isLoading && <Loading />}
       {isLoadingCalendar && <Loading />}
 
-      {/* Sidebar: สัดส่วนซ้าย */}
+  {/* Sidebar: สัดส่วนซ้าย */}
       <aside className="w-full lg:w-80 flex flex-col gap-6 shrink-0">
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <ListWorking />
         </div>
+
+        {/* --- ส่วนที่เพิ่มใหม่: สรุปประวัติการใช้วันลา (UI แบบใหม่ + ปุ่มเปลี่ยนปี) --- */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col max-h-[420px] relative">
+          
+          {/* กรณีโหลดข้อมูลให้แสดง Spinner อ่อนๆ บังไว้ */}
+          {isLoadingAnnual && (
+             <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-2xl">
+               <FaSpinner className="animate-spin text-slate-400 text-2xl" />
+             </div>
+          )}
+
+          {/* Header */}
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-start gap-3">
+              <div className="flex mt-1 items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 shadow-sm shrink-0">
+                <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height="1.2em" width="1.2em" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M13 7h-2v5.414l3.293 3.293 1.414-1.414L13 11.586z"></path></svg>
+              </div>
+              <div className="flex flex-col">
+                <h3 className="font-bold text-slate-800 leading-tight">ประวัติการลา</h3>
+                {/* Navigator ปุ่มกดเปลี่ยนปี */}
+                <div className="flex items-center gap-1 mt-1.5 -ml-1">
+                  <button 
+                    onClick={handlePrevLeaveYear} 
+                    /* ปิดปุ่มถ้าย้อนไปแล้วไม่มีข้อมูล (ป้องกันการย้อนไม่จบ) */
+                    disabled={isLoadingAnnual || annualLeaves.length === 0}
+                    className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path></svg>
+                  </button>
+                  <span className="text-[11px] text-slate-600 font-bold bg-slate-100/80 px-2 py-0.5 rounded">
+                    ก.ค. {leaveCycleYear} - มิ.ย. {leaveCycleYear + 1}
+                  </span>
+                  <button 
+                    onClick={handleNextLeaveYear} 
+                    /* ปิดปุ่มถ้าเป็นรอบปีปัจจุบันแล้ว (ป้องกันการเลื่อนไปอนาคต) */
+                    disabled={isLoadingAnnual || leaveCycleYear >= initialBaseYear}
+                    className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* สรุปรวมทั้งหมด */}
+            <div className="text-right shrink-0">
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Total</span>
+              <div className="font-bold text-slate-800 text-xl leading-none">{annualLeaves.length}</div>
+            </div>
+          </div>
+
+          {/* Counters สรุปแยกประเภท */}
+          <div className="grid grid-cols-2 gap-2 mb-4 shrink-0">
+            <div className="bg-orange-50 border border-orange-100 rounded-lg p-2.5 flex justify-between items-center">
+              <span className="text-[11px] font-semibold text-orange-700">ลาป่วย</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-base font-bold text-orange-700">
+                  {annualLeaves.filter((l: any) => (l.leave_cause || l.cause)?.includes("ป่วย")).length}
+                </span>
+                <span className="text-[10px] font-medium text-orange-600/70">วัน</span>
+              </div>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-2.5 flex justify-between items-center">
+              <span className="text-[11px] font-semibold text-emerald-700">ใช้วันหยุด</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-base font-bold text-emerald-700">
+                  {annualLeaves.filter((l: any) => (l.leave_cause || l.cause)?.includes("วันหยุด") || (l.leave_cause || l.cause)?.includes("พักร้อน")).length}
+                </span>
+                <span className="text-[10px] font-medium text-emerald-600/70">วัน</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* List Items */}
+          <div className="flex flex-col gap-1 overflow-y-auto pr-1 custom-scrollbar -mx-2 px-2 flex-1">
+            {annualLeaves.length > 0 ? (
+              annualLeaves
+                .sort((a: any, b: any) => new Date(b.leave_date || b.start).getTime() - new Date(a.leave_date || a.start).getTime())
+                .map((leave: any, index: number) => {
+                  const causeText = leave.leave_cause || leave.cause || "ไม่ได้ระบุประเภท";
+                  let badgeStyle = "bg-slate-100 text-slate-700"; 
+                  if (causeText.includes("ป่วย")) {
+                    badgeStyle = "bg-orange-100 text-orange-700";
+                  } else if (causeText.includes("วันหยุด") || causeText.includes("พักร้อน")) {
+                    badgeStyle = "bg-emerald-100 text-emerald-700";
+                  } else {
+                    badgeStyle = "bg-blue-100 text-blue-700";
+                  }
+
+                  const leaveDate = leave.leave_date || leave.start;
+
+                  return (
+                    <div 
+                      key={index} 
+                      onClick={() => handleGotoDate(leaveDate)}
+                      className="flex flex-col p-3 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer group active:scale-[0.98]"
+                    >
+                      <div className="flex justify-between items-center mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${badgeStyle}`}>
+                            {causeText}
+                          </span>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-600">
+                          {moment(leaveDate).format("DD MMM YYYY")}
+                        </span>
+                      </div>
+                      {(leave.leave_reason || leave.reason) && (
+                        <span className="text-xs text-slate-500 line-clamp-1 group-hover:line-clamp-none transition-all pl-1">
+                          {leave.leave_reason || leave.reason}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="text-sm text-slate-400 text-center py-8 flex flex-col items-center justify-center gap-2 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                ไม่มีประวัติการใช้วันลาในรอบปีนี้
+              </div>
+            )}
+          </div>
+        </div>
+        {/* -------------------------------------- */}
+
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex-1">
           <h3 className="font-semibold text-lg text-slate-800 border-b border-slate-100 pb-3 mb-4">ข้อความ</h3>
           <ListMessage messages={messages} />
@@ -480,7 +665,6 @@ const index = () => {
         {/* --- ส่วน Dashboard Cards สรุปการเงิน --- */}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           
-          {/* Card: เงินเดือน */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
             <span className="text-sm font-medium text-slate-500">เงินเดือน</span>
             <div className="flex items-center justify-between mt-1">
@@ -493,7 +677,6 @@ const index = () => {
             </div>
           </div>
 
-          {/* Card: OT */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
             <span className="text-sm font-medium text-slate-500">
               OT ({isToggleField.hideOT ? "X" : (employee.Employment_Details?.salary ? calOT(employee.Employment_Details.salary) : 0)} x {events.filter((e: any) => e.ot).length})
@@ -510,7 +693,6 @@ const index = () => {
             </div>
           </div>
 
-          {/* Card: Perdiem */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
             <span className="text-sm font-medium text-slate-500">
               Perdiem (250 x {events.filter((e: any) => e.perdiem).length})
@@ -525,7 +707,6 @@ const index = () => {
             </div>
           </div>
 
-          {/* Card: หักภาษี/ประกันสังคม */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 flex flex-col gap-1 relative">
             <span className="text-sm font-medium text-slate-500">
               หัก {employee.Employment_Details?.position === ROLESEMPLOOYEE.General ? "ประกันสังคม" : "ภาษี ณ ที่จ่าย"}
@@ -545,7 +726,6 @@ const index = () => {
             </div>
           </div>
 
-          {/* Card: Total Paid (ไฮไลท์) */}
           <div className="bg-slate-800 text-white rounded-xl p-4 shadow-md flex flex-col gap-1 relative">
             <span className="text-sm font-medium text-slate-300">Total Paid</span>
             <div className="flex items-center justify-between mt-1">
@@ -578,9 +758,10 @@ const index = () => {
           <div className="font-semibold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg">
             เดือนนี้มี {totalDayInMonth} วัน
           </div>
+          
           <div className="flex flex-wrap items-center gap-4">
             <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-600"></div> มา: {filterWorkStatus(WorkStatus.COME)}</span>
-            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div> ลา: {filterWorkStatus(WorkStatus.LEAVE)}</span>
+            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div> ลาเดือนนี้: {filterWorkStatus(WorkStatus.LEAVE)}</span>
             <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-slate-500"></div> หยุด: {filterWorkStatus(WorkStatus.NOTCOME)}</span>
             <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-sky-400"></div> OT: {events.filter((e: any) => e.ot).length}</span>
             <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-600"></div> Perdiem: {events.filter((e: any) => e.perdiem).length}</span>
