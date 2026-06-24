@@ -387,7 +387,7 @@ const index = () => {
         updateEvent = events.filter((event: any) => event.id !== idDate);
         updateEvent.push({
           id: idDate, title: WorkStatus.LEAVE, start: timeStart, end: timeEnd,
-          reason: leaveReason, cause: leaveCause, type: leaveType, allDay: true, backgroundColor: "#ef4444", borderColor: "#ef4444"
+          cause: leaveCause,reason: leaveReason,  type: leaveType, allDay: true, backgroundColor: "#ef4444", borderColor: "#ef4444"
         });
       } else if (typeOld === typeNew) {
         const { data } = await updateWorkSchedule(

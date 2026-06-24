@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -9,15 +9,22 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import "./calendar.module.css";
 import moment from "moment";
 
-const index = ({ handleMonthChange, events }: any): any => {
+const index = ({ handleMonthChange, events, initialDate }: any): any => {
   const calendarRef = useRef<any>(null);
+
   const onHandleMonthChange = (payload: any) => {
     handleMonthChange(payload);
-    // setMonthDate(payload.view.title);
   };
+
+  useEffect(() => {
+    if (initialDate && calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.gotoDate(initialDate); 
+    }
+  }, [initialDate]);
+
   return (
     <div className="">
-      {" "}
       <FullCalendar
         ref={calendarRef}
         plugins={[
@@ -43,68 +50,62 @@ const index = ({ handleMonthChange, events }: any): any => {
         editable={false}
         height={650}
         events={events}
+        initialDate={initialDate}
         eventContent={renderEventContent}
         initialView="dayGridMonth"
         fixedWeekCount={false}
         showNonCurrentDates={false}
+        eventDisplay="block" // บังคับให้ Event ทุกตัวแสดงเป็นกล่องบล็อกทึบ
       />
     </div>
   );
 };
 
+// ฟังก์ชันสำหรับ Custom การแสดงผลในแต่ละกล่อง Event ให้เหมือนในรูปภาพ
 function renderEventContent(eventContent: any) {
-  return (
-    <div className="cursor-pointer">
-      {/* <a className="fc-daygrid-event fc-daygrid-block-event fc-h-event fc-event fc-event-draggable fc-event-resizable fc-event-start fc-event-end fc-event-past ticket ticket"> */}
-      {eventContent.event.extendedProps &&
-      eventContent.event.extendedProps.type === "come" ? (
-        <div className="fc-event-main cursor-pointer text-sm">
-          <div className="flex space-x-1">
-            <span>เวลาเริ่มงาน : </span>
-            <span>
-              {moment(eventContent.event.extendedProps.timeStart).format(
-                "HH:mm"
-              )}
-            </span>
-          </div>
-          <div className="flex space-x-1">
-            <span>เวลาเลิกงาน : </span>
-            <span>
-              {moment(eventContent.event.extendedProps.timeEnd).format("HH:mm")}
-            </span>
-          </div>
+  const { event } = eventContent;
+  const { type, timeStart, timeEnd, workReason, cause, reason } = event.extendedProps;
 
-          <div>
-            เหตุผล:
-            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
-          </div>
+  // 1. กรณี "มาทำงาน" (Come)
+  if (type === "come") {
+    return (
+      <div className="text-[11.5px] leading-snug text-white p-0.5 overflow-hidden w-full cursor-pointer">
+        <div className="font-semibold whitespace-nowrap">
+          {moment(timeStart).format("HH:mm")} - {moment(timeEnd).format("HH:mm")}
         </div>
-      ) : eventContent.event.extendedProps.type === "leave" ? (
-        <>
-          <div>
-            <span>
-              {eventContent.event.extendedProps.cause || "ลาโดยใช้วันหยุด"}
-            </span>
+        {workReason && (
+          <div className="truncate w-full mt-[1px]" title={workReason}>
+            {workReason}
           </div>
-          <div>
-            เหตุผล:
-            <span>{eventContent.event.extendedProps.reason || " - "}</span>
-          </div>
-        </>
-      ) : (
-        <div>
-          หยุด
-          <div>
-            เหตุผล:
-            <span>{eventContent.event.extendedProps.workReason || " - "}</span>
-          </div>
+        )}
+      </div>
+    );
+  } 
+  
+  // 2. กรณี "ลา" (Leave) -> เช็คจาก title เพราะบางที type อาจจะเป็นคำว่า 'sick' 
+  else if (event.title === "leave") {
+    return (
+      <div className="text-[11.5px] leading-snug text-white p-0.5 overflow-hidden w-full cursor-pointer">
+        <div className="font-semibold truncate w-full" title={cause || "ลาโดยใช้วันหยุด"}>
+          {cause || "ลาโดยใช้วันหยุด"}
         </div>
-      )}
-      {/* <div className="fc-event-resizer fc-event-resizer-end"></div> */}
-      {/* </a> */}
-      {/* <div className="fc-event-title">{event.title}</div> */}
-    </div>
-  );
+        {reason && (
+          <div className="truncate w-full mt-[1px]" title={reason}>
+            {reason}
+          </div>
+        )}
+      </div>
+    );
+  } 
+  
+  // 3. กรณี "หยุด/ไม่มา" (Not come)
+  else {
+    return (
+      <div className="text-[11.5px] leading-snug text-white p-0.5 overflow-hidden w-full font-semibold cursor-pointer">
+        หยุด
+      </div>
+    );
+  }
 }
 
 export default index;
