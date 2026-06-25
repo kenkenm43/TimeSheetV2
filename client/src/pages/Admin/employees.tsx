@@ -278,13 +278,20 @@ const Employees = () => {
           {/* Profile Card Section */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative">
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="flex-shrink-0">
-                <img
-                  className="w-32 h-32 md:w-40 md:h-40 rounded-xl object-cover border border-gray-200 shadow-sm"
-                  src={keepEmployee?.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
-                  alt="profile"
-                />
-              </div>
+             {/* โค้ดใหม่ที่อัปเดตแล้ว */}
+<div className="flex-shrink-0">
+  {keepEmployee?.photo ? (
+    <img
+      className="w-32 h-32 md:w-40 md:h-40 rounded-xl object-cover border border-gray-200 shadow-sm"
+      src={keepEmployee.photo}
+      alt="profile"
+    />
+  ) : (
+    <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl border border-gray-200 shadow-sm bg-blue-100 text-blue-600 flex items-center justify-center text-5xl md:text-6xl font-bold uppercase">
+      {keepEmployee?.firstName ? keepEmployee.firstName.charAt(0) : "?"}
+    </div>
+  )}
+</div>
 
               <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 text-gray-700">
                 <div className="space-y-3">

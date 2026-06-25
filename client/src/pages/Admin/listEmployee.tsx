@@ -115,11 +115,34 @@ const ModernEmployeeTable: React.FC<EmployeeTableProps> = ({ employees }) => {
               sortedEmployees.map((emp: any, index: number) => (
                 <tr key={index} className="bg-white hover:bg-blue-50/50 transition-colors duration-150">
                   <td className="px-6 py-4 font-medium text-gray-900">
-                    <div className="flex flex-col">
-                      <span className="text-base font-semibold">{emp.firstName} {emp.lastName}</span>
-                      {emp.nickName && (
-                        <span className="text-sm text-gray-500">({emp.nickName})</span>
-                      )}
+                    {/* --- START: AVATAR --- */}
+    {/* เพิ่ม div ครอบตรงนี้ เพื่อทำให้เป็น flex แนวนอน */}
+                    <div className="flex items-center gap-4">
+                      
+                      {/* --- START: AVATAR --- */}
+                      <div className="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 font-bold text-lg overflow-hidden shadow-sm">
+                        {emp.photo ? (
+                          <img
+                            src={emp.photo}
+                            alt={`${emp.firstName}`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span>
+                            {emp.firstName ? emp.firstName.charAt(0).toUpperCase() : "?"}
+                          </span>
+                        )}
+                      </div>
+                      {/* --- END: AVATAR --- */}
+
+                      {/* ข้อมูลชื่อ */}
+                      <div className="flex flex-col">
+                        <span className="text-base font-semibold">{emp.firstName} {emp.lastName}</span>
+                        {emp.nickName && (
+                          <span className="text-sm text-gray-500">({emp.nickName})</span>
+                        )}
+                      </div>
+
                     </div>
                   </td>
                   

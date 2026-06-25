@@ -260,11 +260,23 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                                 : "hover:bg-gray-50 dark:hover:bg-gray-700/30"
                             }`}
                           >
-                            <img
-                              className={`h-10 w-10 shrink-0 rounded-full object-cover border-2 ${isSelected ? "border-blue-400" : "border-transparent"}`}
-                              src={emp.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
-                              alt="avatar"
-                            />
+                            {emp.photo ? (
+  <img
+    className={`h-10 w-10 shrink-0 rounded-full object-cover border-2 ${isSelected ? "border-blue-400" : "border-transparent"}`}
+    src={emp.photo}
+    alt="avatar"
+  />
+) : (
+  <div 
+    className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center text-lg font-bold uppercase border-2 transition-colors ${
+      isSelected 
+        ? "border-blue-400 bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300" 
+        : "border-transparent bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-300"
+    }`}
+  >
+    {emp?.firstName ? emp.firstName.charAt(0) : "?"}
+  </div>
+)}
                             <div className="min-w-0 flex-1">
                               <div className={`text-sm font-medium truncate ${isSelected ? "text-blue-700 dark:text-blue-400" : "text-gray-800 dark:text-gray-200"}`}>
                                 {emp?.firstName} {emp?.lastName}
@@ -319,11 +331,23 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                                 : "hover:bg-gray-50 dark:hover:bg-gray-700/30"
                             }`}
                           >
-                            <img
-                              className={`h-10 w-10 shrink-0 rounded-full object-cover grayscale border-2 ${isSelected ? "border-rose-400 grayscale-0" : "border-transparent"}`}
-                              src={emp.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
-                              alt="avatar"
-                            />
+                            {emp.photo ? (
+  <img
+    className={`h-10 w-10 shrink-0 rounded-full object-cover grayscale border-2 ${isSelected ? "border-rose-400 grayscale-0" : "border-transparent"}`}
+    src={emp.photo}
+    alt="avatar"
+  />
+) : (
+  <div 
+    className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center text-lg font-bold uppercase border-2 transition-colors ${
+      isSelected 
+        ? "border-rose-400 bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-300" 
+        : "border-transparent bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 grayscale"
+    }`}
+  >
+    {emp?.firstName ? emp.firstName.charAt(0) : "?"}
+  </div>
+)}
                             <div className="min-w-0 flex-1">
                               <div className={`text-sm font-medium truncate ${isSelected ? "text-rose-700 dark:text-rose-400" : "text-gray-800 dark:text-gray-300"}`}>
                                 {emp?.firstName} {emp?.lastName}
