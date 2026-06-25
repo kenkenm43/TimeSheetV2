@@ -180,15 +180,17 @@ const Profile = () => {
           {/* Avatar Section */}
           <div className="flex flex-col items-center shrink-0">
             <div className="relative">
-              <img
-                className="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow-md object-cover bg-white"
-                src={
-                  previewUrl ||
-                  employee.photo ||
-                  "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
-                }
-                alt="Profile Avatar"
-              />
+              {previewUrl || employee?.photo ? (
+  <img
+    className="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow-md object-cover bg-white"
+    src={previewUrl || employee?.photo}
+    alt="Profile Avatar"
+  />
+) : (
+  <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow-md bg-blue-100 text-blue-600 flex items-center justify-center text-6xl md:text-7xl font-bold uppercase">
+    {employee?.firstName ? employee.firstName.charAt(0) : "?"}
+  </div>
+)}
               <input
                 type="file"
                 accept="image/png, image/jpeg, image/jfif"
